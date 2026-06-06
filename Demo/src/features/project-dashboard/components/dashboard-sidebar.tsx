@@ -4,36 +4,45 @@ import type { ProjectWorkflowState } from "@/features/project-workflow";
 import {
   Activity,
   ClipboardCheck,
+  Clock3,
   FileText,
   Hammer,
+  History,
   LayoutDashboard,
-  MessageSquarePlus,
   Rocket,
 } from "lucide-react";
 import Image from "next/image";
 
+export type DashboardWorkspaceId = "dashboard" | "history" | "logs" | "source";
+
 type DashboardSidebarProps = {
   activeRequest: ProjectWorkflowState["activeRequest"];
+  activeWorkspace: DashboardWorkspaceId;
   app: ProjectWorkflowState["app"];
-  onCreateUpdate: () => void;
-  onOpenSource: () => void;
+  onSelectWorkspace: (workspace: DashboardWorkspaceId) => void;
 };
 
 const workflowItems = [
   {
     icon: LayoutDashboard,
     label: "Dashboard",
-    status: "active",
-  },
-  {
-    icon: MessageSquarePlus,
-    label: "Intake",
-    status: "ready",
+    workspace: "dashboard",
   },
   {
     icon: FileText,
     label: "Source package",
-    status: "source",
+    requiresSource: true,
+    workspace: "source",
+  },
+  {
+    icon: History,
+    label: "Update history",
+    workspace: "history",
+  },
+  {
+    icon: Clock3,
+    label: "Delivery log",
+    workspace: "logs",
   },
   {
     icon: ClipboardCheck,
@@ -59,9 +68,9 @@ const workflowItems = [
 
 export function DashboardSidebar({
   activeRequest,
+  activeWorkspace,
   app,
-  onCreateUpdate,
-  onOpenSource,
+  onSelectWorkspace,
 }: DashboardSidebarProps) {
   const sourceReady = Boolean(activeRequest?.sourceReady);
 
@@ -108,15 +117,14 @@ export function DashboardSidebar({
         <div className="space-y-1">
           {workflowItems.map((item) => {
             const Icon = item.icon;
-            const isSource = item.status === "source";
-            const disabled = item.status === "queued" || (isSource && !sourceReady);
-            const active = item.status === "active";
-            const handleClick =
-              item.status === "ready"
-                ? onCreateUpdate
-                : isSource && sourceReady
-                  ? onOpenSource
-                  : undefined;
+            const workspace =
+              "workspace" in item
+                ? (item.workspace as DashboardWorkspaceId)
+                : undefined;
+            const isSource = workspace === "source";
+            const disabled =
+              !workspace || ("requiresSource" in item && !sourceReady);
+            const active = workspace === activeWorkspace;
 
             return (
               <button
@@ -130,7 +138,9 @@ export function DashboardSidebar({
                 }`}
                 disabled={disabled}
                 key={item.label}
-                onClick={handleClick}
+                onClick={() => {
+                  if (workspace) onSelectWorkspace(workspace);
+                }}
                 type="button"
               >
                 <Icon className="h-4 w-4 shrink-0" />

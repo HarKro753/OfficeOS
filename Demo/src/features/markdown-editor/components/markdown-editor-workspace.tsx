@@ -55,6 +55,7 @@ export function MarkdownEditorWorkspace({
         activeItemId={activeItemId}
         backHref={backHref}
         backLabel={backLabel}
+        mode={frame === "embedded" ? "artifacts" : "full"}
         onBack={onBack}
         selectWorkspaceItem={selectWorkspaceItem}
         workspaceItems={workspaceItems}

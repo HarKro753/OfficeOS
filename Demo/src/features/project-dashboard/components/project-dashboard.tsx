@@ -10,13 +10,16 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { AppPreviewPanel } from "./app-preview-panel";
 import { DashboardDrawer } from "./dashboard-drawer";
-import { DashboardSidebar } from "./dashboard-sidebar";
+import {
+  DashboardSidebar,
+  type DashboardWorkspaceId,
+} from "./dashboard-sidebar";
 import { LifecycleStage } from "./lifecycle-stage";
-import { SourceReviewOverlay } from "./source-review-overlay";
+import { SourcePackageWorkspace } from "./source-package-workspace";
 
 function showApprovedToast(versionTarget: string) {
   toast.success("Approved. Implementation is starting.", {
@@ -30,7 +33,8 @@ export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
   const workflow = useProjectWorkflow();
   const { activeRequest, app, logs, versions } = workflow.state;
   const [chatOpen, setChatOpen] = useState(false);
-  const [sourceRequestId, setSourceRequestId] = useState<string | null>(null);
+  const [activeWorkspace, setActiveWorkspace] =
+    useState<DashboardWorkspaceId>("dashboard");
   const approvedVersion = activeRequest?.versionTarget ?? "1.1";
 
   useEffect(() => {
@@ -41,11 +45,13 @@ export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
 
   const openSourceReview = (requestId = activeRequest?.id) => {
     if (!requestId) return;
-    setSourceRequestId(requestId);
+    setChatOpen(false);
+    setActiveWorkspace("source");
   };
 
   const handleApproved = (versionTarget: string) => {
     setChatOpen(false);
+    setActiveWorkspace("dashboard");
     showApprovedToast(versionTarget);
   };
 
@@ -55,59 +61,29 @@ export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
       <section className="mx-auto grid w-full max-w-[1440px] gap-3 lg:grid-cols-[244px_minmax(0,1fr)]">
         <DashboardSidebar
           activeRequest={activeRequest}
+          activeWorkspace={activeWorkspace}
           app={app}
-          onCreateUpdate={() => setChatOpen(true)}
-          onOpenSource={() => openSourceReview()}
+          onSelectWorkspace={setActiveWorkspace}
         />
 
-        <section className="flex min-w-0 flex-col gap-3">
-          <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)]">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="mono text-[10px] font-black uppercase text-[#46515D]">
-                  Dashboard / {app.platform}
-                </div>
-                <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
-                  <h1 className="text-3xl font-black leading-none">
-                    {app.name}
-                  </h1>
-                  <span className="mono rounded border border-[#B6DCC8] bg-[#F1FBF6] px-2 py-1 text-[9px] font-black uppercase text-[#107A48]">
-                    v{workflow.previewVersion} active
-                  </span>
-                </div>
-                <div className="mono mt-2 truncate text-[10px] font-black uppercase text-[#8A94A0]">
-                  {app.bundleId}
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <ExternalReference href={app.appStoreUrl} label="App Store" />
-                <ExternalReference href={app.posthogUrl} label="PostHog" />
-                <button
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-                  onClick={() => setChatOpen(true)}
-                  type="button"
-                >
-                  <Plus className="h-4 w-4" />
-                  Create update
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <LifecycleStage request={activeRequest} />
-
-          <AppPreviewPanel
-            request={activeRequest}
-            screenshots={workflow.previewScreenshots}
-            version={workflow.previewVersion}
+        {activeWorkspace === "source" ? (
+          <SourcePackageWorkspace
+            onApproved={handleApproved}
+            onBack={() => setActiveWorkspace("dashboard")}
+            workflow={workflow}
           />
-
-          <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_420px]">
-            <VersionHistory versions={versions} />
-            <LiveLogs logs={logs} />
-          </section>
-        </section>
+        ) : activeWorkspace === "history" ? (
+          <VersionHistoryWorkspace versions={versions} />
+        ) : activeWorkspace === "logs" ? (
+          <DeliveryLogWorkspace logs={logs} />
+        ) : (
+          <DashboardWorkspace
+            app={app}
+            onCreateUpdate={() => setChatOpen(true)}
+            request={activeRequest}
+            workflow={workflow}
+          />
+        )}
       </section>
 
       <DashboardDrawer
@@ -122,13 +98,113 @@ export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
           workflow={workflow}
         />
       </DashboardDrawer>
-
-      <SourceReviewOverlay
-        onClose={() => setSourceRequestId(null)}
-        open={Boolean(sourceRequestId)}
-        requestId={sourceRequestId}
-      />
     </main>
+  );
+}
+
+function DashboardWorkspace({
+  app,
+  onCreateUpdate,
+  request,
+  workflow,
+}: {
+  app: ReturnType<typeof useProjectWorkflow>["state"]["app"];
+  onCreateUpdate: () => void;
+  request: ReturnType<typeof useProjectWorkflow>["state"]["activeRequest"];
+  workflow: ReturnType<typeof useProjectWorkflow>;
+}) {
+  return (
+    <section className="flex min-w-0 flex-col gap-3">
+      <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)]">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="mono text-[10px] font-black uppercase text-[#46515D]">
+              Dashboard / {app.platform}
+            </div>
+            <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
+              <h1 className="text-3xl font-black leading-none">{app.name}</h1>
+              <span className="mono rounded border border-[#B6DCC8] bg-[#F1FBF6] px-2 py-1 text-[9px] font-black uppercase text-[#107A48]">
+                v{workflow.previewVersion} active
+              </span>
+            </div>
+            <div className="mono mt-2 truncate text-[10px] font-black uppercase text-[#8A94A0]">
+              {app.bundleId}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <ExternalReference href={app.appStoreUrl} label="App Store" />
+            <ExternalReference href={app.posthogUrl} label="PostHog" />
+            <button
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+              onClick={onCreateUpdate}
+              type="button"
+            >
+              <Plus className="h-4 w-4" />
+              Create update
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <LifecycleStage request={request} />
+
+      <AppPreviewPanel
+        request={request}
+        screenshots={workflow.previewScreenshots}
+        version={workflow.previewVersion}
+      />
+    </section>
+  );
+}
+
+function VersionHistoryWorkspace({
+  versions,
+}: {
+  versions: ReturnType<typeof useProjectWorkflow>["state"]["versions"];
+}) {
+  return (
+    <section className="flex min-w-0 flex-col gap-3">
+      <WorkspaceHeader eyebrow="Updates" title="Update history" />
+      <VersionHistory versions={versions} />
+    </section>
+  );
+}
+
+function DeliveryLogWorkspace({
+  logs,
+}: {
+  logs: ReturnType<typeof useProjectWorkflow>["state"]["logs"];
+}) {
+  return (
+    <section className="flex min-w-0 flex-col gap-3">
+      <WorkspaceHeader eyebrow="Operations" title="Delivery log" />
+      <LiveLogs logs={logs} />
+    </section>
+  );
+}
+
+function WorkspaceHeader({
+  action,
+  eyebrow,
+  title,
+}: {
+  action?: ReactNode;
+  eyebrow: string;
+  title: string;
+}) {
+  return (
+    <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)]">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="mono text-[10px] font-black uppercase text-[#46515D]">
+            {eyebrow}
+          </div>
+          <h1 className="mt-1 text-3xl font-black leading-none">{title}</h1>
+        </div>
+        {action}
+      </div>
+    </header>
   );
 }
 
