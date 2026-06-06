@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "demo-next-template",
+      "name": "demo",
       "dependencies": {
         "next": "16.2.7",
         "react": "19.2.4",

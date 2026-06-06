@@ -1,0 +1,13 @@
+<svg viewBox="0 0 190 190" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">OfficeOS mark</title>
+  <desc id="desc">A modular blue cube with a small green status node.</desc>
+  <path d="M86 8L160 50L86 92L12 50L86 8Z" fill="#2457FF"/>
+  <path d="M12 50L86 92V174L12 132V50Z" fill="#183FBF"/>
+  <path d="M160 50L86 92V174L160 132V50Z" fill="#6D8BFF"/>
+  <path d="M86 8L160 50L86 92L12 50L86 8Z" stroke="#101418" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M12 50L86 92L160 50" stroke="#101418" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M86 92V174" stroke="#101418" stroke-width="6" stroke-linecap="round"/>
+  <path d="M12 50V132L86 174L160 132V50" stroke="#101418" stroke-width="6" stroke-linejoin="round"/>
+  <rect x="122" y="110" width="50" height="50" rx="10" fill="#EEF2F5" stroke="#101418" stroke-width="6"/>
+  <circle cx="147" cy="135" r="9" fill="#20B26B"/>
+</svg>
