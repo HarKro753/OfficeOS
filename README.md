@@ -5,7 +5,8 @@
 </p>
 
 **Demo**
-https://github.com/user-attachments/assets/72edcb4a-0000-4a44-8ebd-f145ffec2d47
+
+https://github.com/user-attachments/assets/44f502a6-6fb4-4725-88a0-d55bb4832caf
 
 **Bring the app direction. OfficeOS owns delivery.**
 
