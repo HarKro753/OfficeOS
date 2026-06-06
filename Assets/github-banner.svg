@@ -1,0 +1,137 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">OfficeOS GitHub banner</title>
+  <desc id="desc">A product banner for OfficeOS showing a source-of-truth package moving through readiness, implementation, QA, release, and monitoring.</desc>
+  <defs>
+    <linearGradient id="topRail" x1="0" y1="0" x2="1280" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2457FF"/>
+      <stop offset="0.42" stop-color="#20B26B"/>
+      <stop offset="0.74" stop-color="#F5A524"/>
+      <stop offset="1" stop-color="#2457FF"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#101418" flood-opacity="0.12"/>
+    </filter>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" stroke="#D8DEE4" stroke-opacity="0.42" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="640" fill="#FFFFFF"/>
+  <rect width="1280" height="640" fill="url(#grid)"/>
+  <rect width="1280" height="8" fill="url(#topRail)"/>
+  <path d="M720 8H1280V640H596C665 550 684 449 641 337C601 232 632 102 720 8Z" fill="#EEF2F5" fill-opacity="0.68"/>
+  <path d="M956 96C1043 96 1112 167 1112 254C1112 341 1042 412 955 412C868 412 798 341 798 254C798 167 869 96 956 96Z" fill="#20B26B" fill-opacity="0.06"/>
+  <path d="M1024 222C1102 249 1153 324 1145 406C1136 496 1061 566 971 569C888 571 817 514 800 434C785 361 823 288 889 252C925 232 985 209 1024 222Z" fill="#F5A524" fill-opacity="0.06"/>
+
+  <g transform="translate(74 76)">
+    <g transform="scale(0.34)">
+      <path d="M86 8L160 50L86 92L12 50L86 8Z" fill="#2457FF"/>
+      <path d="M12 50L86 92V174L12 132V50Z" fill="#183FBF"/>
+      <path d="M160 50L86 92V174L160 132V50Z" fill="#6D8BFF"/>
+      <path d="M86 8L160 50L86 92L12 50L86 8Z" stroke="#101418" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M12 50L86 92L160 50" stroke="#101418" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M86 92V174" stroke="#101418" stroke-width="6" stroke-linecap="round"/>
+      <path d="M12 50V132L86 174L160 132V50" stroke="#101418" stroke-width="6" stroke-linejoin="round"/>
+      <rect x="122" y="110" width="50" height="50" rx="10" fill="#EEF2F5" stroke="#101418" stroke-width="6"/>
+      <circle cx="147" cy="135" r="9" fill="#20B26B"/>
+    </g>
+    <text x="76" y="43" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="900" letter-spacing="0">OfficeOS</text>
+  </g>
+
+  <g transform="translate(80 168)">
+    <rect x="0" y="0" width="170" height="34" rx="6" fill="#FFF8E6" stroke="#F5A524"/>
+    <circle cx="20" cy="17" r="6" fill="#F5A524"/>
+    <text x="34" y="22" fill="#7A3B00" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800">App delivery OS</text>
+  </g>
+
+  <g transform="translate(80 220)">
+    <text x="0" y="0" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="58" font-weight="950" letter-spacing="0">
+      <tspan x="0" dy="0">Bring the app</tspan>
+      <tspan x="0" dy="64">direction.</tspan>
+      <tspan x="0" dy="64">OfficeOS owns</tspan>
+      <tspan x="0" dy="64">delivery.</tspan>
+    </text>
+    <text x="0" y="294" fill="#46515D" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="650">
+      <tspan x="0" dy="0">Source-of-truth review, implementation, QA,</tspan>
+      <tspan x="0" dy="32">release preparation, monitoring, and updates</tspan>
+      <tspan x="0" dy="32">in one accountable workflow.</tspan>
+    </text>
+  </g>
+
+  <g transform="translate(84 555)">
+    <g>
+      <circle cx="10" cy="10" r="10" fill="#FFF2BF"/>
+      <circle cx="10" cy="10" r="5" fill="#F5A524"/>
+      <text x="26" y="15" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800">SPEC.md</text>
+    </g>
+    <g transform="translate(128 0)">
+      <circle cx="10" cy="10" r="10" fill="#DBF7E8"/>
+      <circle cx="10" cy="10" r="5" fill="#20B26B"/>
+      <text x="26" y="15" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800">DESIGN.md</text>
+    </g>
+    <g transform="translate(278 0)">
+      <circle cx="10" cy="10" r="10" fill="#DCE5FF"/>
+      <circle cx="10" cy="10" r="5" fill="#2457FF"/>
+      <text x="26" y="15" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800">ChangeRequest.md</text>
+    </g>
+  </g>
+
+  <g transform="translate(604 154)" filter="url(#shadow)">
+    <rect x="0" y="0" width="454" height="348" rx="18" fill="#FFFFFF" stroke="#D8DEE4"/>
+
+    <g transform="translate(30 30)">
+      <rect x="0" y="0" width="156" height="170" rx="14" fill="#101418"/>
+      <rect x="16" y="18" width="124" height="34" rx="7" fill="#EEF2F5"/>
+      <rect x="16" y="68" width="86" height="12" rx="6" fill="#6D8BFF"/>
+      <rect x="16" y="92" width="114" height="12" rx="6" fill="#46515D"/>
+      <rect x="16" y="116" width="98" height="12" rx="6" fill="#46515D"/>
+      <text x="22" y="41" fill="#101418" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="16" font-weight="900">SPEC.md</text>
+
+      <rect x="26" y="142" width="156" height="170" rx="14" fill="#EEF2F5" stroke="#D8DEE4"/>
+      <rect x="42" y="162" width="98" height="14" rx="7" fill="#2457FF"/>
+      <rect x="42" y="190" width="112" height="10" rx="5" fill="#D8DEE4"/>
+      <rect x="42" y="214" width="128" height="10" rx="5" fill="#D8DEE4"/>
+      <rect x="42" y="238" width="88" height="10" rx="5" fill="#D8DEE4"/>
+      <text x="42" y="288" fill="#101418" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="900">DESIGN.md</text>
+    </g>
+
+    <g transform="translate(220 55)">
+      <path d="M0 113H58" stroke="#101418" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 14"/>
+      <rect x="60" y="72" width="102" height="82" rx="16" fill="#2457FF" stroke="#101418" stroke-width="4"/>
+      <text x="84" y="106" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="900">READY</text>
+      <text x="86" y="128" fill="#C8D6FF" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="12" font-weight="800">gate</text>
+      <path d="M162 113H214" stroke="#101418" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 14"/>
+
+      <g transform="translate(222 0)">
+        <rect x="0" y="0" width="146" height="48" rx="10" fill="#FFF8E6" stroke="#F5A524"/>
+        <circle cx="22" cy="24" r="7" fill="#F5A524"/>
+        <text x="38" y="29" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="850">Implementation</text>
+
+        <rect x="0" y="66" width="146" height="48" rx="10" fill="#EEF2F5" stroke="#D8DEE4"/>
+        <circle cx="22" cy="90" r="7" fill="#2457FF"/>
+        <text x="38" y="95" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="850">QA checks</text>
+
+        <rect x="0" y="132" width="146" height="48" rx="10" fill="#EAF8F1" stroke="#20B26B"/>
+        <circle cx="22" cy="156" r="7" fill="#20B26B"/>
+        <text x="38" y="161" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="850">Release</text>
+
+        <rect x="0" y="198" width="146" height="48" rx="10" fill="#EEF2F5" stroke="#D8DEE4"/>
+        <circle cx="22" cy="222" r="7" fill="#46515D"/>
+        <text x="38" y="227" fill="#101418" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="850">Monitoring</text>
+      </g>
+    </g>
+  </g>
+
+  <g transform="translate(1028 406)" filter="url(#shadow)">
+    <rect x="0" y="0" width="172" height="104" rx="16" fill="#101418"/>
+    <rect x="18" y="18" width="66" height="13" rx="6.5" fill="#20B26B"/>
+    <rect x="18" y="44" width="126" height="9" rx="4.5" fill="#EEF2F5"/>
+    <rect x="18" y="64" width="96" height="9" rx="4.5" fill="#EEF2F5"/>
+    <text x="18" y="91" fill="#FFFFFF" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="13" font-weight="900">UpdateReport.md</text>
+  </g>
+
+  <g transform="translate(1092 88)">
+    <text x="0" y="0" fill="#687482" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="900">hackathon</text>
+    <text x="0" y="30" fill="#101418" font-family="JetBrains Mono, SFMono-Regular, Menlo, monospace" font-size="18" font-weight="900">2026</text>
+  </g>
+</svg>
