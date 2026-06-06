@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { EditorHeader } from "./editor-header";
+import { FileFormatIcon } from "./file-format-icon";
 import { TemplateSidebar } from "./template-sidebar";
 import { useMarkdownWorkspace } from "../hooks/use-markdown-workspace";
 import type { SourceDoc } from "../types";
@@ -53,7 +55,7 @@ export function MarkdownEditorWorkspace({
               <textarea
                 ref={bindTextarea}
                 aria-label={`${activeDoc} editor`}
-                className="mono block min-h-full w-full resize-none border-0 bg-white px-5 py-5 text-[11px] leading-[1.55] text-[#101418] outline-none selection:bg-[#DDE7FF]"
+                className="mono block min-h-full w-full resize-none border-0 bg-white px-5 py-5 text-[10px] leading-[1.55] text-[#101418] outline-none selection:bg-[#DDE7FF]"
                 onChange={(event) =>
                   updateActiveDocument(event.target.value)
                 }
@@ -64,9 +66,7 @@ export function MarkdownEditorWorkspace({
               <div className="flex min-h-full items-center justify-center p-5">
                 <div className="w-full max-w-[560px] border border-[#D8DEE4] bg-[#F8FAFC] p-5">
                   <div className="flex items-center gap-3">
-                    <span className="mono grid h-10 w-12 shrink-0 place-items-center rounded bg-white text-[10px] font-black text-[#2457FF]">
-                      {activeItem.kind === "image" ? "IMG" : "FILE"}
-                    </span>
+                    <FileFormatIcon item={activeItem} size="lg" />
                     <div className="min-w-0">
                       <div className="mono truncate text-sm font-black">
                         {activeItem.label}
@@ -78,6 +78,19 @@ export function MarkdownEditorWorkspace({
                   </div>
                   {selectedMockAsset ? (
                     <>
+                      {selectedMockAsset.kind === "image" ? (
+                        <div className="mt-5 overflow-hidden rounded-md border border-[#D8DEE4] bg-white">
+                          <div className="relative aspect-[16/10] w-full bg-[#EEF2F5]">
+                            <Image
+                              alt={selectedMockAsset.name}
+                              className="object-contain"
+                              fill
+                              sizes="560px"
+                              src={`/${selectedMockAsset.path}`}
+                            />
+                          </div>
+                        </div>
+                      ) : null}
                       <p className="mt-4 text-xs font-bold leading-5 text-[#46515D]">
                         {selectedMockAsset.description}
                       </p>

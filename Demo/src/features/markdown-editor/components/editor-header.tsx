@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { FileFormatIcon } from "./file-format-icon";
 import type { WorkspaceItem, WorkspaceItemId } from "../types";
 
 type EditorHeaderProps = {
@@ -8,11 +9,6 @@ type EditorHeaderProps = {
   openItems: WorkspaceItem[];
   selectWorkspaceItem: (itemId: WorkspaceItemId) => void;
 };
-
-function itemBadge(item: WorkspaceItem) {
-  if (item.type === "document") return "MD";
-  return item.kind === "image" ? "IMG" : "FILE";
-}
 
 export function EditorHeader({
   actions,
@@ -41,9 +37,7 @@ export function EditorHeader({
                 onClick={() => selectWorkspaceItem(item.id)}
                 type="button"
               >
-                <span className="grid h-5 w-7 shrink-0 place-items-center rounded bg-[#E5EAF0] font-mono text-[8px] font-black text-[#46515D]">
-                  {itemBadge(item)}
-                </span>
+                <FileFormatIcon item={item} />
                 <span className="mono min-w-0 flex-1 truncate text-xs font-black">
                   {item.label}
                 </span>

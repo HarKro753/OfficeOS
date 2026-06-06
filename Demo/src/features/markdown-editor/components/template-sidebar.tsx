@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FileFormatIcon } from "./file-format-icon";
 import type { WorkspaceItem, WorkspaceItemId } from "../types";
 
 type TemplateSidebarProps = {
@@ -20,7 +21,7 @@ export function TemplateSidebar({
             alt="OfficeOS"
             className="h-9 w-9 shrink-0"
             height={36}
-            src="/officeos-logo.svg"
+            src="/logo.svg"
             width={36}
           />
           <div className="min-w-0">
@@ -39,12 +40,6 @@ export function TemplateSidebar({
         <div className="space-y-1">
           {workspaceItems.map((item) => {
             const selected = activeItemId === item.id;
-            const iconLabel =
-              item.type === "document"
-                ? "MD"
-                : item.kind === "image"
-                  ? "IMG"
-                  : "FILE";
 
             return (
               <button
@@ -57,9 +52,7 @@ export function TemplateSidebar({
                 onClick={() => selectWorkspaceItem(item.id)}
                 type="button"
               >
-                <span className="mono grid h-5 w-7 shrink-0 place-items-center rounded bg-white text-[8px] font-black text-[#8A94A0]">
-                  {iconLabel}
-                </span>
+                <FileFormatIcon item={item} />
                 <span className="mono truncate text-xs font-black">
                   {item.label}
                 </span>

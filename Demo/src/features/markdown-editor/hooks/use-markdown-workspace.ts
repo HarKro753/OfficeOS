@@ -115,10 +115,10 @@ export function useMarkdownWorkspace(initialDocs: SourceDoc[]) {
   }, [initialDocs]);
 
   const openItems = useMemo(
-    () =>
-      openItemIds
-        .map((itemId) => workspaceItems.find((item) => item.id === itemId))
-        .filter((item): item is WorkspaceItem => Boolean(item)),
+    () => {
+      const openIds = new Set(openItemIds);
+      return workspaceItems.filter((item) => openIds.has(item.id));
+    },
     [openItemIds, workspaceItems],
   );
 
