@@ -8,12 +8,13 @@ import {
 } from "@/features/project-dashboard";
 import { useProjectWorkflow } from "@/features/project-workflow";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 function showApprovedToast(versionTarget: string) {
-  toast.success("Approved. Implementation is starting.", {
-    description: `OfficeOS is using the generated source package and update report to prepare v${versionTarget}.`,
+  toast.success(`Approved. v${versionTarget} is live.`, {
+    description:
+      "OfficeOS used the generated source package and update report to complete the mocked update.",
     duration: 6000,
     id: "officeos-update-approved",
   });
@@ -25,14 +26,21 @@ export default function DashboardPage() {
   const workflow = useProjectWorkflow();
   const { activeRequest, app, versions } = workflow.state;
   const [chatOpen, setChatOpen] = useState(false);
+  const approvedHandledRef = useRef(false);
   const approved = searchParams.get("approved") === "1";
-  const approvedVersion = activeRequest?.versionTarget ?? "1.1";
 
   useEffect(() => {
-    if (!approved) return;
+    if (!approved) {
+      approvedHandledRef.current = false;
+      return;
+    }
 
-    showApprovedToast(approvedVersion);
-  }, [approved, approvedVersion]);
+    if (approvedHandledRef.current) return;
+
+    approvedHandledRef.current = true;
+    const completedState = workflow.completeApprovedUpdate();
+    showApprovedToast(completedState.app.currentVersion);
+  }, [approved, workflow]);
 
   const openSourceReview = (requestId = activeRequest?.id) => {
     if (!requestId) return;

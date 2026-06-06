@@ -4,7 +4,6 @@ import type { ProjectWorkflowState } from "@/features/project-workflow";
 import {
   Activity,
   ClipboardCheck,
-  Clock3,
   FileText,
   Hammer,
   History,
@@ -15,7 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-type DashboardWorkspaceId = "dashboard" | "history" | "logs" | "source";
+type DashboardWorkspaceId = "dashboard" | "history" | "source";
 
 type DashboardSidebarProps = {
   activeRequest: ProjectWorkflowState["activeRequest"];
@@ -25,7 +24,6 @@ type DashboardSidebarProps = {
 const dashboardWorkspaceHrefs: Record<DashboardWorkspaceId, string> = {
   dashboard: "/dashboard",
   history: "/dashboard/history",
-  logs: "/dashboard/logs",
   source: "/dashboard/source",
 };
 
@@ -45,11 +43,6 @@ const workflowItems = [
     icon: History,
     label: "Update history",
     workspace: "history",
-  },
-  {
-    icon: Clock3,
-    label: "Delivery log",
-    workspace: "logs",
   },
   {
     icon: ClipboardCheck,

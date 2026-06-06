@@ -68,20 +68,21 @@ const clientSourceDocs: SourceDoc[] = [
 
 ## Overview
 
-YUKA is a clean iOS health app for packaged food discovery. Users can search or scan products, see a simple health score, understand the main positive and negative nutrition signals, and discover healthier alternatives.
+YUKA is a clean iOS health app for packaged food discovery. Users can search or scan products, see a simple health score, discover healthier alternatives, and revisit recently viewed products.
 
 ## Scope
 
-- iOS app with onboarding, Scanner, Explore, and shared Product Details.
+- iOS app with onboarding, Scanner, Explore, History, and shared Product Details.
 - Product recommendations use the supplied OpenFoodFacts-derived CSV.
 - Medical advice, accounts, live OpenFoodFacts sync, checkout, and Android are out of scope.
 
 ## App Navigation
 
-After onboarding, the app has two top-level app-bar sections:
+After onboarding, the app has three top-level app-bar sections:
 
 - Scanner
 - Explore
+- History
 
 Product Details is a shared detail destination opened from scan results, search results, Explore cards, alternative cards, and History rows.
 
