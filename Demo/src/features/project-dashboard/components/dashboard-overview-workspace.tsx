@@ -2,9 +2,9 @@
 
 import type { useProjectWorkflow } from "@/features/project-workflow";
 import { Plus } from "lucide-react";
-import { AppPreviewPanel } from "./app-preview-panel";
 import { ExternalReference } from "./external-reference";
 import { LifecycleStage } from "./lifecycle-stage";
+import { VersionHistoryWorkspace } from "./version-history-workspace";
 
 type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 
@@ -12,6 +12,7 @@ type DashboardOverviewWorkspaceProps = {
   app: ProjectWorkflow["state"]["app"];
   onCreateUpdate: () => void;
   request: ProjectWorkflow["state"]["activeRequest"];
+  versions: ProjectWorkflow["state"]["versions"];
   workflow: ProjectWorkflow;
 };
 
@@ -19,6 +20,7 @@ export function DashboardOverviewWorkspace({
   app,
   onCreateUpdate,
   request,
+  versions,
   workflow,
 }: DashboardOverviewWorkspaceProps) {
   return (
@@ -57,11 +59,7 @@ export function DashboardOverviewWorkspace({
 
       <LifecycleStage request={request} />
 
-      <AppPreviewPanel
-        request={request}
-        screenshots={workflow.previewScreenshots}
-        version={workflow.previewVersion}
-      />
+      <VersionHistoryWorkspace versions={versions} />
     </section>
   );
 }

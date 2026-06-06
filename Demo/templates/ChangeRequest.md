@@ -19,24 +19,19 @@ Add a History tab to the app.
 
 ## Current Behavior
 
-After onboarding, the app has two top-level app-bar sections:
-
-- Scanner
-- Explore
-
-Users can open Product Details from successful scans, search results, Explore product cards, and alternative product cards. There is no section where users can revisit products they already viewed.
+Version 1.0 has Scanner and Explore as the primary app sections. Users can open Product Details from scans, search results, Explore product cards, and alternative product cards. There is no page where users can revisit products they already opened.
 
 ## Why This Change Matters
 
-Users often want to revisit products they scanned, searched for, or opened from Explore. A history section makes it easier to compare recently viewed products without scanning or searching again.
+Users often compare more than one product while shopping. A History page lets them return to recently viewed products without rescanning, retyping, or finding the same item again in Explore.
 
 ## Desired Behavior
 
 After the change exists, the app should have a new History tab next to Scanner and Explore.
 
-History should show all recently viewed products in chronological order, with the most recent product first.
+History should show recently viewed products in chronological order, with the most recent product first.
 
-A product should appear in History after the user opens its Product Details from:
+A product should appear in History after the user opens Product Details from:
 
 - a successful barcode scan
 - a search result
@@ -85,13 +80,13 @@ Navigation rules:
 
 ### Screen: Product History
 
-![Product History](assets/screens/explore-screen.png)
+![Product History](assets/screens/v1.1/history.png)
 
-This screen shows recently viewed products in chronological order. The visual should follow the same clean white iOS style as Explore and Product Details. Product rows or cards should show product image, name, brand, score, and last viewed time/date.
+This is the only new page in v1.1. It lists recently viewed products as native-feeling iOS rows with image, name, brand, score, score label, viewed time, and chevron. The bottom navigation shows History as the active tab.
 
 ## Data & Content
 
-History stores or derives a list of recently viewed products.
+History stores or derives a local list of recently viewed products.
 
 Each history entry should include:
 
@@ -119,7 +114,7 @@ Empty state: if no products have been viewed yet, show a simple empty state expl
 - Given History contains products, selecting any History item opens Product Details for that product.
 - Given Product Details was opened from History, tapping back returns to History.
 - Given History has no viewed products, the History screen shows a simple empty state.
-- Existing Scanner and Explore behavior continues to work.
+- Existing Scanner, Explore, Product Details, and Alternatives behavior continues to work.
 
 ## Non-Goals
 
@@ -131,4 +126,4 @@ Empty state: if no products have been viewed yet, show a simple empty state expl
 
 ## Assets
 
-No new custom assets required.
+- `assets/screens/v1.1/history.png`

@@ -14,28 +14,46 @@ const clientAssets: MockAsset[] = [
     description: "Mock brand asset for the YUKA app identity.",
   },
   {
+    name: "scanner.png",
+    path: "assets/screens/v1.0/scanner.png",
+    kind: "image",
+    description: "v1.0 baseline Scanner screen.",
+  },
+  {
     name: "explore.png",
-    path: "assets/screens/app-preview/explore.png",
+    path: "assets/screens/v1.0/explore.png",
     kind: "image",
-    description: "Submitted update screenshot for the Explore screen.",
+    description: "v1.0 baseline Explore screen.",
   },
   {
-    name: "explore-filter-open.png",
-    path: "assets/screens/app-preview/explore-filter-open.png",
+    name: "explore-filter.png",
+    path: "assets/screens/v1.0/explore-filter.png",
     kind: "image",
-    description: "Submitted update screenshot for the open Explore filter.",
+    description: "v1.0 baseline Explore filter state.",
   },
   {
-    name: "detail-expanded-sections.png",
-    path: "assets/screens/app-preview/detail-expanded-sections.png",
+    name: "product-detail.png",
+    path: "assets/screens/v1.0/product-detail.png",
     kind: "image",
-    description: "Submitted update screenshot for expanded detail sections.",
+    description: "v1.0 baseline Product Details screen.",
   },
   {
-    name: "detail-footer-alternative-cards.png",
-    path: "assets/screens/app-preview/detail-footer-alternative-cards.png",
+    name: "product-detail-expanded-sections.png",
+    path: "assets/screens/v1.0/product-detail-expanded-sections.png",
     kind: "image",
-    description: "Submitted update screenshot for alternative product cards.",
+    description: "v1.0 baseline expanded Product Details sections.",
+  },
+  {
+    name: "product-detail-alternatives.png",
+    path: "assets/screens/v1.0/product-detail-alternatives.png",
+    kind: "image",
+    description: "v1.0 baseline Product Details alternatives.",
+  },
+  {
+    name: "history.png",
+    path: "assets/screens/v1.1/history.png",
+    kind: "image",
+    description: "v1.1 submitted update screenshot for the Product History page.",
   },
 ];
 
@@ -65,13 +83,14 @@ After onboarding, the app has two top-level app-bar sections:
 - Scanner
 - Explore
 
-Product Details is a shared detail destination opened from scan results, search results, Explore cards, and alternative cards.
+Product Details is a shared detail destination opened from scan results, search results, Explore cards, alternative cards, and History rows.
 
 ## Acceptance Criteria
 
 - Scanner and search open Product Details for matched products.
 - Explore shows healthy products by category and market where available.
 - Product Details explains score drivers and presents healthier alternatives.
+- History shows recently viewed products and opens Product Details.
 - Back navigation returns to the section that opened Product Details.`,
   },
   {
@@ -100,6 +119,8 @@ The app should feel like a clean native iOS health utility: white canvas, strong
 - Onboarding choice rows are full-width rounded rectangles.
 - Product cards show image, name, brand, score dot, and numeric score.
 - Explore filters appear as a floating rounded panel.
+- History rows show product image, name, brand, score, score label, viewed time, and chevron.
+- The v1.1 bottom navigation includes Scanner, Explore, and History.
 - Product Details nutrient rows use clear positive and negative sections.
 
 ## Preserve
@@ -116,28 +137,30 @@ Keep product imagery, native-feeling search/scanner controls, and simple list ro
 
 ## Request
 
-Add guided Explore improvements for YUKA.
+Add a product History tab to YUKA.
 
 ## Desired Behavior
 
-- Make Explore filtering clearer and easier to inspect.
-- Expand Product Details evidence sections.
-- Add alternative recommendation cards to the Product Details footer.
-- Preserve onboarding, search, and baseline Product Details behavior.
+- Add History as a top-level app section next to Scanner and Explore.
+- Show recently viewed products in chronological order.
+- Store products opened from Scanner, Search, Explore, and Alternatives.
+- Preserve Scanner, Explore, and Product Details behavior.
 
 ## Affected App Areas
 
+- App Navigation
+- History
+- Scanner
 - Explore
 - Product Details
-- Recommendation cards
 - QA evidence screenshots
 
 ## Acceptance Criteria
 
-- Explore filter state can be opened and reviewed.
-- Expanded detail sections are visible.
-- Alternative product cards appear in Product Details.
-- Existing Scanner, Search, and onboarding flows continue to work.`,
+- Products opened from scan, search, Explore, or Alternatives appear in History.
+- Reopened products move to the top without duplication.
+- History rows open Product Details.
+- Existing Scanner, Explore, and Product Details flows continue to work.`,
   },
   {
     key: "UpdateReport.md",
@@ -149,28 +172,24 @@ Add guided Explore improvements for YUKA.
 
 ## Summary
 
-This update adds a richer Explore workflow for YUKA while preserving the existing onboarding, search, and product detail baseline from version 1.0.
+This update adds one new page to YUKA: Product History. History gives users a top-level place to revisit products they recently opened.
 
 ## Screenshot Evidence
 
-![Explore](assets/screens/app-preview/explore.png)
-![Explore Filter Open](assets/screens/app-preview/explore-filter-open.png)
-![Product Details Expanded](assets/screens/app-preview/detail-expanded-sections.png)
-![Alternative Cards](assets/screens/app-preview/detail-footer-alternative-cards.png)
+![Product History](assets/screens/v1.1/history.png)
 
 ## Changed Screens
 
-- Explore now has clearer guided browsing and filtering.
-- Product Details now shows expanded evidence sections.
-- Product Details now includes alternative recommendation cards.
+- Product History was added as the only new v1.1 page.
+- The bottom app navigation now includes Scanner, Explore, and History.
+- History rows show image, name, brand, score, score label, viewed time, and chevron.
 
 ## QA Checklist
 
-- Explore screen matches submitted screenshot.
-- Explore filter state can be opened and reviewed.
-- Expanded product detail sections are visible.
-- Alternative cards appear in the product detail footer.
-- Onboarding, search, and baseline detail navigation remain usable.`,
+- History screen matches submitted screenshot.
+- Products opened from scan, search, Explore, or Alternatives appear in History.
+- Selecting a History row opens Product Details.
+- Existing Scanner, Explore, and detail navigation remain usable.`,
   },
 ];
 

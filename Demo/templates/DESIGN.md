@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: YUKA Design System
-description: Simple white iOS-native health food app visual system with clean typography, soft floating controls, and nutrition score colors.
+description: Simple white iOS-native health food app visual system with clean typography, soft floating controls, bottom navigation, history rows, and nutrition score colors.
 colors:
   primary: "#0A84FF"
   background: "#FFFFFF"
@@ -60,13 +60,22 @@ components:
     imageRadius: 4
     scoreDotSize: 10
     titleLines: 2
+  bottomNavigation:
+    backgroundColor: "#FFFFFF"
+    selectedBackgroundColor: "#EDEDED"
+    selectedColor: "#0A84FF"
+    rounded: 999
+  historyRow:
+    imageSize: 96
+    dividerColor: "#E5E5EA"
+    chevronColor: "#C7C7CC"
 ---
 
 # YUKA Design System
 
 ## Overview
 
-The app should feel like a clean native iOS health utility: white background, generous spacing, strong black typography, soft gray secondary text, and minimal decoration. Interactions should use familiar Apple-native patterns such as large titles, floating circular buttons, soft bottom controls, native keyboard/search behavior, and simple list rows.
+The app should feel like a clean native iOS health utility: white background, generous spacing, strong black typography, soft gray secondary text, and minimal decoration. Interactions should use familiar Apple-native patterns such as large titles, floating circular buttons, soft bottom controls, native keyboard/search behavior, bottom tab navigation, and simple list rows.
 
 The design should avoid a heavy branded look. Nutrition score colors are the main visual accent.
 
@@ -100,7 +109,7 @@ Screens should use simple vertical hierarchy:
 - main content
 - floating scanner/search controls where relevant
 
-Explore uses horizontal product rows within vertical categories. Product Details uses a scrollable nutrition list with clear Positive and Negative sections. Onboarding uses centered vertical progression with a sticky bottom primary button.
+Explore uses horizontal product rows within vertical categories. Product Details uses a scrollable nutrition list with clear Positive and Negative sections. History uses full-width chronological rows with strong product names, muted metadata, and clear score indicators. Onboarding uses centered vertical progression with a sticky bottom primary button.
 
 ## Elevation & Depth
 
@@ -142,6 +151,10 @@ Search should use a native-feeling bottom search input when active, with clear a
 
 The floating bottom control should expose scanner and search actions without using a heavy tab bar. Keep it pill-shaped or circular with soft shadow and high contrast icons.
 
+### Bottom Navigation
+
+In v1.1, the bottom control becomes a three-item navigation pill for Scanner, Explore, and History. The active section should use a light gray selected capsule and blue active icon/text. Inactive sections should use black icons and labels. Keep the control floating above the safe area with soft shadow and generous touch targets.
+
 ### Filter Menu
 
 The explore filter menu should appear as a floating rounded panel with icon-text rows. It should preserve the visible content context behind it.
@@ -165,6 +178,21 @@ Expanded nutrient rows should use horizontal threshold bars with green, orange, 
 
 Alternative rows should show product image, product name, brand/source, score dot, score number, and score label. Alternatives should feel like useful substitutes, not generic recommendations.
 
+### History Rows
+
+History rows should show:
+
+- square product image
+- bold product name
+- muted brand
+- colored score dot
+- numeric score
+- score label
+- muted last viewed time/date
+- trailing chevron
+
+Rows should be separated by thin dividers and should not use heavy card chrome. The History page should use the same large-title treatment as Scanner and Explore.
+
 ## Do's and Don'ts
 
 Do preserve:
@@ -172,7 +200,9 @@ Do preserve:
 - white background
 - large Apple-style typography
 - soft floating controls
+- bottom navigation in v1.1
 - simple list rows
+- history rows with clear product recognition
 - product imagery as the main visual content
 - consistent score colors
 

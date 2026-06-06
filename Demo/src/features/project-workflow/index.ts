@@ -88,59 +88,81 @@ export type ProjectWorkflowState = {
   versions: ProjectVersion[];
 };
 
-const storageKey = "officeos-demo-project-workflow-v1";
+const storageKey = "officeos-demo-project-workflow-v2";
 
 const baselineScreenshots: PreviewScreenshot[] = [
   {
-    alt: "YUKA onboarding screen",
-    label: "Onboarding",
-    src: "/assets/screens/app-preview/onbaording.png",
+    alt: "YUKA scanner screen",
+    label: "Scanner",
+    src: "/assets/screens/v1.0/scanner.png",
   },
   {
-    alt: "YUKA search screen",
-    label: "Search",
-    src: "/assets/screens/app-preview/search.png",
+    alt: "YUKA explore screen",
+    label: "Explore",
+    src: "/assets/screens/v1.0/explore.png",
   },
   {
     alt: "YUKA product detail screen",
-    label: "Details",
-    src: "/assets/screens/app-preview/details.png",
+    label: "Product Details",
+    src: "/assets/screens/v1.0/product-detail.png",
   },
 ];
 
 const updateScreenshots: PreviewScreenshot[] = [
   {
-    alt: "YUKA explore screen after update",
+    alt: "YUKA product history screen after update",
     description:
-      "The Explore screen becomes the primary update evidence. It should continue to show product discovery content while making the updated browsing state easy to inspect.",
-    label: "Explore",
-    src: "/assets/screens/app-preview/explore.png",
-  },
-  {
-    alt: "YUKA explore filter opened after update",
-    description:
-      "The filter state should be visible and reviewable so OfficeOS can verify category and product-discovery controls.",
-    label: "Explore Filter Open",
-    src: "/assets/screens/app-preview/explore-filter-open.png",
-  },
-  {
-    alt: "YUKA expanded detail sections after update",
-    description:
-      "Product detail sections should expose more evidence in an expanded state without hiding the existing product summary.",
-    label: "Product Details Expanded",
-    src: "/assets/screens/app-preview/detail-expanded-sections.png",
-  },
-  {
-    alt: "YUKA alternative cards after update",
-    description:
-      "The product detail footer should show alternative product cards for healthier comparison.",
-    label: "Alternative Cards",
-    src: "/assets/screens/app-preview/detail-footer-alternative-cards.png",
+      "History is the only new v1.1 page. It shows recently viewed products with image, brand, score, viewed time, and a selected History tab.",
+    label: "Product History",
+    src: "/assets/screens/v1.1/history.png",
   },
 ];
 
 const generatedAt = "2026-06-06T09:20:00.000Z";
 const baselineAt = "2026-06-01T09:00:00.000Z";
+
+function baselineReport(): UpdateReport {
+  return {
+    appName: "YUKA",
+    changedScreens: [
+      "Scanner is available as the baseline product lookup page.",
+      "Explore is available as the baseline browsing page.",
+      "Product Details is available as the shared product review page.",
+    ],
+    createdAt: baselineAt,
+    documentType: "mobile-app-update-report",
+    documentVersion: "alpha",
+    id: "report-yuka-v1-baseline",
+    implementationNotes:
+      "v1.0 is the live baseline before the History update. It includes Scanner, Explore, Product Details, expanded nutrients, and alternatives.",
+    knownLimitations:
+      "History is not available in v1.0. Recently viewed products cannot be reopened from a dedicated page.",
+    preservedBehavior: [
+      "Scanner opens Product Details for matched products.",
+      "Explore opens Product Details from product cards.",
+      "Product Details can show expanded nutrition evidence and alternatives.",
+    ],
+    qaChecklist: [
+      "Scanner baseline screenshot is present.",
+      "Explore baseline screenshot is present.",
+      "Product Details baseline screenshot is present.",
+      "No History page is present in v1.0.",
+    ],
+    requestId: "request-yuka-v1-baseline",
+    screenshots: baselineScreenshots,
+    sections: [
+      {
+        body: "Records the v1.0 baseline before Product History exists.",
+        title: "Version note",
+      },
+    ],
+    status: "live",
+    summary:
+      "Version 1.0 is the live YUKA baseline. It includes Scanner, Explore, and Product Details, but no History page.",
+    title: "Initial YUKA baseline",
+    versionTarget: "1.0",
+  };
+}
 
 function baselineState(): ProjectWorkflowState {
   return {
@@ -164,11 +186,12 @@ function baselineState(): ProjectWorkflowState {
         tone: "green",
       },
     ],
-    reports: [],
+    reports: [baselineReport()],
     versions: [
       {
         createdAt: baselineAt,
         id: "version-yuka-1",
+        reportId: "report-yuka-v1-baseline",
         screenshots: baselineScreenshots,
         status: "live",
         summary:
@@ -185,71 +208,71 @@ function updateReport(requestId: string, reportId: string): UpdateReport {
     appName: "YUKA",
     approvedAt: "2026-06-06T09:24:00.000Z",
     changedScreens: [
-      "Explore now has a clearer guided browsing and filtering state.",
-      "Product details now show expanded evidence sections.",
-      "Product details now include alternative recommendation cards.",
+      "Product History was added as the only new v1.1 page.",
+      "The bottom app navigation now includes Scanner, Explore, and History.",
+      "History rows show product image, name, brand, score, score label, viewed time, and chevron.",
     ],
     createdAt: generatedAt,
     documentType: "mobile-app-update-report",
     documentVersion: "alpha",
     id: reportId,
     implementationNotes:
-      "The update should use the submitted screenshots as visual references. The implementation work should focus on the Explore and product detail surfaces only; no new authenticated systems or live App Store/PostHog integrations are required for this mock update.",
+      "The update should use the submitted History screenshot as the visual reference. The implementation work should focus on the History page and local recently viewed product behavior only.",
     knownLimitations:
-      "This is a mocked update report. No real App Store, PostHog, or backend release automation is connected.",
+      "This is a mocked update report. No real App Store release, PostHog event stream, or backend history sync is connected.",
     preservedBehavior: [
-      "Onboarding remains part of the baseline app.",
-      "Search remains available and should not be degraded by the Explore update.",
-      "Existing product detail access remains intact.",
+      "Scanner remains available.",
+      "Explore remains available.",
+      "Product Details remains the shared destination for products opened from every entry point.",
     ],
     qaChecklist: [
-      "Explore screen matches the submitted update screenshot.",
-      "Explore filter state can be opened and reviewed.",
-      "Expanded product detail sections are visible.",
-      "Alternative cards appear in the product detail footer.",
-      "Onboarding, search, and baseline detail navigation remain usable.",
+      "History screen matches the submitted screenshot.",
+      "Products opened from scan, search, Explore, or Alternatives appear in History.",
+      "Reopened products move to the top without duplication.",
+      "Selecting a History row opens Product Details.",
+      "Existing Scanner, Explore, and detail navigation remain usable.",
     ],
     requestId,
     screenshots: updateScreenshots,
     sections: [
       {
         body:
-          "Adds a richer Explore workflow with visible filtering and expanded product detail evidence.",
+          "Adds Product History as a top-level page for recently viewed products.",
         title: "Changed behavior",
       },
       {
         body:
-          "Onboarding, baseline search, and existing product detail access remain available.",
+          "Scanner, Explore, and Product Details remain available.",
         title: "Preserved behavior",
       },
       {
         body:
-          "OfficeOS should validate Explore filtering, expanded nutrient sections, and alternative recommendation cards.",
+          "OfficeOS should validate History rows, deduplication, ordering, and row-to-detail navigation.",
         title: "QA focus",
       },
     ],
     status: "in-implementation",
     summary:
-      "This update adds a richer Explore workflow for YUKA. The app should show clearer filtering, expanded product detail evidence, and alternative recommendation cards while preserving the existing onboarding, search, and product detail baseline from version 1.0.",
-    title: "Add guided Explore improvements",
+      "Version 1.1 adds one new page to YUKA: Product History. The page gives users a top-level place to revisit products they recently opened from Scanner, Search, Explore, or Alternatives.",
+    title: "Add product history tab",
     versionTarget: "1.1",
   };
 }
 
 function generatedRequest(): UpdateRequest {
-  const requestId = "request-yuka-explore-update";
+  const requestId = "request-yuka-history-update";
 
   return {
     createdAt: generatedAt,
     generatedAt,
     id: requestId,
-    reportId: "report-yuka-explore-update",
+    reportId: "report-yuka-history-update",
     sourceReady: true,
     stage: "request-created",
     status: "generated",
     summary:
-      "Add guided Explore filtering, expanded product details, and alternative cards while preserving v1.0 flows.",
-    title: "Add guided Explore improvements",
+      "Add Product History as a top-level tab while preserving Scanner, Explore, and Product Details.",
+    title: "Add product history tab",
     versionTarget: "1.1",
   };
 }

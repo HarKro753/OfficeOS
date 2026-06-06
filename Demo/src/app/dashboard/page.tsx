@@ -23,7 +23,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const workflow = useProjectWorkflow();
-  const { activeRequest, app } = workflow.state;
+  const { activeRequest, app, versions } = workflow.state;
   const [chatOpen, setChatOpen] = useState(false);
   const approved = searchParams.get("approved") === "1";
   const approvedVersion = activeRequest?.versionTarget ?? "1.1";
@@ -55,6 +55,7 @@ export default function DashboardPage() {
         app={app}
         onCreateUpdate={() => setChatOpen(true)}
         request={activeRequest}
+        versions={versions}
         workflow={workflow}
       />
 

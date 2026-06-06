@@ -6,21 +6,23 @@ app:
   category: Health & Fitness
   platforms:
     - iOS
-  description: Scan packaged food, understand its health score, and discover healthier similar alternatives.
+  description: Scan packaged food, understand its health score, discover healthier alternatives, and revisit recently viewed products.
   keywords:
     - food scanner
     - nutrition
     - healthy food
-    - product alternatives
+    - product history
     - openfoodfacts
 audience:
   primary: People who want simple, fast guidance when choosing packaged food.
-  secondary: People exploring healthier foods by category, preference, and country availability.
+  secondary: People who compare recently scanned or browsed products before buying.
   notFor: Medical diagnosis, clinical nutrition plans, or treatment-specific diet advice.
 assets:
-  appIcon:
-  appLogo:
+  appIcon: assets/brand/yuka-app-icon.png
+  appLogo: assets/brand/yuka-app-icon.png
 urls:
+  appStore: https://appstoreconnect.apple.com/apps/officeos-yuka
+  posthog: https://app.posthog.com/project/officeos-yuka
   privacyPolicy:
   terms:
   support:
@@ -28,7 +30,7 @@ submission:
   designSystem: DESIGN.md
   assetRule: Assets must be referenced directly inside SPEC.md or DESIGN.md.
 data:
-  productDataset: Attached CSV derived from OpenFoodFacts. OfficeOS should not fetch or recreate the full OpenFoodFacts dataset itself.
+  productDataset: assets/data/openfoodfacts-yuka-sample.csv
 scope:
   fromScratchMobileApp: true
   thirdPartyAuthenticatedSystems: unsupported unless explicitly approved
@@ -40,56 +42,58 @@ scope:
 
 ## Overview
 
-YUKA is a clean iOS health app for packaged food discovery. Users can search or scan products, see a simple health score, understand the main positive and negative nutrition signals, and discover healthier alternatives that are relatively similar to the scanned product.
+YUKA is a clean iOS health app for packaged food discovery. Users can scan or search products, browse healthier products by category, review product details, compare alternatives, and revisit products they already opened.
 
-The app also includes an explore experience for browsing generally healthy food. Explore recommendations should be based on product categories the user likes and the user's country or market, using the supplied OpenFoodFacts-derived CSV.
+Version 1.1 adds one new user-facing page: History. History makes recently viewed products recoverable without scanning or searching again.
 
 ## Goals
 
 ### User Goals
 
 - Quickly identify whether a packaged food product is healthy.
-- Understand why a product received its score without reading dense nutrition tables.
+- Understand why a product received its score.
 - Find healthier alternatives that are similar enough to be useful substitutes.
 - Browse healthy products by category and personal preference.
+- Reopen recently viewed products from one chronological History page.
 
 ### Business / Operational Goals
 
-- Provide a simple food-scanning experience that feels fast and trustworthy.
-- Make healthy alternatives visible at the moment a user evaluates a product.
-- Use the attached CSV as the product source for scan/search/explore behavior.
-- Keep the first version focused on onboarding, scanner/search, explore, and product details.
+- Keep the first app experience simple and native-feeling.
+- Make product comparison easier by preserving recently viewed products.
+- Use the supplied OpenFoodFacts-derived CSV as the product source for scan, search, explore, detail, alternatives, and history rows.
+- Keep the v1.1 update focused on History only.
 
 ## Scope
 
 ### In Scope
 
 - iOS app with Apple-native UX patterns.
-- Onboarding section for collecting basic personalization inputs.
-- Two main app-bar sections after onboarding: Scanner and Explore.
-- Scanner section for finding products by barcode scan or typed search.
-- Explore section for browsing recommended healthy products by category.
-- Shared Product Details screen opened from successful scans, search results, explore product cards, and alternatives.
-- Product recommendations based on similar product category, health score, user-liked categories, and country/market where available in the CSV.
+- Onboarding section for lightweight personalization.
+- Top-level app sections after onboarding: Scanner, Explore, and History.
+- Scanner section for barcode scan and typed product search.
+- Explore section for browsing healthy products by category.
+- Shared Product Details screen opened from Scanner, Search, Explore, Alternatives, and History.
+- History section showing recently viewed products in chronological order.
+- Local, device-level product history for the mock app.
 
 ### Out of Scope
 
 - Medical advice or clinical nutrition recommendations.
-- User accounts unless explicitly added later.
+- User accounts.
+- Cloud-synced history.
+- Favorites, saved lists, manual notes, grocery cart, checkout, delivery, or affiliate purchasing.
 - Live OpenFoodFacts API integration.
-- Fetching or maintaining the full OpenFoodFacts dataset.
-- Grocery checkout, cart, delivery, or affiliate purchasing.
-- Complex diet-plan generation.
-- Android for the first version.
+- Android for this version.
 
 ## App Navigation
 
-After onboarding, the app has two top-level app-bar sections:
+After onboarding, the app has three top-level app-bar sections:
 
 - Scanner
 - Explore
+- History
 
-Scanner and Explore are peers. Product Details is not a top-level section; it is a shared detail destination.
+Product Details is a shared detail destination, not a top-level section.
 
 Navigation rules:
 
@@ -97,195 +101,97 @@ Navigation rules:
 - Selecting a search result opens Product Details.
 - Selecting any product item in Explore opens Product Details.
 - Selecting an alternative product from Product Details opens Product Details for that alternative.
+- Selecting a History item opens Product Details for that product.
 - Back from Product Details returns to the section that opened it.
+- Opening Product Details from any source writes or updates one History entry for that product.
 
 ## Sections & Screens
 
 Every app section must be described. Every screen or subscreen inside that section must be included inline with its screenshot, mockup, or attached visual asset. The screen description belongs directly next to that visual.
 
-### Section: Onboarding
-
-This section appears when a user opens the app for the first time. It collects lightweight personalization inputs that help the app tune explore recommendations and product suggestions.
-
-The onboarding flow should stay short: five questions total. Each screen uses the same visual pattern shown below: progress indicator, back affordance, large title, white background, simple answer controls, and a fixed primary Continue button.
-
-#### Screen: Onboarding Name
-
-![Onboarding question visual pattern](assets/brand/yuka-app-icon.png)
-
-Ask: "What should we call you?"
-
-Input type: free text.
-
-Purpose: personalize small moments in the app and make onboarding feel less anonymous.
-
-Expected behavior: the user enters a first name or nickname and taps Continue. The field can be left blank if the user does not want to provide a name.
-
-#### Screen: Onboarding Age
-
-![Onboarding age question](assets/brand/yuka-app-icon.png)
-
-Ask: "How old are you?"
-
-Input type: single select.
-
-Answer options:
-
-- Under 18
-- 18-24
-- 25-34
-- 35-44
-- 45+
-
-Purpose: lightly personalize recommendations and avoid treating every user profile the same.
-
-Expected behavior: the user selects one age range and taps Continue.
-
-#### Screen: Onboarding Country / Market
-
-![Onboarding country market](assets/brand/yuka-app-icon.png)
-
-Ask: "Where do you usually shop for food?"
-
-Input type: single select or free text.
-
-Suggested answer options:
-
-- United States
-- Germany
-- France
-- United Kingdom
-- Other
-
-Purpose: tune Explore recommendations toward products and categories likely to be available in the user's country or market.
-
-Expected behavior: the user selects or enters one market and taps Continue.
-
-#### Screen: Onboarding Dietary Preferences
-
-![Onboarding dietary preferences](assets/brand/yuka-app-icon.png)
-
-Ask: "Do you follow any food preferences?"
-
-Input type: multi select.
-
-Answer options:
-
-- Vegan
-- Vegetarian
-- High protein
-- Low calorie
-- No preference
-
-Purpose: tune Explore recommendations and filter defaults around the user's food preferences.
-
-Expected behavior: the user can select one or more preferences and taps Continue.
-
-#### Screen: Onboarding Favorite Categories
-
-![Onboarding favorite categories](assets/brand/yuka-app-icon.png)
-
-Ask: "What kinds of food do you want to see more of?"
-
-Input type: multi select.
-
-Answer options:
-
-- Eggs
-- Meat
-- Vegetables
-- Dairy
-- Snacks
-- Ready meals
-
-Purpose: tune the Explore section toward categories the user actually wants to browse.
-
-Expected behavior: the user can select one or more categories and taps Continue to finish onboarding. After completion, the app opens Explore.
-
 ### Section: Scanner
 
-This section lets users find products either by scanning a barcode or using text search.
+Scanner lets users find products by barcode scan or typed search.
 
-If there is no match for a scanned barcode or search query, OfficeOS should provide a simple empty/not-found state consistent with `DESIGN.md`.
+#### Screen: Scanner
 
-#### Screen: Product Search
+![Scanner](assets/screens/v1.0/scanner.png)
 
-![Product search](assets/screens/explore-screen.png)
-
-This screen shows typed product search with native iOS keyboard behavior. Search suggestions/results appear as a simple vertical list, with small product/category icons, bold matching text, and muted secondary text. The user can clear the search or close the search mode. Selecting a result opens Product Details.
+The Scanner screen is the v1.0 baseline for product lookup. It should preserve the large native title, simple scan/search controls, and direct route into Product Details.
 
 ### Section: Explore
 
-This section lets users browse healthy products without scanning first. It should recommend products using the attached CSV, considering product category, user-liked categories, country/market availability, and health score.
+Explore lets users browse healthy products without scanning first.
 
 #### Screen: Explore Home
 
-![Explore home](assets/screens/explore-screen.png)
+![Explore home](assets/screens/v1.0/explore.png)
 
-This is the main Explore screen. It uses a large title, category rows, horizontal product carousels, product cards with images, product name, brand, and score. Category headers should open category-specific result lists if that behavior is implemented.
+The Explore screen shows product categories, horizontal product rows, product imagery, product names, brands, and score indicators. Selecting a product opens Product Details and writes that product to History in v1.1.
 
 #### Screen: Explore Filter Open
 
-![Explore filter open](assets/screens/explore-screen.png)
+![Explore filter open](assets/screens/v1.0/explore-filter.png)
 
-This screen shows the explore filter menu opened from the top-right control. Filters include Low Calorie, High Protein, High Nutri Score, Vegan, and Vegetarian. The menu should feel like a lightweight iOS floating panel with soft blur/shadow and simple icon-text rows.
+The Explore filter state remains part of the baseline app. Filters should preserve the same light iOS floating-panel treatment.
 
 ### Section: Product Details
 
-This section explains the selected product's score and provides healthier similar alternatives.
+Product Details explains the selected product's score and provides healthier similar alternatives.
 
 #### Screen: Product Details Overview
 
-![Product details overview](assets/screens/product-details-expanded.png)
+![Product details overview](assets/screens/v1.0/product-detail.png)
 
-This screen shows product image, product name, brand, score, score label, positive nutrition factors, and negative nutrition factors. Nutrient rows show icon, nutrient name, qualitative label, per-100g value, and colored status dot. Back and share controls are circular floating iOS-style buttons.
+The detail overview shows product image, product name, brand, score, score label, positive nutrition factors, and negative nutrition factors.
 
 #### Screen: Product Details Expanded Nutrients
 
-![Product details expanded nutrients](assets/screens/product-details-expanded.png)
+![Product details expanded nutrients](assets/screens/v1.0/product-detail-expanded-sections.png)
 
-This screen shows nutrient rows expanded with colored threshold bars and a marker indicating the product's value. Expanded rows should help users understand why the score is good, moderate, or poor without requiring technical nutrition knowledge.
+Expanded nutrient rows show threshold bars and value markers so users can understand the score breakdown.
 
 #### Screen: Product Details Alternatives
 
-![Product details alternatives](assets/screens/product-details-expanded.png)
+![Product details alternatives](assets/screens/v1.0/product-detail-alternatives.png)
 
-This lower product-detail state shows alternative products after the nutrient breakdown. Alternatives should be products from similar categories that are healthier or otherwise useful substitutions. Each alternative should show product image, name, brand/source, score, and score label. A short explanation should clarify that ratings are based on nutritional value, ingredient quality, and processing level.
+Alternative cards show healthier or relevant substitute products. Selecting an alternative opens Product Details and writes that alternative product to History in v1.1.
 
-## User Stories / Use Cases
+### Section: History
 
-- As a food shopper, I want to scan a packaged product so that I can quickly know if it is a healthy choice.
-- As a food shopper, I want healthier alternatives so that I can swap a product without changing what I am trying to buy too much.
-- As a health-conscious user, I want to browse healthy products by category so that I can discover better options before shopping.
-- As a user with preferences, I want explore recommendations to consider categories I like and where I am from so that the products feel relevant.
-- As a user, I want to understand the score breakdown so that I can trust the recommendation.
+History is new in v1.1. It lets users reopen products they already viewed.
+
+#### Screen: Product History
+
+![Product History](assets/screens/v1.1/history.png)
+
+The History screen lists recently viewed products in chronological order, most recent first. Each row includes product image, product name, brand, score indicator, numeric score, score label, last viewed time, and a chevron. Selecting a row opens Product Details for that product. The bottom app navigation shows History as the active section.
 
 ## Functional Requirements
 
 ### P0: Core Requirements
 
 - The app must load product data from the attached OpenFoodFacts-derived CSV.
-- The app must support product search from the scanner/search section.
-- The app must support barcode scan entry where product barcode data exists in the CSV.
-- The app must show Product Details for selected products.
+- Scanner and search must open Product Details for matched products.
+- Explore product cards must open Product Details.
 - Product Details must show product name, brand, image, numeric score, score label, positive nutrients, negative nutrients, and per-100g values where available.
 - Product Details must show healthier similar alternatives when matching products exist in the CSV.
-- Explore must show category-based product rows with product cards and scores.
-- Onboarding must collect enough preference/context information to support personalized explore recommendations.
+- History must show products after the user opens Product Details from Scanner, Search, Explore, or Alternatives.
+- History must sort products by most recently viewed first.
+- History must deduplicate repeated product views by moving the existing product row to the top.
 
 ### P1: Supporting Requirements
 
-- Explore filters should support Low Calorie, High Protein, High Nutri Score, Vegan, and Vegetarian where CSV fields support them.
-- Product nutrient rows should be expandable to show score thresholds.
-- Product cards should open Product Details.
-- The app should support share from Product Details.
-- Search should show matching suggestions while the user types.
+- History rows should show a readable last viewed time or date.
+- History should have a clean empty state when no products have been viewed.
+- Product cards, alternative rows, and history rows should all use consistent score colors and labels.
+- Existing Scanner, Explore, and Product Details behavior should remain usable after adding History.
 
 ### P2: Future Requirements
 
-- User accounts and saved preferences.
 - Favorites or saved products.
-- Full country-aware availability beyond what is present in the supplied CSV.
+- Cloud-synced history.
+- User accounts.
 - Additional diets or allergens.
 - Android version.
 
@@ -293,49 +199,46 @@ This lower product-detail state shows alternative products after the nutrient br
 
 The visual design system belongs in `DESIGN.md`.
 
-The app should preserve a simple, clean, white iOS-native style with large titles, soft floating controls, black primary text, muted gray secondary text, and sparse use of strong color. Score colors and nutrition-status indicators should be consistent across explore cards, detail rows, and expanded nutrient bars.
+The app should preserve a simple, clean, white iOS-native style with large titles, soft floating controls, black primary text, muted gray secondary text, sparse use of strong color, and consistent nutrition score indicators.
 
 ## Custom Assets
 
-All custom assets required by the app must be submitted and referenced directly inside `SPEC.md` or `DESIGN.md`.
+Required assets:
 
-Required:
-
-- App icon
-- App logo, if different from the app icon
-- Product dataset CSV derived from OpenFoodFacts
-
-Required if applicable:
-
-- Custom icons
-- Custom product placeholder image
-- Brand assets
-- Custom fonts
+- `assets/brand/yuka-app-icon.png`
+- `assets/data/openfoodfacts-yuka-sample.csv`
+- `assets/screens/v1.0/scanner.png`
+- `assets/screens/v1.0/explore.png`
+- `assets/screens/v1.0/explore-filter.png`
+- `assets/screens/v1.0/product-detail.png`
+- `assets/screens/v1.0/product-detail-expanded-sections.png`
+- `assets/screens/v1.0/product-detail-alternatives.png`
+- `assets/screens/v1.1/history.png`
 
 ## Non-Functional Requirements
 
-- Privacy: Do not collect unnecessary personal data. Onboarding inputs should be used only for app personalization unless otherwise approved.
-- Reliability: The app should handle missing CSV fields gracefully.
-- Accessibility: Text should support dynamic type where practical, controls should have accessible labels, and score color should not be the only indicator of product quality.
-- Performance: Search, explore, and product details should feel fast with the supplied CSV.
+- Privacy: History is local to the mock app and should not imply account-level tracking.
+- Reliability: Missing product fields should not break History rows.
+- Accessibility: Score color cannot be the only indicator of product quality.
+- Performance: History should render instantly for the small local product list.
 - Offline behavior: The app should work offline after the CSV is bundled or locally available.
-- Maintenance: Recommendation rules should be understandable and adjustable without redesigning the app.
 
 ## Acceptance Criteria
 
-- Onboarding, Scanner, Explore, and Product Details sections are implemented.
-- Every screen shown in this spec has a corresponding implemented screen or state.
-- Product search returns matching CSV products and opens Product Details.
-- Barcode scan opens the matching product when barcode data exists.
-- Explore displays category-based product rows and product cards.
-- Product Details displays score, nutrition breakdown, expandable nutrient information, and alternatives.
-- Alternatives are drawn from products that are similar by category and preferable by health score where available.
-- The implementation follows `DESIGN.md` and the inline screenshots as the visual source of truth.
-- OfficeOS-owned empty/loading/error states are clean, simple, and consistent with the design system.
+- Scanner, Explore, Product Details, and History are available after onboarding.
+- Given the user opens Product Details from a successful barcode scan, when they open History, then that product appears at the top.
+- Given the user opens Product Details from a search result, when they open History, then that product appears at the top.
+- Given the user opens Product Details from an Explore product card, when they open History, then that product appears at the top.
+- Given the user opens Product Details from an alternative product card, when they open History, then that product appears at the top.
+- Given the user views the same product multiple times, History shows one row for that product and moves it to the top.
+- Given History contains products, selecting any History item opens Product Details.
+- Given Product Details was opened from History, tapping back returns to History.
+- Given History has no viewed products, the History screen shows a simple empty state.
+- Existing Scanner, Explore, Product Details, and Alternatives behavior continues to work.
 
 ## Risks & Assumptions
 
-- The CSV will contain enough product metadata for search, barcode lookup, category grouping, scoring, and recommendations.
-- If the CSV does not contain country/market data, country-based recommendation behavior will be limited or skipped.
-- If product images are missing, OfficeOS should use a clean placeholder style.
+- The CSV contains enough product metadata to populate History rows.
+- The v1.1 History screenshot is the visual source of truth for this update.
+- History is local mock behavior, not a synced user account feature.
 - This app provides health guidance, not medical advice.
