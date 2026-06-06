@@ -47,11 +47,45 @@ export function useProjectWorkflow() {
       ...current,
       activeRequest: request,
       reports: uniqueById([report, ...current.reports]),
+    };
+
+    return sync(nextState).activeRequest ?? request;
+  }, [sync]);
+
+  const markRequestSent = useCallback(() => {
+    const current = readState();
+    const request = current.activeRequest ?? generatedRequest();
+    const sentAt = request.sentAt ?? new Date().toISOString();
+    const report = updateReport(request.id, request.reportId);
+    const sentRequest: UpdateRequest = {
+      ...request,
+      sentAt,
+      stage: "request-sent",
+      status: "sent",
+    };
+    const nextState: ProjectWorkflowState = {
+      ...current,
+      activeRequest: sentRequest,
+      reports: uniqueById(
+        current.reports.map((existingReport) =>
+          existingReport.id === request.reportId
+            ? { ...existingReport, sentAt, status: "request-sent" }
+            : existingReport,
+        ).concat({
+          ...report,
+          sentAt,
+          status: "request-sent",
+        }),
+      ),
       versions: hasVersion(current, request.versionTarget)
-        ? current.versions
+        ? current.versions.map((version) =>
+            version.version === request.versionTarget
+              ? { ...version, reportId: report.id, status: "pending" }
+              : version,
+          )
         : [
             {
-              createdAt: request.createdAt,
+              createdAt: sentAt,
               id: "version-yuka-1-1-pending",
               reportId: report.id,
               screenshots: updateScreenshots,
@@ -64,34 +98,6 @@ export function useProjectWorkflow() {
           ],
     };
 
-    return sync(nextState).activeRequest ?? request;
-  }, [sync]);
-
-  const markRequestSent = useCallback(() => {
-    const current = readState();
-    const request = current.activeRequest ?? generatedRequest();
-    const sentAt = request.sentAt ?? new Date().toISOString();
-    const sentRequest: UpdateRequest = {
-      ...request,
-      sentAt,
-      stage: "request-sent",
-      status: "sent",
-    };
-    const nextState: ProjectWorkflowState = {
-      ...current,
-      activeRequest: sentRequest,
-      reports: current.reports.map((report) =>
-        report.id === request.reportId
-          ? { ...report, sentAt, status: "request-sent" }
-          : report,
-      ),
-      versions: current.versions.map((version) =>
-        version.version === request.versionTarget
-          ? { ...version, status: "pending" }
-          : version,
-      ),
-    };
-
     return sync(nextState);
   }, [sync]);
 
@@ -99,7 +105,7 @@ export function useProjectWorkflow() {
     const current = readState();
     const request = current.activeRequest;
 
-    if (!request) {
+    if (!request || request.status !== "sent") {
       setState(current);
       return current;
     }

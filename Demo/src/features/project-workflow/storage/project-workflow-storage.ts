@@ -7,7 +7,6 @@ import {
 } from "../data/mock-workflow";
 import type {
   PreviewScreenshot,
-  ProjectStage,
   ProjectVersion,
   ProjectWorkflowState,
   UpdateReport,
@@ -100,8 +99,11 @@ function normalizeReport(value: unknown): UpdateReport | null {
   } as UpdateReport;
 }
 
-function normalizeRequestStage(value: unknown): ProjectStage {
-  if (value === "request-created" || value === "human-approved") {
+function normalizeRequestStage(value: unknown): UpdateRequest["stage"] {
+  if (value === "request-created") {
+    return "draft";
+  }
+  if (value === "human-approved") {
     return "request-sent";
   }
   if (
@@ -112,12 +114,14 @@ function normalizeRequestStage(value: unknown): ProjectStage {
     return value;
   }
 
-  return "request-sent";
+  return "draft";
 }
 
 function normalizeRequestStatus(value: unknown): UpdateRequest["status"] {
-  if (value === "generated" || value === "approved") return "sent";
+  if (value === "generated") return "draft";
+  if (value === "approved") return "sent";
   if (
+    value === "draft" ||
     value === "sent" ||
     value === "implementing" ||
     value === "testing" ||
@@ -126,7 +130,7 @@ function normalizeRequestStatus(value: unknown): UpdateRequest["status"] {
     return value;
   }
 
-  return "sent";
+  return "draft";
 }
 
 function normalizeActiveRequest(value: unknown): UpdateRequest | null {
@@ -138,14 +142,26 @@ function normalizeActiveRequest(value: unknown): UpdateRequest | null {
       ? value.sentAt
       : typeof value.approvedAt === "string"
         ? value.approvedAt
-        : fallback.sentAt;
+        : undefined;
+  const status = normalizeRequestStatus(value.status);
+  const stage = normalizeRequestStage(value.stage);
+  const generatedButUnsent =
+    !sentAt && status === "sent" && stage === "request-sent";
+  const inferredStage =
+    stage !== "draft" || status === "draft"
+      ? stage
+      : status === "implementing"
+        ? "in-implementation"
+        : status === "testing" || status === "test-passed"
+          ? "test-passed"
+          : "request-sent";
 
   return {
     ...fallback,
     ...value,
     sentAt,
-    stage: normalizeRequestStage(value.stage),
-    status: normalizeRequestStatus(value.status),
+    stage: generatedButUnsent ? "draft" : inferredStage,
+    status: generatedButUnsent ? "draft" : status,
   } as UpdateRequest;
 }
 
@@ -186,15 +202,23 @@ export function normalizeState(value: unknown): ProjectWorkflowState {
         return normalizedReport ? [normalizedReport] : [];
       })
     : fallback.reports;
+  const activeRequest = normalizeActiveRequest(value.activeRequest);
+  const rawVersions = Array.isArray(value.versions)
+    ? (value.versions as ProjectVersion[])
+    : fallback.versions;
+  const visibleVersions =
+    activeRequest?.status === "draft"
+      ? rawVersions.filter(
+          (version) => version.version !== activeRequest.versionTarget,
+        )
+      : rawVersions;
   const { currentVersion, versions } = normalizeVersions(
-    Array.isArray(value.versions)
-      ? (value.versions as ProjectVersion[])
-      : fallback.versions,
+    visibleVersions,
     app.currentVersion,
   );
 
   return {
-    activeRequest: normalizeActiveRequest(value.activeRequest),
+    activeRequest,
     app: {
       ...app,
       currentVersion,

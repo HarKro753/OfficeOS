@@ -63,8 +63,8 @@ export type UpdateRequest = {
   reportId: string;
   sentAt?: string;
   sourceReady: boolean;
-  stage: Exclude<ProjectStage, "live">;
-  status: "sent" | "implementing" | "testing" | "test-passed";
+  stage: Exclude<ProjectStage, "live"> | "draft";
+  status: "draft" | "sent" | "implementing" | "testing" | "test-passed";
   summary: string;
   title: string;
   versionTarget: string;

@@ -44,7 +44,7 @@ type ChatIntakePanelProps = {
 };
 
 const initialMessage =
-  "What update should OfficeOS prepare?";
+  "Describe the app update you want OfficeOS to prepare. Include the app, user need, changed behavior, affected screens, data or storage expectations, and anything that should stay out of scope.";
 
 const questionResponse =
   "Should History show the same product only once, or should every view create a new row?";

@@ -72,6 +72,7 @@ const stages: Array<{
 
 function completedThrough(request: UpdateRequest | null) {
   if (!request) return projectStageIndex("live");
+  if (request.status === "draft") return -1;
   if (request.status === "sent") return projectStageIndex("request-sent");
   if (request.status === "implementing") return projectStageIndex("request-sent");
   if (request.status === "testing") return projectStageIndex("in-implementation");
@@ -80,6 +81,7 @@ function completedThrough(request: UpdateRequest | null) {
 
 function activeIndex(request: UpdateRequest | null) {
   if (!request) return projectStageIndex("live");
+  if (request.status === "draft") return -1;
   if (request.status === "sent") return projectStageIndex("in-implementation");
   if (request.status === "implementing") return projectStageIndex("in-implementation");
   if (request.status === "testing") return projectStageIndex("test-passed");
@@ -185,6 +187,31 @@ function StatusIndicator({
   );
 }
 
+function VersionStatusIndicator({
+  status,
+}: {
+  status: ProjectVersion["status"];
+}) {
+  const live = status === "live";
+
+  return (
+    <span
+      className={`mono inline-flex h-6 w-fit items-center gap-1.5 rounded border bg-white px-2 text-[8px] font-black uppercase ${
+        live
+          ? "border-[#B6DCC8] text-[#107A48]"
+          : "border-[#D8DEE4] text-[#687482]"
+      }`}
+    >
+      {live ? (
+        <CheckCircle2 className="h-3 w-3 text-[#20B26B]" />
+      ) : (
+        <Circle className="h-3 w-3 text-[#8A94A0]" />
+      )}
+      {status}
+    </span>
+  );
+}
+
 function LifecycleStage({
   currentVersion,
   request,
@@ -195,7 +222,7 @@ function LifecycleStage({
   const doneIndex = completedThrough(request);
   const currentIndex = activeIndex(request);
   const displayedVersion = request?.versionTarget ?? currentVersion;
-  const hasLoadingRequest = Boolean(request && request.status !== "test-passed");
+  const hasLoadingRequest = Boolean(request);
 
   return (
     <section className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.05)]">
@@ -325,15 +352,7 @@ function VersionRow({
         </p>
       </div>
       <div className="flex items-center justify-between gap-2 sm:justify-end">
-        <span
-          className={`mono w-fit rounded px-2 py-1 text-[8px] font-black uppercase ${
-            version.status === "live"
-              ? "bg-[#EAF8F1] text-[#107A48]"
-              : "bg-[#EDF3FF] text-[#183FBF]"
-          }`}
-        >
-          {version.status}
-        </span>
+        <VersionStatusIndicator status={version.status} />
         {version.reportId ? (
           <span className="inline-flex h-8 translate-y-1 items-center justify-center gap-1.5 rounded-md bg-[#101418] px-2.5 text-[10px] font-black text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
             Review report
