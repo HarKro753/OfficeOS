@@ -26,6 +26,7 @@ type MarkdownEditorWorkspaceProps = {
   frame?: "embedded" | "page";
   initialDocs: SourceDoc[];
   onBack?: () => void;
+  showChrome?: boolean;
   storageKey?: string;
 };
 
@@ -37,6 +38,7 @@ export function MarkdownEditorWorkspace({
   frame = "page",
   initialDocs,
   onBack,
+  showChrome = true,
   storageKey,
 }: MarkdownEditorWorkspaceProps) {
   const {
@@ -63,24 +65,32 @@ export function MarkdownEditorWorkspace({
           : "h-full min-h-0"
       }`}
     >
-      <TemplateSidebar
-        activeItemId={activeItemId}
-        backHref={backHref}
-        backLabel={backLabel}
-        mode={frame === "embedded" ? "artifacts" : "full"}
-        onBack={onBack}
-        selectWorkspaceItem={selectWorkspaceItem}
-        workspaceItems={workspaceItems}
-      />
+      {showChrome ? (
+        <TemplateSidebar
+          activeItemId={activeItemId}
+          backHref={backHref}
+          backLabel={backLabel}
+          mode={frame === "embedded" ? "artifacts" : "full"}
+          onBack={onBack}
+          selectWorkspaceItem={selectWorkspaceItem}
+          workspaceItems={workspaceItems}
+        />
+      ) : null}
 
       <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-[#C8D0D8] bg-white shadow-[0_18px_70px_rgba(16,20,24,0.08)]">
-        <EditorHeader
-          activeItemId={activeItemId}
-          actions={actions}
-          closeWorkspaceItem={closeWorkspaceItem}
-          openItems={openItems}
-          selectWorkspaceItem={selectWorkspaceItem}
-        />
+        {showChrome ? (
+          <EditorHeader
+            activeItemId={activeItemId}
+            actions={actions}
+            closeWorkspaceItem={closeWorkspaceItem}
+            openItems={openItems}
+            selectWorkspaceItem={selectWorkspaceItem}
+          />
+        ) : actions ? (
+          <header className="flex min-h-[42px] items-center justify-end border-b border-[#D8DEE4] bg-[#F8FAFC] px-2">
+            <div className="flex shrink-0 items-center gap-1.5">{actions}</div>
+          </header>
+        ) : null}
 
         <section className="relative min-h-0 flex-1 overflow-auto bg-white">
           {activeItem.type === "document" ? (

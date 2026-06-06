@@ -57,6 +57,15 @@ function normalizeReport(value: unknown): UpdateReport | null {
   return {
     ...fallback,
     ...value,
+    acceptance: Array.isArray(value.acceptance)
+      ? (value.acceptance as UpdateReport["acceptance"])
+      : fallback.acceptance,
+    releaseLinks: isRecord(value.releaseLinks)
+      ? {
+          ...fallback.releaseLinks,
+          ...value.releaseLinks,
+        }
+      : fallback.releaseLinks,
     screenshots: normalizeScreenshots(value.screenshots, fallback.screenshots),
     sections: Array.isArray(value.sections)
       ? (value.sections as UpdateReport["sections"])

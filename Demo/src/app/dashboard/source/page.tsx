@@ -2,7 +2,7 @@
 
 import { Toaster } from "@/components/ui/sonner";
 import {
-  getClientMockMarkdownEditorData,
+  getClientMockChangeRequestData,
   MarkdownEditorWorkspace,
 } from "@/features/markdown-editor";
 import {
@@ -25,11 +25,10 @@ import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 
 type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
-type DashboardWorkspaceId = "dashboard" | "source";
+type DashboardWorkspaceId = "dashboard";
 
 const dashboardWorkspaceHrefs: Record<DashboardWorkspaceId, string> = {
   dashboard: "/dashboard",
-  source: "/dashboard/source",
 };
 
 const workflowItems = [
@@ -37,12 +36,6 @@ const workflowItems = [
     icon: LayoutDashboard,
     label: "Dashboard",
     workspace: "dashboard",
-  },
-  {
-    icon: FileText,
-    label: "Source package",
-    requiresSource: true,
-    workspace: "source",
   },
   {
     icon: ClipboardCheck,
@@ -67,11 +60,9 @@ const workflowItems = [
 ] as const;
 
 function DashboardPageLayout({
-  activeRequest,
   app,
   children,
 }: {
-  activeRequest: ProjectWorkflowState["activeRequest"];
   app: ProjectWorkflowState["app"];
   children: ReactNode;
 }) {
@@ -79,7 +70,7 @@ function DashboardPageLayout({
     <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
       <Toaster />
       <section className="mx-auto grid w-full max-w-[1440px] gap-3 lg:grid-cols-[244px_minmax(0,1fr)]">
-        <DashboardSidebar activeRequest={activeRequest} app={app} />
+        <DashboardSidebar app={app} />
         {children}
       </section>
     </main>
@@ -87,14 +78,11 @@ function DashboardPageLayout({
 }
 
 function DashboardSidebar({
-  activeRequest,
   app,
 }: {
-  activeRequest: ProjectWorkflowState["activeRequest"];
   app: ProjectWorkflowState["app"];
 }) {
   const pathname = usePathname();
-  const sourceReady = Boolean(activeRequest?.sourceReady);
 
   return (
     <aside className="flex min-h-0 flex-col rounded-md border border-[#C8D0D8] bg-[#F8FAFC] shadow-[0_18px_70px_rgba(16,20,24,0.08)] lg:sticky lg:top-3 lg:h-[calc(100dvh-1.5rem)]">
@@ -141,9 +129,7 @@ function DashboardSidebar({
               "workspace" in item
                 ? (item.workspace as DashboardWorkspaceId)
                 : undefined;
-            const isSource = workspace === "source";
-            const disabled =
-              !workspace || ("requiresSource" in item && !sourceReady);
+            const disabled = !workspace;
             const href = workspace
               ? dashboardWorkspaceHrefs[workspace]
               : undefined;
@@ -161,9 +147,6 @@ function DashboardSidebar({
                 <span className="min-w-0 flex-1 truncate text-xs font-black">
                   {item.label}
                 </span>
-                {isSource && sourceReady ? (
-                  <span className="h-2 w-2 rounded-full bg-[#2457FF]" />
-                ) : null}
               </>
             );
 
@@ -210,7 +193,7 @@ function SourcePackageWorkspace({
   const request = workflow.state.activeRequest?.sourceReady
     ? workflow.state.activeRequest
     : null;
-  const { assets, sourceDocs } = getClientMockMarkdownEditorData();
+  const { assets, sourceDocs } = getClientMockChangeRequestData();
 
   const approveRequest = () => {
     if (!request) return;
@@ -226,11 +209,11 @@ function SourcePackageWorkspace({
             <FileText className="h-5 w-5" />
           </div>
           <h1 className="mt-4 text-xl font-black">
-            Source package unavailable
+            Change request unavailable
           </h1>
           <p className="mt-2 text-sm font-bold leading-6 text-[#46515D]">
-            Create an update first so OfficeOS can prepare SPEC.md, DESIGN.md,
-            ChangeRequest.md, and the update report.
+            Create an update first so OfficeOS can prepare ChangeRequest.md for
+            review.
           </p>
           <Link
             className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
@@ -271,6 +254,7 @@ function SourcePackageWorkspace({
           backLabel="Dashboard"
           frame="embedded"
           initialDocs={sourceDocs}
+          showChrome={false}
           storageKey={`officeos-demo-markdown-documents-v1-${request.id}`}
         />
       </section>
@@ -281,10 +265,10 @@ function SourcePackageWorkspace({
 export default function DashboardSourcePage() {
   const router = useRouter();
   const workflow = useProjectWorkflow();
-  const { activeRequest, app } = workflow.state;
+  const { app } = workflow.state;
 
   return (
-    <DashboardPageLayout activeRequest={activeRequest} app={app}>
+    <DashboardPageLayout app={app}>
       <SourcePackageWorkspace
         onApproved={() => router.push("/dashboard?approved=1")}
         workflow={workflow}

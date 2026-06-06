@@ -115,3 +115,14 @@ export function getMockMarkdownEditorData(templateState: TemplateState = "final"
     assets: mockAssets,
   };
 }
+
+export function getMockChangeRequestData(
+  templateState: TemplateState = "final",
+) {
+  const { assets, sourceDocs } = getMockMarkdownEditorData(templateState);
+
+  return {
+    assets,
+    sourceDocs: sourceDocs.filter((doc) => doc.key === "ChangeRequest.md"),
+  };
+}

@@ -41,6 +41,12 @@ export const updateScreenshots: PreviewScreenshot[] = [
 export function baselineReport(): UpdateReport {
   return {
     appName: "YUKA",
+    acceptance: [
+      "Scanner opens Product Details for matched products.",
+      "Explore opens Product Details from product cards.",
+      "Product Details can show expanded nutrition evidence and alternatives.",
+      "History is not present in v1.0.",
+    ],
     changedScreens: [
       "Scanner is available as the baseline product lookup page.",
       "Explore is available as the baseline browsing page.",
@@ -65,6 +71,10 @@ export function baselineReport(): UpdateReport {
       "Product Details baseline screenshot is present.",
       "No History page is present in v1.0.",
     ],
+    releaseLinks: {
+      appStoreUrl: "https://appstoreconnect.apple.com/apps/officeos-yuka",
+      posthogUrl: "https://app.posthog.com/project/officeos-yuka",
+    },
     requestId: "request-yuka-v1-baseline",
     screenshots: baselineScreenshots,
     sections: [
@@ -116,10 +126,18 @@ export function updateReport(
 ): UpdateReport {
   return {
     appName: "YUKA",
+    acceptance: [
+      "Products opened from scan, search, Explore, or Alternatives appear in History.",
+      "Reopened products move to the top instead of duplicating.",
+      "Selecting a History row opens Product Details.",
+      "Back from Product Details returns to History when History was the source.",
+      "History shows a simple empty state before any products have been viewed.",
+      "Existing Scanner, Explore, Product Details, and Alternatives behavior continues to work.",
+    ],
     changedScreens: [
       "Product History was added as the only new v1.1 page.",
       "The bottom app navigation now includes Scanner, Explore, and History.",
-      "History rows show product image, name, brand, score, score label, viewed time, and chevron.",
+      "History is selected in the submitted screenshot and shows the latest viewed products first.",
     ],
     createdAt: generatedAt,
     documentType: "mobile-app-update-report",
@@ -141,6 +159,10 @@ export function updateReport(
       "Selecting a History row opens Product Details.",
       "Existing Scanner, Explore, and detail navigation remain usable.",
     ],
+    releaseLinks: {
+      appStoreUrl: "https://appstoreconnect.apple.com/apps/officeos-yuka",
+      posthogUrl: "https://app.posthog.com/project/officeos-yuka",
+    },
     requestId,
     screenshots: updateScreenshots,
     sections: [

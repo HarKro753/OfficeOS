@@ -61,8 +61,8 @@ const progressSteps = [
   "Writing SPEC.md",
   "Writing DESIGN.md",
   "Writing ChangeRequest.md",
-  "Preparing source package in templates",
-  "Checking empty source handoff",
+  "Preparing change request review",
+  "Checking request handoff",
 ];
 
 function buildInitialMessages(sourceReady = false): ChatMessage[] {
@@ -79,7 +79,7 @@ function buildInitialMessages(sourceReady = false): ChatMessage[] {
       id: "assistant-ready",
       speaker: "assistant",
       kind: "ready",
-      body: "Source package is ready for approval.",
+      body: "Change request is ready for approval.",
     });
   }
 
@@ -156,7 +156,7 @@ export function ChatIntakePanel({
         ]);
         setStreamingMessage({
           id: assistantMessageId,
-          fullText: "Source package is ready for approval.",
+          fullText: "Change request is ready for approval.",
         });
         setIsWorking(false);
       }, 420);
@@ -372,7 +372,7 @@ export function ChatIntakePanel({
                         type="button"
                       >
                         <Eye className="h-4 w-4" />
-                        Review source
+                        Review request
                       </button>
                       <button
                         className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
@@ -383,7 +383,7 @@ export function ChatIntakePanel({
                         Approve request
                       </button>
                       <span className="mono text-[10px] font-black uppercase text-[#46515D]">
-                        SPEC.md / DESIGN.md / ChangeRequest.md
+                        ChangeRequest.md
                       </span>
                     </div>
                   ) : null}
@@ -412,7 +412,7 @@ export function ChatIntakePanel({
             onKeyDown={handleKeyDown}
             placeholder={
               isWorking
-                ? "OfficeOS is preparing the source package..."
+                ? "OfficeOS is preparing the change request..."
                 : isStreaming
                   ? "OfficeOS is responding..."
                   : submittedCount === 0

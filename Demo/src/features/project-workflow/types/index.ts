@@ -25,6 +25,7 @@ export type ProjectVersion = {
 export type UpdateReport = {
   appName: string;
   approvedAt?: string;
+  acceptance: string[];
   changedScreens: string[];
   createdAt: string;
   documentType: string;
@@ -34,6 +35,10 @@ export type UpdateReport = {
   knownLimitations: string;
   preservedBehavior: string[];
   qaChecklist: string[];
+  releaseLinks: {
+    appStoreUrl: string;
+    posthogUrl: string;
+  };
   requestId: string;
   screenshots: PreviewScreenshot[];
   sections: Array<{

@@ -1,5 +1,5 @@
 import { MarkdownEditorWorkspace } from "@/features/markdown-editor";
-import { getMockMarkdownEditorData } from "@/features/markdown-editor/data/mock-assets";
+import { getMockChangeRequestData } from "@/features/markdown-editor/data/mock-assets";
 import { redirect } from "next/navigation";
 
 type SourcePageProps = {
@@ -24,7 +24,7 @@ export default async function SourcePage({ searchParams }: SourcePageProps) {
   }
 
   const templateState = "final";
-  const { assets, sourceDocs } = getMockMarkdownEditorData(templateState);
+  const { assets, sourceDocs } = getMockChangeRequestData(templateState);
 
   return (
     <MarkdownEditorWorkspace
@@ -32,6 +32,7 @@ export default async function SourcePage({ searchParams }: SourcePageProps) {
       backHref="/chat"
       backLabel="Back to chat"
       initialDocs={sourceDocs}
+      showChrome={false}
       storageKey={`officeos-demo-markdown-documents-v1-${
         requestId ?? `version-${version}`
       }`}

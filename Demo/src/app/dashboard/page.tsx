@@ -15,7 +15,6 @@ import {
   Circle,
   ClipboardCheck,
   ExternalLink,
-  FileText,
   Hammer,
   LayoutDashboard,
   Plus,
@@ -35,11 +34,10 @@ const STAGE_DELAY_MS = 4000;
 
 type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 type ProjectVersion = ProjectWorkflow["state"]["versions"][number];
-type DashboardWorkspaceId = "dashboard" | "source";
+type DashboardWorkspaceId = "dashboard";
 
 const dashboardWorkspaceHrefs: Record<DashboardWorkspaceId, string> = {
   dashboard: "/dashboard",
-  source: "/dashboard/source",
 };
 
 const workflowItems = [
@@ -47,12 +45,6 @@ const workflowItems = [
     icon: LayoutDashboard,
     label: "Dashboard",
     workspace: "dashboard",
-  },
-  {
-    icon: FileText,
-    label: "Source package",
-    requiresSource: true,
-    workspace: "source",
   },
   {
     icon: ClipboardCheck,
@@ -83,7 +75,7 @@ const stages: Array<{
   label: string;
 }> = [
   {
-    detail: "The update request has source and a report attached.",
+    detail: "The update request has a change request and report attached.",
     icon: Send,
     id: "request-created",
     label: "Request created",
@@ -124,7 +116,7 @@ function activeIndex(request: UpdateRequest | null) {
 
 function showHumanApprovedToast(versionTarget: string) {
   toast.success(`Human approval complete for v${versionTarget}.`, {
-    description: "The generated source package is approved for implementation.",
+    description: "The generated change request is approved for implementation.",
     duration: 6000,
     id: "officeos-human-approved",
   });
@@ -147,11 +139,9 @@ function showLiveToast(versionTarget: string) {
 }
 
 function DashboardPageLayout({
-  activeRequest,
   app,
   children,
 }: {
-  activeRequest: ProjectWorkflowState["activeRequest"];
   app: ProjectWorkflowState["app"];
   children: ReactNode;
 }) {
@@ -159,7 +149,7 @@ function DashboardPageLayout({
     <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
       <Toaster />
       <section className="mx-auto grid w-full max-w-[1440px] gap-3 lg:grid-cols-[244px_minmax(0,1fr)]">
-        <DashboardSidebar activeRequest={activeRequest} app={app} />
+        <DashboardSidebar app={app} />
         {children}
       </section>
     </main>
@@ -167,14 +157,11 @@ function DashboardPageLayout({
 }
 
 function DashboardSidebar({
-  activeRequest,
   app,
 }: {
-  activeRequest: ProjectWorkflowState["activeRequest"];
   app: ProjectWorkflowState["app"];
 }) {
   const pathname = usePathname();
-  const sourceReady = Boolean(activeRequest?.sourceReady);
 
   return (
     <aside className="flex min-h-0 flex-col rounded-md border border-[#C8D0D8] bg-[#F8FAFC] shadow-[0_18px_70px_rgba(16,20,24,0.08)] lg:sticky lg:top-3 lg:h-[calc(100dvh-1.5rem)]">
@@ -221,9 +208,7 @@ function DashboardSidebar({
               "workspace" in item
                 ? (item.workspace as DashboardWorkspaceId)
                 : undefined;
-            const isSource = workspace === "source";
-            const disabled =
-              !workspace || ("requiresSource" in item && !sourceReady);
+            const disabled = !workspace;
             const href = workspace
               ? dashboardWorkspaceHrefs[workspace]
               : undefined;
@@ -241,9 +226,6 @@ function DashboardSidebar({
                 <span className="min-w-0 flex-1 truncate text-xs font-black">
                   {item.label}
                 </span>
-                {isSource && sourceReady ? (
-                  <span className="h-2 w-2 rounded-full bg-[#2457FF]" />
-                ) : null}
               </>
             );
 
@@ -626,7 +608,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <DashboardPageLayout activeRequest={activeRequest} app={app}>
+    <DashboardPageLayout app={app}>
       <DashboardOverviewWorkspace
         app={app}
         onCreateUpdate={() => setChatOpen(true)}
