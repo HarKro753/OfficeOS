@@ -142,4 +142,3 @@ While we are private, we can already collect early traction signals through Link
 
 When we go public, we will know how much delivery volume we can handle, where the pipeline breaks, and which parts of the workflow are ready to scale.
 
-## Slide 9: Questions
