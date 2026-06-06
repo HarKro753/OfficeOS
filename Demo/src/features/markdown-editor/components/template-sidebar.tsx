@@ -8,6 +8,7 @@ type TemplateSidebarProps = {
   activeItemId: WorkspaceItemId;
   backHref: string;
   backLabel: string;
+  onBack?: () => void;
   selectWorkspaceItem: (itemId: WorkspaceItemId) => void;
   workspaceItems: WorkspaceItem[];
 };
@@ -16,19 +17,31 @@ export function TemplateSidebar({
   activeItemId,
   backHref,
   backLabel,
+  onBack,
   selectWorkspaceItem,
   workspaceItems,
 }: TemplateSidebarProps) {
   return (
     <aside className="flex w-[220px] shrink-0 flex-col overflow-hidden rounded-md border border-[#C8D0D8] bg-[#F8FAFC] shadow-[0_18px_70px_rgba(16,20,24,0.08)]">
       <header className="px-3 py-3">
-        <Link
-          href={backHref}
-          className="mb-3 inline-flex h-8 w-full items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-2 text-[11px] font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          {backLabel}
-        </Link>
+        {onBack ? (
+          <button
+            className="mb-3 inline-flex h-8 w-full items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-2 text-[11px] font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+            onClick={onBack}
+            type="button"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            {backLabel}
+          </button>
+        ) : (
+          <Link
+            href={backHref}
+            className="mb-3 inline-flex h-8 w-full items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-2 text-[11px] font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            {backLabel}
+          </Link>
+        )}
         <div className="flex items-center gap-2">
           <Image
             alt="OfficeOS"

@@ -1,9 +1,10 @@
-import { SlideGrid, SlideIntro, SlideShell } from "@/components/SlideShell";
+import Image from "next/image";
+import { SlideIntro, SlideShell, SlideVisual } from "@/components/SlideShell";
 
 export function WhyNow() {
   return (
     <SlideShell label="03 / How It Works">
-      <SlideGrid>
+      <div className="grid h-[calc(100%-54px)] grid-cols-[360px_1fr] items-center gap-5 pt-5">
         <SlideIntro
           eyebrow="AI-native workflow"
           items={[
@@ -30,7 +31,17 @@ export function WhyNow() {
           }
           tone="green"
         />
-      </SlideGrid>
+
+        <SlideVisual className="grid place-items-center p-0">
+          <Image
+            alt="Human-led OfficeOS workflow pipeline from accepted request to delivered mobile app update."
+            className="w-[min(100%,850px)] max-w-full object-contain drop-shadow-[0_24px_44px_rgba(36,87,255,0.10)]"
+            height={799}
+            src="/HowItWorks.png"
+            width={2131}
+          />
+        </SlideVisual>
+      </div>
     </SlideShell>
   );
 }

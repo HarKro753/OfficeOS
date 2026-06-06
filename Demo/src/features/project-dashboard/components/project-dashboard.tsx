@@ -1,101 +1,133 @@
 "use client";
 
-import { useProjectWorkflow } from "@/features/project-workflow";
 import { Toaster } from "@/components/ui/sonner";
+import { ChatIntakePanel } from "@/features/chat";
+import { useProjectWorkflow } from "@/features/project-workflow";
 import {
   Clock3,
   ExternalLink,
   Plus,
   ShieldCheck,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AppPreviewPanel } from "./app-preview-panel";
+import { DashboardDrawer } from "./dashboard-drawer";
+import { DashboardSidebar } from "./dashboard-sidebar";
 import { LifecycleStage } from "./lifecycle-stage";
+import { SourceReviewOverlay } from "./source-review-overlay";
+
+function showApprovedToast(versionTarget: string) {
+  toast.success("Approved. Implementation is starting.", {
+    description: `OfficeOS is using the generated source package and update report to prepare v${versionTarget}.`,
+    duration: 6000,
+    id: "officeos-update-approved",
+  });
+}
 
 export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
-  const router = useRouter();
   const workflow = useProjectWorkflow();
   const { activeRequest, app, logs, versions } = workflow.state;
+  const [chatOpen, setChatOpen] = useState(false);
+  const [sourceRequestId, setSourceRequestId] = useState<string | null>(null);
   const approvedVersion = activeRequest?.versionTarget ?? "1.1";
 
   useEffect(() => {
     if (!approved) return;
 
-    toast.success("Approved. Implementation is starting.", {
-      description: `OfficeOS is using the generated source package and update report to prepare v${approvedVersion}.`,
-      duration: 6000,
-      id: "officeos-update-approved",
-    });
+    showApprovedToast(approvedVersion);
   }, [approved, approvedVersion]);
+
+  const openSourceReview = (requestId = activeRequest?.id) => {
+    if (!requestId) return;
+    setSourceRequestId(requestId);
+  };
+
+  const handleApproved = (versionTarget: string) => {
+    setChatOpen(false);
+    showApprovedToast(versionTarget);
+  };
 
   return (
     <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
       <Toaster />
-      <section className="mx-auto flex w-full max-w-[1440px] flex-col gap-3">
-        <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)] sm:p-5">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <Image
-                  alt=""
-                  aria-hidden="true"
-                  className="h-5 w-5"
-                  height={20}
-                  src="/officeos-logo.svg"
-                  width={20}
-                />
-                <span className="mono text-[10px] font-black uppercase text-[#46515D]">
-                  OfficeOS dashboard
-                </span>
-                <span className="h-3 w-px bg-[#D8DEE4]" />
-                <span className="mono text-[10px] font-black uppercase text-[#8A94A0]">
-                  {app.bundleId}
-                </span>
-              </div>
-              <h1 className="mt-3 text-4xl font-black leading-none sm:text-5xl">
-                {app.name}
-              </h1>
-              <p className="mt-3 max-w-[820px] text-sm font-bold leading-6 text-[#46515D]">
-                Orchestrate governed app updates from one place: create an
-                update request, approve generated source, watch implementation,
-                and inspect the versioned app state.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <button
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-sm font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-                onClick={() => router.push("/chat")}
-                type="button"
-              >
-                <Plus className="h-4 w-4" />
-                Create update
-              </button>
-              <div className="grid grid-cols-2 gap-2">
-                <ExternalReference href={app.appStoreUrl} label="App Store" />
-                <ExternalReference href={app.posthogUrl} label="PostHog" />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <LifecycleStage request={activeRequest} />
-
-        <AppPreviewPanel
-          request={activeRequest}
-          screenshots={workflow.previewScreenshots}
-          version={workflow.previewVersion}
+      <section className="mx-auto grid w-full max-w-[1440px] gap-3 lg:grid-cols-[244px_minmax(0,1fr)]">
+        <DashboardSidebar
+          activeRequest={activeRequest}
+          app={app}
+          onCreateUpdate={() => setChatOpen(true)}
+          onOpenSource={() => openSourceReview()}
         />
 
-        <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_420px]">
-          <VersionHistory versions={versions} />
-          <LiveLogs logs={logs} />
+        <section className="flex min-w-0 flex-col gap-3">
+          <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)]">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="min-w-0">
+                <div className="mono text-[10px] font-black uppercase text-[#46515D]">
+                  Dashboard / {app.platform}
+                </div>
+                <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
+                  <h1 className="text-3xl font-black leading-none">
+                    {app.name}
+                  </h1>
+                  <span className="mono rounded border border-[#B6DCC8] bg-[#F1FBF6] px-2 py-1 text-[9px] font-black uppercase text-[#107A48]">
+                    v{workflow.previewVersion} active
+                  </span>
+                </div>
+                <div className="mono mt-2 truncate text-[10px] font-black uppercase text-[#8A94A0]">
+                  {app.bundleId}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <ExternalReference href={app.appStoreUrl} label="App Store" />
+                <ExternalReference href={app.posthogUrl} label="PostHog" />
+                <button
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+                  onClick={() => setChatOpen(true)}
+                  type="button"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create update
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <LifecycleStage request={activeRequest} />
+
+          <AppPreviewPanel
+            request={activeRequest}
+            screenshots={workflow.previewScreenshots}
+            version={workflow.previewVersion}
+          />
+
+          <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_420px]">
+            <VersionHistory versions={versions} />
+            <LiveLogs logs={logs} />
+          </section>
         </section>
       </section>
+
+      <DashboardDrawer
+        onClose={() => setChatOpen(false)}
+        open={chatOpen}
+        title="Create update"
+      >
+        <ChatIntakePanel
+          onApproved={handleApproved}
+          onClose={() => setChatOpen(false)}
+          onReviewSource={(requestId) => openSourceReview(requestId)}
+          workflow={workflow}
+        />
+      </DashboardDrawer>
+
+      <SourceReviewOverlay
+        onClose={() => setSourceRequestId(null)}
+        open={Boolean(sourceRequestId)}
+        requestId={sourceRequestId}
+      />
     </main>
   );
 }

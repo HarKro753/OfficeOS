@@ -1,4 +1,10 @@
-import { SlideGrid, SlideIntro, SlideShell } from "@/components/SlideShell";
+import Image from "next/image";
+import {
+  SlideGrid,
+  SlideIntro,
+  SlideShell,
+  SlideVisual,
+} from "@/components/SlideShell";
 
 export function BusinessModel() {
   return (
@@ -30,6 +36,16 @@ export function BusinessModel() {
           }
           tone="green"
         />
+
+        <SlideVisual className="grid place-items-center p-0">
+          <Image
+            alt="Business model diagram showing a launch fee connected to monthly keep-alive and recurring add-on services."
+            className="w-[min(760px,calc(100%+96px))] max-w-none -translate-x-12 object-contain drop-shadow-[0_24px_44px_rgba(36,87,255,0.10)]"
+            height={654}
+            src="/BusinessModel.png"
+            width={1372}
+          />
+        </SlideVisual>
       </SlideGrid>
     </SlideShell>
   );
