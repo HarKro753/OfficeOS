@@ -13,11 +13,6 @@ type SlideGridProps = {
   className?: string;
 };
 
-type SlideVisualProps = {
-  children: ReactNode;
-  className?: string;
-};
-
 type SlideTone = "blue" | "green" | "orange" | "rose" | "ink";
 
 type MessageSpineItem = {
@@ -132,25 +127,12 @@ export function SlideGrid({ children, className = "" }: SlideGridProps) {
   return (
     <div
       className={[
-        "grid h-[calc(100%-54px)] grid-cols-[minmax(430px,0.9fr)_minmax(560px,1.1fr)] items-center gap-10 pt-5",
+        "grid h-[calc(100%-54px)] grid-cols-1 content-center pt-5",
         className,
       ].join(" ")}
     >
       {children}
     </div>
-  );
-}
-
-export function SlideVisual({ children, className = "" }: SlideVisualProps) {
-  return (
-    <aside
-      className={[
-        "relative h-[500px] min-h-[500px] min-w-0 overflow-visible p-7",
-        className,
-      ].join(" ")}
-    >
-      {children}
-    </aside>
   );
 }
 
@@ -173,11 +155,11 @@ export function SlideIntro({
         />
         {eyebrow}
       </div>
-      <h1 className="m-0 max-w-[390px] text-[54px] font-black leading-[0.9] tracking-normal text-[#101418]">
+      <h1 className="m-0 max-w-[760px] text-[76px] font-black leading-[0.88] tracking-normal text-[#101418]">
         {title}
       </h1>
       {subtitle ? (
-        <p className="mt-[22px] max-w-[340px] text-[21px] font-medium leading-[1.32] text-slate-600">
+        <p className="mt-[26px] max-w-[690px] text-[27px] font-medium leading-[1.22] text-slate-600">
           {subtitle}
         </p>
       ) : null}
@@ -188,14 +170,14 @@ export function SlideIntro({
 
 export function MessageSpine({ items }: MessageSpineProps) {
   return (
-    <div className="mt-8 grid gap-[11px]" aria-label="Message spine">
+    <div className="mt-10 grid max-w-[840px] gap-[14px]" aria-label="Message spine">
       {items.map((line) => (
         <div
-          className="grid grid-cols-[14px_1fr] items-start gap-3 text-lg font-bold leading-tight text-slate-900"
+          className="grid grid-cols-[18px_1fr] items-start gap-4 text-[24px] font-bold leading-tight text-slate-900"
           key={line.text}
         >
           <span
-            className={`mt-[7px] h-[9px] w-[9px] rounded-full ring-4 ${spineToneClasses[line.tone]}`}
+            className={`mt-[10px] h-[11px] w-[11px] rounded-full ring-4 ${spineToneClasses[line.tone]}`}
           />
           {line.text}
         </div>
