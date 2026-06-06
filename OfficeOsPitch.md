@@ -36,7 +36,7 @@ OfficeOS checks whether the spec is complete enough to build, because unclear di
 
 Then an operator uses multiple coding agents in parallel, plus automation for documentation, checks, and release preparation.
 
-After approval, OfficeOS tests the app, fixes issues, ships the release, and turns the shipped version into the new baseline.
+After approval, OfficeOS tests the app, fixes issues if found, and ships the release.
 
 ## Slide 4: Market
 
