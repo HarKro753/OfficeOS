@@ -2,11 +2,13 @@
 
 import { Toaster } from "@/components/ui/sonner";
 import { ChatIntakePanel } from "@/features/chat";
+import { SourcePackageOverlay } from "@/features/markdown-editor";
 import {
   projectStageIndex,
   type ProjectStage,
   type ProjectWorkflowState,
   type UpdateRequest,
+  UpdateReportOverlay,
   useProjectWorkflow,
 } from "@/features/project-workflow";
 import {
@@ -362,20 +364,24 @@ function LifecycleStage({
 }
 
 function VersionHistoryWorkspace({
+  onOpenReport,
   versions,
 }: {
+  onOpenReport: (reportId: string) => void;
   versions: ProjectWorkflow["state"]["versions"];
 }) {
   return (
     <section className="flex min-w-0 flex-col gap-3">
-      <VersionHistory versions={versions} />
+      <VersionHistory onOpenReport={onOpenReport} versions={versions} />
     </section>
   );
 }
 
 function VersionHistory({
+  onOpenReport,
   versions,
 }: {
+  onOpenReport: (reportId: string) => void;
   versions: ProjectWorkflow["state"]["versions"];
 }) {
   return (
@@ -391,14 +397,24 @@ function VersionHistory({
       </div>
       <ol className="mt-3 divide-y divide-[#E5EAF0] border-t border-[#E5EAF0]">
         {versions.map((version) => (
-          <VersionRow key={version.id} version={version} />
+          <VersionRow
+            key={version.id}
+            onOpenReport={onOpenReport}
+            version={version}
+          />
         ))}
       </ol>
     </section>
   );
 }
 
-function VersionRow({ version }: { version: ProjectVersion }) {
+function VersionRow({
+  onOpenReport,
+  version,
+}: {
+  onOpenReport: (reportId: string) => void;
+  version: ProjectVersion;
+}) {
   const content = (
     <>
       <div className="mono text-sm font-black text-[#183FBF]">
@@ -422,8 +438,8 @@ function VersionRow({ version }: { version: ProjectVersion }) {
         </span>
         {version.reportId ? (
           <span className="inline-flex h-8 translate-y-1 items-center justify-center gap-1.5 rounded-md bg-[#101418] px-2.5 text-[10px] font-black text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
-            View report
-            <ExternalLink className="h-3 w-3" />
+            Review report
+            <ClipboardCheck className="h-3 w-3" />
           </span>
         ) : null}
       </div>
@@ -433,12 +449,13 @@ function VersionRow({ version }: { version: ProjectVersion }) {
   if (version.reportId) {
     return (
       <li className="border-b border-[#E5EAF0] last:border-b-0">
-        <Link
-          className="group relative grid gap-3 px-3 py-3 transition hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-inset sm:grid-cols-[72px_1fr_auto] sm:items-center"
-          href={`/reports/${version.reportId}`}
+        <button
+          className="group relative grid w-full gap-3 px-3 py-3 text-left transition hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-inset sm:grid-cols-[72px_1fr_auto] sm:items-center"
+          onClick={() => onOpenReport(version.reportId ?? "")}
+          type="button"
         >
           {content}
-        </Link>
+        </button>
       </li>
     );
   }
@@ -453,11 +470,13 @@ function VersionRow({ version }: { version: ProjectVersion }) {
 function DashboardOverviewWorkspace({
   app,
   onCreateUpdate,
+  onOpenReport,
   request,
   versions,
 }: {
   app: ProjectWorkflow["state"]["app"];
   onCreateUpdate: () => void;
+  onOpenReport: (reportId: string) => void;
   request: ProjectWorkflow["state"]["activeRequest"];
   versions: ProjectWorkflow["state"]["versions"];
 }) {
@@ -493,7 +512,10 @@ function DashboardOverviewWorkspace({
       </header>
 
       <LifecycleStage currentVersion={app.currentVersion} request={request} />
-      <VersionHistoryWorkspace versions={versions} />
+      <VersionHistoryWorkspace
+        onOpenReport={onOpenReport}
+        versions={versions}
+      />
     </section>
   );
 }
@@ -538,6 +560,9 @@ export default function DashboardPage() {
   const approvedHandledRef = useRef(false);
   const approvalTimersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
   const approved = searchParams.get("approved") === "1";
+  const reportId = searchParams.get("reportId");
+  const sourceOpen = searchParams.get("source") === "1";
+  const selectedReport = reportId ? workflow.reportById(reportId) : null;
 
   useEffect(() => {
     return () => {
@@ -598,8 +623,7 @@ export default function DashboardPage() {
   const openSourceReview = (requestId = activeRequest?.id) => {
     if (!requestId) return;
 
-    setChatOpen(false);
-    router.push("/dashboard/source");
+    router.push("/dashboard?source=1");
   };
 
   const handleApproved = () => {
@@ -607,14 +631,42 @@ export default function DashboardPage() {
     router.push("/dashboard?approved=1");
   };
 
+  const openReport = (nextReportId: string) => {
+    if (!nextReportId) return;
+
+    setChatOpen(false);
+    router.push(`/dashboard?reportId=${encodeURIComponent(nextReportId)}`);
+  };
+
+  const closeReport = () => {
+    router.replace("/dashboard");
+  };
+
+  const closeSourceReview = () => {
+    router.replace("/dashboard");
+  };
+
   return (
     <DashboardPageLayout app={app}>
       <DashboardOverviewWorkspace
         app={app}
         onCreateUpdate={() => setChatOpen(true)}
+        onOpenReport={openReport}
         request={activeRequest}
         versions={versions}
       />
+
+      {selectedReport ? (
+        <UpdateReportOverlay onClose={closeReport} report={selectedReport} />
+      ) : null}
+
+      {sourceOpen ? (
+        <SourcePackageOverlay
+          onApproved={handleApproved}
+          onClose={closeSourceReview}
+          request={activeRequest}
+        />
+      ) : null}
 
       <DashboardDrawer
         onClose={() => setChatOpen(false)}

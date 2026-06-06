@@ -1,4 +1,9 @@
 export { useProjectWorkflow } from "./hooks/use-project-workflow";
+export { UpdateReportOverlay } from "./components/update-report-overlay";
+export {
+  getUpdateReportAcceptanceEvidence,
+  getUpdateReportNarrative,
+} from "./data/update-report-narratives";
 export { projectStageIndex } from "./utils/project-stage";
 export type {
   PreviewScreenshot,
@@ -8,3 +13,4 @@ export type {
   UpdateReport,
   UpdateRequest,
 } from "./types";
+export type { UpdateReportAcceptanceEvidence } from "./data/update-report-narratives";

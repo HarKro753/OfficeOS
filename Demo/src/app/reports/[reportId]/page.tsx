@@ -1,8 +1,11 @@
 "use client";
 
 import {
+  getUpdateReportAcceptanceEvidence,
+  getUpdateReportNarrative,
   useProjectWorkflow,
   type PreviewScreenshot,
+  type UpdateReportAcceptanceEvidence,
 } from "@/features/project-workflow";
 import {
   ArrowLeft,
@@ -10,7 +13,8 @@ import {
   ExternalLink,
   FileText,
   Image as ImageIcon,
-  Link2,
+  Play,
+  Video,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,10 +59,7 @@ export default function ReportPage() {
       label: "PostHog",
     },
   ];
-  const isHistoryUpdate = report.versionTarget === "1.1";
-  const narrative = isHistoryUpdate
-    ? historyUpdateNarrative
-    : fallbackNarrative(report);
+  const narrative = getUpdateReportNarrative(report);
 
   return (
     <main className="min-h-dvh bg-[#E9EDF2] text-[#101418]">
@@ -75,13 +76,20 @@ export default function ReportPage() {
               </Link>
               <StatusPill value={report.status} />
             </div>
-            <Link
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-              href={`/source?requestId=${report.requestId}`}
-            >
-              <ExternalLink className="h-4 w-4" />
-              View source
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              {releaseLinks.map((link) => (
+                <a
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+                  href={link.href}
+                  key={link.href}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Open {link.label}
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
@@ -90,10 +98,10 @@ export default function ReportPage() {
                 {report.documentVersion} / {report.documentType}
               </div>
               <h1 className="mt-2 text-4xl font-black leading-none tracking-normal sm:text-5xl">
-                Update Report - v{report.versionTarget}
+                {report.title}
               </h1>
               <p className="mt-3 text-base font-black leading-6 text-[#26313B]">
-                {report.title}
+                Update Report - v{report.versionTarget}
               </p>
               <p className="mt-3 max-w-[780px] text-sm font-bold leading-6 text-[#46515D]">
                 {report.summary}
@@ -115,36 +123,18 @@ export default function ReportPage() {
 
       <div className="mx-auto grid w-full max-w-[1180px] gap-4 px-4 py-5 sm:px-6 lg:px-8">
         <section className="border border-[#C8D0D8] bg-white p-5 shadow-[0_18px_70px_rgba(16,20,24,0.04)] sm:p-6">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px]">
-            <div className="max-w-[760px]">
-              <div className="mono text-[10px] font-black uppercase text-[#2457FF]">
-                Operator delivery note
-              </div>
-              <h2 className="mt-2 text-3xl font-black leading-tight text-[#101418]">
-                {narrative.deliveryTitle}
-              </h2>
-              <div className="mt-4 space-y-4 text-[15px] font-bold leading-8 text-[#26313B]">
-                {narrative.deliveryParagraphs.map((paragraph) => (
-                  <p key={paragraph}>{paragraph}</p>
-                ))}
-              </div>
+          <div className="max-w-[820px]">
+            <div className="mono text-[10px] font-black uppercase text-[#2457FF]">
+              Operator delivery note
             </div>
-
-            <aside className="h-fit rounded-md border border-[#D8DEE4] bg-[#F8FAFC] p-4">
-              <div className="mono text-[10px] font-black uppercase text-[#46515D]">
-                Source considered
-              </div>
-              <div className="mt-3 grid gap-2">
-                {narrative.sourceSignals.map((signal) => (
-                  <div
-                    className="rounded border border-[#D8DEE4] bg-white px-3 py-2 text-xs font-black leading-5 text-[#101418]"
-                    key={signal}
-                  >
-                    {signal}
-                  </div>
-                ))}
-              </div>
-            </aside>
+            <h2 className="mt-2 text-3xl font-black leading-tight text-[#101418]">
+              {narrative.deliveryTitle}
+            </h2>
+            <div className="mt-4 space-y-4 text-[15px] font-bold leading-8 text-[#26313B]">
+              {narrative.deliveryParagraphs.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -152,7 +142,7 @@ export default function ReportPage() {
           <SectionHeader
             eyebrow="Screenshot"
             icon={<ImageIcon className="h-4 w-4" />}
-            title="Evidence From The Build"
+            title="Changed Screens And Behavior"
           />
           <div className="mt-4 grid gap-4">
             {report.screenshots.map((screenshot) => (
@@ -183,45 +173,79 @@ export default function ReportPage() {
           </div>
         </section>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <section className="border border-[#C8D0D8] bg-white p-5 shadow-[0_18px_70px_rgba(16,20,24,0.04)] sm:p-6">
-            <SectionHeader
-              eyebrow="Testing record"
-              icon={<ClipboardCheck className="h-4 w-4" />}
-              title="What Was Checked"
-            />
-            <div className="mt-4 space-y-4 text-sm font-bold leading-7 text-[#46515D]">
-              {narrative.testingParagraphs.map((paragraph) => (
-                <p key={paragraph}>{paragraph}</p>
-              ))}
-              <p>{report.knownLimitations}</p>
-            </div>
-          </section>
+        <section className="border border-[#C8D0D8] bg-white p-5 shadow-[0_18px_70px_rgba(16,20,24,0.04)] sm:p-6">
+          <SectionHeader
+            eyebrow="Verification videos"
+            icon={<Video className="h-4 w-4" />}
+            title="Acceptance Evidence"
+          />
+          <div className="mt-4 grid gap-4">
+            {getUpdateReportAcceptanceEvidence(report).map(
+              (evidence, index) => (
+                <AcceptanceEvidenceCard
+                  evidence={evidence}
+                  index={index}
+                  key={evidence.criteria}
+                />
+              ),
+            )}
+          </div>
+        </section>
 
-          <section className="border border-[#C8D0D8] bg-white p-5 shadow-[0_18px_70px_rgba(16,20,24,0.04)] sm:p-6">
-            <SectionHeader
-              eyebrow="Release links"
-              icon={<Link2 className="h-4 w-4" />}
-              title="Open Release"
-            />
-            <div className="mt-4 grid gap-2">
-              {releaseLinks.map((link) => (
-                <a
-                  className="inline-flex h-11 items-center justify-between gap-3 rounded-md border border-[#C8D0D8] bg-[#F8FAFC] px-3 text-sm font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-                  href={link.href}
-                  key={link.href}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {link.label}
-                  <ExternalLink className="h-4 w-4 shrink-0 text-[#46515D]" />
-                </a>
-              ))}
-            </div>
-          </section>
-        </div>
+        <section className="border border-[#C8D0D8] bg-white p-5 shadow-[0_18px_70px_rgba(16,20,24,0.04)] sm:p-6">
+          <SectionHeader
+            eyebrow="Testing record"
+            icon={<ClipboardCheck className="h-4 w-4" />}
+            title="What Was Checked"
+          />
+          <div className="mt-4 space-y-4 text-sm font-bold leading-7 text-[#46515D]">
+            {narrative.testingParagraphs.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+            <p>{report.knownLimitations}</p>
+          </div>
+        </section>
       </div>
     </main>
+  );
+}
+
+function AcceptanceEvidenceCard({
+  evidence,
+  index,
+}: {
+  evidence: UpdateReportAcceptanceEvidence;
+  index: number;
+}) {
+  return (
+    <article className="grid overflow-hidden rounded-md border border-[#D8DEE4] bg-[#F8FAFC] md:grid-cols-[280px_minmax(0,1fr)]">
+      <div className="grid aspect-video min-h-[180px] place-items-center bg-[#101418] p-4 text-white md:aspect-auto">
+        <div className="grid justify-items-center gap-3 text-center">
+          <div className="grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-white/10">
+            <Play className="ml-0.5 h-5 w-5 fill-white" />
+          </div>
+          <div>
+            <div className="mono text-[10px] font-black uppercase text-white/65">
+              Mock video placeholder
+            </div>
+            <div className="mt-1 text-sm font-black leading-tight">
+              {evidence.videoLabel}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="min-w-0 p-4 sm:p-5">
+        <div className="mono text-[10px] font-black uppercase text-[#2457FF]">
+          Acceptance {index + 1}
+        </div>
+        <h3 className="mt-2 text-lg font-black leading-snug text-[#101418]">
+          {evidence.criteria}
+        </h3>
+        <p className="mt-3 text-sm font-bold leading-7 text-[#46515D]">
+          {evidence.description}
+        </p>
+      </div>
+    </article>
   );
 }
 
@@ -316,64 +340,4 @@ function CompactMeta({ label, value }: { label: string; value: string }) {
 
 function formatDate(value: string) {
   return new Date(value).toLocaleString();
-}
-
-type NarrativeReport = {
-  acceptanceParagraphs: string[];
-  deliveryParagraphs: string[];
-  deliveryTitle: string;
-  screenEvidence: string[];
-  sourceSignals: string[];
-  testingParagraphs: string[];
-};
-
-const historyUpdateNarrative: NarrativeReport = {
-  acceptanceParagraphs: [
-    "The change was reviewed against the full source request, not only the submitted screenshot. The accepted behavior covers every entry point named in the brief: successful barcode scans, search results, Explore product cards, and alternative product cards all need to write the opened product into History.",
-    "The review also covers the product-list rules that make History useful in a real shopping session. Recently opened products are ordered with the latest item first, repeat views do not create duplicate rows, and selecting any History row returns the user to the same shared Product Details destination used elsewhere in the app.",
-    "Navigation was considered as part of acceptance. Product Details remains a shared destination rather than a fourth workflow, and back navigation must return to History when History was the source. Existing Scanner, Explore, Product Details, and Alternatives behavior is expected to remain intact.",
-  ],
-  deliveryParagraphs: [
-    "Version 1.1 implements Product History as the only new top-level page in YUKA. The update gives shoppers a dedicated place to return to products they already opened, which removes the need to rescan, retype a search, or rediscover the same product from Explore while comparing items in-store.",
-    "The bottom navigation has been expanded from the v1.0 Scanner and Explore structure to Scanner, Explore, and History. Product Details stays as the shared destination behind those entry points, so the update adds recall and continuity without changing the mental model of how product information is opened.",
-    "The History screen is designed around recognition. Each row carries the product image, product name, brand, score, score label, last viewed time, and a chevron affordance. That set of fields matches the source brief and gives users enough context to confidently reopen the right product.",
-  ],
-  deliveryTitle: "Product History was added as an accountable v1.1 update.",
-  screenEvidence: [
-    "The submitted build evidence shows History as the active tab and presents recently viewed products as native-feeling rows. This is the only new screen introduced in v1.1, which keeps the scope intentionally narrow.",
-    "The screenshot also confirms the intended hierarchy: History is a top-level app section, while each row remains a path back into Product Details.",
-  ],
-  sourceSignals: [
-    "Change type: feature",
-    "Affected areas: Navigation, Scanner, Explore, Product Details, History, Design System",
-    "Non-goals: favorites, accounts, cloud sync, notes, purchase history",
-    "Release state: mocked App Store and PostHog links attached",
-  ],
-  testingParagraphs: [
-    "The review pass was framed around the user journeys in ChangeRequest.md. The critical check is that opening Product Details from scan, search, Explore, and Alternatives writes the product to History and moves it to the top of the list.",
-    "The same pass records the persistence and navigation rules that are easy to miss in a superficial visual review: repeat views produce one row, an empty History screen has a clear empty state, every populated row opens Product Details, and back navigation returns to History when that was the origin.",
-  ],
-};
-
-function fallbackNarrative(report: {
-  changedScreens: string[];
-  preservedBehavior: string[];
-  summary: string;
-  title: string;
-}): NarrativeReport {
-  return {
-    acceptanceParagraphs: [
-      report.changedScreens.join(" "),
-      report.preservedBehavior.join(" "),
-    ],
-    deliveryParagraphs: [report.summary],
-    deliveryTitle: report.title,
-    screenEvidence: [
-      "The screenshots attached to this report are the visual evidence for the delivered version.",
-    ],
-    sourceSignals: ["Baseline report", "Version evidence attached"],
-    testingParagraphs: [
-      "The baseline report records the screens and behavior expected to remain available.",
-    ],
-  };
 }

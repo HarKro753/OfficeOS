@@ -5,7 +5,9 @@ import {
   ArrowLeft,
   CheckCircle2,
   CircleDot,
+  ClipboardCheck,
   Eye,
+  History,
   Loader2,
   Send,
   X,
@@ -365,26 +367,29 @@ export function ChatIntakePanel({
                   {message.kind === "ready" &&
                   streamingMessage?.id !== message.id &&
                   message.body.length > 0 ? (
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <button
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-                        onClick={reviewSource}
-                        type="button"
-                      >
-                        <Eye className="h-4 w-4" />
-                        Review request
-                      </button>
-                      <button
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
-                        onClick={approveRequest}
-                        type="button"
-                      >
-                        <CheckCircle2 className="h-4 w-4" />
-                        Approve request
-                      </button>
-                      <span className="mono text-[10px] font-black uppercase text-[#46515D]">
-                        ChangeRequest.md
-                      </span>
+                    <div className="mt-4">
+                      <ChangeRequestPreview />
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <button
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+                          onClick={reviewSource}
+                          type="button"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Review request
+                        </button>
+                        <button
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
+                          onClick={approveRequest}
+                          type="button"
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
+                          Approve request
+                        </button>
+                        <span className="mono text-[10px] font-black uppercase text-[#46515D]">
+                          ChangeRequest.md
+                        </span>
+                      </div>
                     </div>
                   ) : null}
                 </div>
@@ -433,5 +438,58 @@ export function ChatIntakePanel({
         </div>
       </form>
     </section>
+  );
+}
+
+function ChangeRequestPreview() {
+  return (
+    <section className="overflow-hidden rounded-md border border-[#C8D0D8] bg-white">
+      <div className="border-b border-[#E5EAF0] px-3 py-2.5">
+        <div className="flex items-start gap-2">
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[#EDF3FF] text-[#2457FF]">
+            <History className="h-4 w-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm font-black leading-tight">
+              Add Product History tab
+            </div>
+            <p className="mt-1 text-xs font-bold leading-5 text-[#46515D]">
+              New v1.1 top-level section for recently viewed products.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-2 p-3 sm:grid-cols-3">
+        <PreviewSignal
+          label="Changes"
+          text="Adds History next to Scanner and Explore."
+        />
+        <PreviewSignal
+          label="Behavior"
+          text="Most recent products first, no duplicate rows."
+        />
+        <PreviewSignal
+          label="Review"
+          text="Covers scan, search, Explore, and Alternatives."
+        />
+      </div>
+    </section>
+  );
+}
+
+function PreviewSignal({ label, text }: { label: string; text: string }) {
+  return (
+    <div className="rounded border border-[#E5EAF0] bg-[#F8FAFC] p-2">
+      <div className="flex items-center gap-1.5">
+        <ClipboardCheck className="h-3.5 w-3.5 text-[#20B26B]" />
+        <div className="mono text-[9px] font-black uppercase text-[#46515D]">
+          {label}
+        </div>
+      </div>
+      <p className="mt-1 text-xs font-bold leading-5 text-[#26313B]">
+        {text}
+      </p>
+    </div>
   );
 }
