@@ -13,7 +13,6 @@ type DashboardOverviewWorkspaceProps = {
   onCreateUpdate: () => void;
   request: ProjectWorkflow["state"]["activeRequest"];
   versions: ProjectWorkflow["state"]["versions"];
-  workflow: ProjectWorkflow;
 };
 
 export function DashboardOverviewWorkspace({
@@ -21,7 +20,6 @@ export function DashboardOverviewWorkspace({
   onCreateUpdate,
   request,
   versions,
-  workflow,
 }: DashboardOverviewWorkspaceProps) {
   return (
     <section className="flex min-w-0 flex-col gap-3">
@@ -33,9 +31,6 @@ export function DashboardOverviewWorkspace({
             </div>
             <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
               <h1 className="text-3xl font-black leading-none">{app.name}</h1>
-              <span className="mono rounded border border-[#B6DCC8] bg-[#F1FBF6] px-2 py-1 text-[9px] font-black uppercase text-[#107A48]">
-                v{workflow.previewVersion} active
-              </span>
             </div>
             <div className="mono mt-2 truncate text-[10px] font-black uppercase text-[#8A94A0]">
               {app.bundleId}
@@ -57,7 +52,7 @@ export function DashboardOverviewWorkspace({
         </div>
       </header>
 
-      <LifecycleStage request={request} />
+      <LifecycleStage currentVersion={app.currentVersion} request={request} />
 
       <VersionHistoryWorkspace versions={versions} />
     </section>

@@ -95,7 +95,7 @@ export function ChatIntakePanel({
 }: ChatIntakePanelProps) {
   const localWorkflow = useProjectWorkflow();
   const workflow = providedWorkflow ?? localWorkflow;
-  const { approveGeneratedRequest, ensureGeneratedRequest } = workflow;
+  const { ensureGeneratedRequest } = workflow;
   const hasGeneratedSource = Boolean(workflow.state.activeRequest?.sourceReady);
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>(() =>
@@ -277,7 +277,6 @@ export function ChatIntakePanel({
 
   const approveRequest = () => {
     const request = generatedRequest ?? ensureGeneratedRequest();
-    approveGeneratedRequest();
     onApproved?.(request.versionTarget);
   };
 

@@ -29,7 +29,6 @@ export function SourcePackageWorkspace({
   const approveRequest = () => {
     if (!request) return;
 
-    workflow.approveGeneratedRequest();
     onApproved(request.versionTarget);
   };
 

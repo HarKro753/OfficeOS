@@ -1,4 +1,8 @@
-import type { ProjectStage, UpdateRequest } from "@/features/project-workflow";
+import type {
+  ProjectStage,
+  ProjectWorkflowState,
+  UpdateRequest,
+} from "@/features/project-workflow";
 import { projectStageIndex } from "@/features/project-workflow";
 import { CheckCircle2, Circle, Clock3, Hammer, Send } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -49,9 +53,18 @@ function activeIndex(request: UpdateRequest | null) {
   return projectStageIndex("in-implementation");
 }
 
-export function LifecycleStage({ request }: { request: UpdateRequest | null }) {
+type LifecycleStageProps = {
+  currentVersion: ProjectWorkflowState["app"]["currentVersion"];
+  request: UpdateRequest | null;
+};
+
+export function LifecycleStage({
+  currentVersion,
+  request,
+}: LifecycleStageProps) {
   const doneIndex = completedThrough(request);
   const currentIndex = activeIndex(request);
+  const displayedVersion = request?.versionTarget ?? currentVersion;
 
   return (
     <section className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.05)]">
@@ -65,7 +78,7 @@ export function LifecycleStage({ request }: { request: UpdateRequest | null }) {
           </h2>
         </div>
         <span className="mono rounded-md border border-[#D8DEE4] bg-[#F8FAFC] px-2.5 py-1.5 text-[10px] font-black uppercase text-[#46515D]">
-          {request ? request.versionTarget : "v1.0 live"}
+          v{displayedVersion}
         </span>
       </div>
 

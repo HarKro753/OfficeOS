@@ -116,7 +116,6 @@ export function updateReport(
 ): UpdateReport {
   return {
     appName: "YUKA",
-    approvedAt: "2026-06-06T09:24:00.000Z",
     changedScreens: [
       "Product History was added as the only new v1.1 page.",
       "The bottom app navigation now includes Scanner, Explore, and History.",
@@ -160,7 +159,7 @@ export function updateReport(
         title: "QA focus",
       },
     ],
-    status: "in-implementation",
+    status: "draft",
     summary:
       "Version 1.1 adds one new page to YUKA: Product History. The page gives users a top-level place to revisit products they recently opened from Scanner, Search, Explore, or Alternatives.",
     title: "Add product history tab",

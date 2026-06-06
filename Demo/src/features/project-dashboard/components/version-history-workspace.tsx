@@ -1,7 +1,6 @@
 import type { useProjectWorkflow } from "@/features/project-workflow";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { WorkspaceHeader } from "./workspace-header";
 
 type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 type ProjectVersion = ProjectWorkflow["state"]["versions"][number];
@@ -15,7 +14,6 @@ export function VersionHistoryWorkspace({
 }: VersionHistoryWorkspaceProps) {
   return (
     <section className="flex min-w-0 flex-col gap-3">
-      <WorkspaceHeader eyebrow="Updates" title="Update history" />
       <VersionHistory versions={versions} />
     </section>
   );

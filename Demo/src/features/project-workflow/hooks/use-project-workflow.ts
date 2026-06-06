@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  baselineState,
   baselineScreenshots,
   generatedRequest,
   updateReport,
@@ -16,13 +17,21 @@ import { hasVersion, uniqueById } from "../utils/collections";
 
 export function useProjectWorkflow() {
   const [state, setState] = useState<ProjectWorkflowState>(() =>
-    readState(),
+    baselineState(),
   );
 
+  useEffect(() => {
+    const hydrationTimer = window.setTimeout(() => {
+      setState(readState());
+    }, 0);
+
+    return () => window.clearTimeout(hydrationTimer);
+  }, []);
+
   const sync = useCallback((nextState: ProjectWorkflowState) => {
-    writeState(nextState);
-    setState(nextState);
-    return nextState;
+    const normalizedState = writeState(nextState);
+    setState(normalizedState);
+    return normalizedState;
   }, []);
 
   const ensureGeneratedRequest = useCallback(() => {
@@ -65,21 +74,48 @@ export function useProjectWorkflow() {
     const approvedRequest: UpdateRequest = {
       ...request,
       approvedAt,
-      stage: "in-implementation",
-      status: "implementing",
+      stage: "human-approved",
+      status: "approved",
     };
     const nextState: ProjectWorkflowState = {
       ...current,
       activeRequest: approvedRequest,
       reports: current.reports.map((report) =>
         report.id === request.reportId
-          ? { ...report, status: "in-implementation" }
+          ? { ...report, approvedAt, status: "approved" }
           : report,
       ),
       versions: current.versions.map((version) =>
         version.version === request.versionTarget
           ? { ...version, status: "pending" }
           : version,
+      ),
+    };
+
+    return sync(nextState);
+  }, [sync]);
+
+  const beginApprovedImplementation = useCallback(() => {
+    const current = readState();
+    const request = current.activeRequest;
+
+    if (!request || request.status === "generated") {
+      setState(current);
+      return current;
+    }
+
+    const implementingRequest: UpdateRequest = {
+      ...request,
+      stage: "in-implementation",
+      status: "implementing",
+    };
+    const nextState: ProjectWorkflowState = {
+      ...current,
+      activeRequest: implementingRequest,
+      reports: current.reports.map((report) =>
+        report.id === request.reportId
+          ? { ...report, status: "in-implementation" }
+          : report,
       ),
     };
 
@@ -114,7 +150,7 @@ export function useProjectWorkflow() {
       versions: current.versions.map((version) =>
         version.version === request.versionTarget
           ? { ...version, status: "live" }
-          : version,
+          : { ...version, status: "pending" }
       ),
     };
 
@@ -141,6 +177,7 @@ export function useProjectWorkflow() {
     () => ({
       activeReport,
       approveGeneratedRequest,
+      beginApprovedImplementation,
       completeApprovedUpdate,
       ensureGeneratedRequest,
       previewScreenshots,
@@ -151,6 +188,7 @@ export function useProjectWorkflow() {
     [
       activeReport,
       approveGeneratedRequest,
+      beginApprovedImplementation,
       completeApprovedUpdate,
       ensureGeneratedRequest,
       previewScreenshots,

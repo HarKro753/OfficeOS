@@ -11,12 +11,29 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-function showApprovedToast(versionTarget: string) {
-  toast.success(`Approved. v${versionTarget} is live.`, {
-    description:
-      "OfficeOS used the generated source package and update report to complete the mocked update.",
+const STAGE_DELAY_MS = 4000;
+
+function showHumanApprovedToast(versionTarget: string) {
+  toast.success(`Human approval complete for v${versionTarget}.`, {
+    description: "The generated source package is approved for implementation.",
     duration: 6000,
-    id: "officeos-update-approved",
+    id: "officeos-human-approved",
+  });
+}
+
+function showImplementationToast(versionTarget: string) {
+  toast.success(`Implementation complete for v${versionTarget}.`, {
+    description: "OfficeOS finished applying the approved update package.",
+    duration: 6000,
+    id: "officeos-implementation-complete",
+  });
+}
+
+function showLiveToast(versionTarget: string) {
+  toast.success(`v${versionTarget} is live.`, {
+    description: "The previous live baseline has been retired.",
+    duration: 6000,
+    id: "officeos-update-live",
   });
 }
 
@@ -27,7 +44,15 @@ export default function DashboardPage() {
   const { activeRequest, app, versions } = workflow.state;
   const [chatOpen, setChatOpen] = useState(false);
   const approvedHandledRef = useRef(false);
+  const approvalTimersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
   const approved = searchParams.get("approved") === "1";
+
+  useEffect(() => {
+    return () => {
+      approvalTimersRef.current.forEach((timer) => clearTimeout(timer));
+      approvalTimersRef.current = [];
+    };
+  }, []);
 
   useEffect(() => {
     if (!approved) {
@@ -37,10 +62,51 @@ export default function DashboardPage() {
 
     if (approvedHandledRef.current) return;
 
+    if (!activeRequest) {
+      router.replace("/dashboard");
+      return;
+    }
+
     approvedHandledRef.current = true;
-    const completedState = workflow.completeApprovedUpdate();
-    showApprovedToast(completedState.app.currentVersion);
-  }, [approved, workflow]);
+    approvalTimersRef.current.forEach((timer) => clearTimeout(timer));
+    approvalTimersRef.current = [];
+
+    const versionTarget = activeRequest.versionTarget;
+    const schedule = (callback: () => void, delay = STAGE_DELAY_MS) => {
+      const timer = setTimeout(callback, delay);
+      approvalTimersRef.current.push(timer);
+    };
+    const scheduleImplementation = () => {
+      workflow.beginApprovedImplementation();
+
+      schedule(() => {
+        const completedState = workflow.completeApprovedUpdate();
+        showImplementationToast(versionTarget);
+        showLiveToast(completedState.app.currentVersion);
+        router.replace("/dashboard");
+      });
+    };
+
+    if (activeRequest.status === "generated") {
+      schedule(() => {
+        workflow.approveGeneratedRequest();
+        showHumanApprovedToast(versionTarget);
+        scheduleImplementation();
+      });
+      return;
+    }
+
+    if (activeRequest.status === "approved") {
+      showHumanApprovedToast(versionTarget);
+    }
+
+    scheduleImplementation();
+  }, [
+    activeRequest,
+    approved,
+    router,
+    workflow,
+  ]);
 
   const openSourceReview = (requestId = activeRequest?.id) => {
     if (!requestId) return;
@@ -64,7 +130,6 @@ export default function DashboardPage() {
         onCreateUpdate={() => setChatOpen(true)}
         request={activeRequest}
         versions={versions}
-        workflow={workflow}
       />
 
       <DashboardDrawer

@@ -64,9 +64,49 @@ function normalizeReport(value: unknown): UpdateReport | null {
   } as UpdateReport;
 }
 
+function normalizeVersions(
+  versions: ProjectVersion[],
+  currentVersion: string,
+): Pick<ProjectWorkflowState, "versions"> &
+  Pick<ProjectWorkflowState["app"], "currentVersion"> {
+  const liveVersion =
+    versions.find((version) => version.version === currentVersion)?.version ??
+    versions.find((version) => version.status === "live")?.version ??
+    versions[0]?.version ??
+    currentVersion;
+
+  return {
+    currentVersion: liveVersion,
+    versions: versions.map((version) => ({
+      ...version,
+      status:
+        version.version === liveVersion
+          ? ("live" as const)
+          : ("pending" as const),
+    })),
+  };
+}
+
 export function normalizeState(value: unknown): ProjectWorkflowState {
   const fallback = baselineState();
   if (!isRecord(value)) return fallback;
+
+  const app = {
+    ...fallback.app,
+    ...(isRecord(value.app) ? value.app : {}),
+  };
+  const reports = Array.isArray(value.reports)
+    ? value.reports.flatMap((report) => {
+        const normalizedReport = normalizeReport(report);
+        return normalizedReport ? [normalizedReport] : [];
+      })
+    : fallback.reports;
+  const { currentVersion, versions } = normalizeVersions(
+    Array.isArray(value.versions)
+      ? (value.versions as ProjectVersion[])
+      : fallback.versions,
+    app.currentVersion,
+  );
 
   return {
     activeRequest: isRecord(value.activeRequest)
@@ -76,18 +116,11 @@ export function normalizeState(value: unknown): ProjectWorkflowState {
         } as UpdateRequest)
       : null,
     app: {
-      ...fallback.app,
-      ...(isRecord(value.app) ? value.app : {}),
+      ...app,
+      currentVersion,
     },
-    reports: Array.isArray(value.reports)
-      ? value.reports.flatMap((report) => {
-          const normalizedReport = normalizeReport(report);
-          return normalizedReport ? [normalizedReport] : [];
-        })
-      : fallback.reports,
-    versions: Array.isArray(value.versions)
-      ? (value.versions as ProjectVersion[])
-      : fallback.versions,
+    reports,
+    versions,
   };
 }
 
@@ -98,14 +131,19 @@ export function readState(): ProjectWorkflowState {
   if (!stored) return baselineState();
 
   try {
-    return normalizeState(JSON.parse(stored));
+    const normalizedState = normalizeState(JSON.parse(stored));
+    window.localStorage.setItem(storageKey, JSON.stringify(normalizedState));
+    return normalizedState;
   } catch {
     return baselineState();
   }
 }
 
 export function writeState(state: ProjectWorkflowState) {
-  if (typeof window === "undefined") return;
+  const normalizedState = normalizeState(state);
 
-  window.localStorage.setItem(storageKey, JSON.stringify(state));
+  if (typeof window === "undefined") return normalizedState;
+
+  window.localStorage.setItem(storageKey, JSON.stringify(normalizedState));
+  return normalizedState;
 }
