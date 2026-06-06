@@ -2,143 +2,70 @@
 
 ## Slide 1: Problem
 
-Apps are not finished artifacts. They evolve with users.
+Code got cheaper, but mobile app ownership did not.
 
-We help founders, small teams, and agencies with clear app direction ship and keep improving mobile apps.
+A first build is no longer the scarce part; the hard part is keeping the app shippable after real users change the plan.
 
-The problem is not that nobody can generate code anymore.
+After launch, users reveal missing screens, edge states, subscription rules, analytics gaps, and new flows the original spec did not cover.
 
-The problem is that an app is not a finished artifact.
-
-An app is a living product. It only becomes valuable when it keeps evolving around real users.
-
-In 2024 Apple reviewed 7.8 million app submissions and rejected 1.9 million.
-
-Even when an app ships, version one is not ownership. It is the first time the app meets real users.
-
-Users get stuck in places you did not expect. They ignore features you thought mattered. They pull the product in directions you did not plan for.
-
-That is the identity of apps: they have to keep changing according to customers.
-
-Today, that work falls into the handoff gap between builders and owners.
+That work falls into the handoff gap between people who can describe the app and people who can operate the mobile delivery lifecycle.
 
 ## Slide 2: Solution
 
-OfficeOS is the app delivery OS for teams that know what app they want, but do not want to run the whole mobile production lifecycle themselves.
+OfficeOS is the app delivery OS for app-ready founders, small teams, and agencies that know what app they want, but do not want to run the mobile production lifecycle themselves.
 
-The customer owns product direction, design direction, and marketing.
+They bring the direction: what the app should do, how it should feel, and what needs to change next.
 
-OfficeOS owns delivery readiness, implementation, QA, release preparation, monitoring, monetization setup, and maintenance.
+OfficeOS turns that direction into accepted specs, shipped releases, and a maintained app lifecycle.
 
-That means the handoff does not end at a first build. OfficeOS stays responsible for the delivery lifecycle after the app meets real users.
+The handoff does not end at a first build; customers keep control of the product while OfficeOS keeps the app moving after it meets real users.
 
 ## Slide 3: How It Works
 
-The source of truth drives every build and every update.
+The source of truth is the contract between product direction and app delivery.
 
-The workflow starts with a source-of-truth package.
+The customer uploads `SPEC.md`, `DESIGN.md`, referenced assets, or a `ChangeRequest.md`; OfficeOS checks whether the package is complete enough to build.
 
-The customer uploads `SPEC.md`, `DESIGN.md`, and the referenced assets.
+Incomplete direction stops at the readiness gate instead of becoming hidden delivery debt.
 
-`SPEC.md` defines the app: metadata, goals, app navigation, sections, screens, requirements, and acceptance criteria.
+The demo shows that loop: an app update request becomes delivery artifacts, moves through source-of-truth review, readiness, implementation, QA, release preparation, and ends as an update report.
 
-`DESIGN.md` defines the visual system: colors, typography, spacing, components, and design rules.
+## Slide 4: Market
 
-If it passes, the app enters the delivery pipeline: implementation, QA, release preparation, and operating setup.
+Mobile app delivery is a large, proven market: Clutch puts the average app development project near $90,780 and 11 months, while Apple reviewed 7.77 million App Store submissions in 2024 and rejected 1.93 million.
 
-After the app exists, updates follow the same rule.
+Our beachhead is app-ready founders, small teams, and agencies that already have a spec, Figma file, client request, product brief, or existing app update.
 
-The customer submits a `ChangeRequest.md`, for example: add a product history tab.
+We are not competing to be another dev tool; Lovable, Bolt.new, Replit, Cursor, FlutterFlow, Adalo, Thunkable, and Draftbit help people build faster, but the customer still has to operate delivery.
 
-OfficeOS converts that request into proposed updates to `SPEC.md` and, if needed, `DESIGN.md`.
+We are not a traditional agency either; agencies can own delivery, but they are expensive, project-scoped, and built around handoffs.
 
-Only after the updated source of truth is approved do we implement the change.
+## Slide 5: Business Model
 
-That is the core system: upload the app definition, get the app back; upload a change request, get an approved source-of-truth update, then get the app update back.
+OfficeOS starts with service revenue and grows with the app lifecycle.
 
-## Slide 4: Market + Competition
+Customers pay a $499 launch package to move from approved product and design direction to a TestFlight-ready app.
 
-Mobile app development is a large, proven market.
+After launch, they move into a $49 per month keep-alive plan for hosting, monitoring, and basic bug fixes.
 
-Clutch data puts the average app development project at about $90,780, with typical projects taking around 11 months.
+As the app grows, customers add update, analytics, paywall testing, and attribution modules at $100 per month each.
 
-Apple reported 7.77 million App Store submissions reviewed in 2024 and 1.93 million rejected. That shows how much mobile delivery work exists beyond writing code.
+## Slide 6: Go To Market
 
-The US alone has 36.2 million small businesses. We do not need all of them.
+We start with a controlled pilot for teams that already have app direction but do not want to operate delivery themselves.
 
-Our beachhead is app-ready founders, small teams, and agencies that already have a spec, Figma file, client request, or clear app direction.
+The pilot gives us delivery data: where specs are incomplete, where the pipeline breaks, and which update types repeat.
 
-At current pricing, one customer is worth about $1,087 in first-year base revenue before update and growth modules.
+While private, we collect demand through founder communities, agency partnerships, LinkedIn outreach, and direct conversations with teams holding specs or Figma files.
 
-1,000 customers is about $1.1 million in first-year base revenue.
+We go public only after the pipeline is reliable enough to handle repeatable delivery volume.
 
-10,000 customers is about $10.9 million in first-year base revenue.
+## Slide 7: Why Us
 
-If half of those customers add one $100 per month service module, that becomes about $1.7 million and $16.9 million in first-year revenue.
+We have lived the mobile delivery mess directly.
 
-Competition is clear.
+Coding was not what made a simple motivation app take months; the work got stuck in product handoff, design decisions, missing screens, App Store submission, analytics, monetization, and release ownership.
 
-We are not a dev tool. Lovable, Bolt.new, Replit, Cursor, Bilt, FlutterFlow, Adalo, Thunkable, and Draftbit help people build faster, but the customer still has to operate the mobile delivery process.
+Around 40 App Store rejection and review cycles taught the patterns that block apps from shipping: privacy labels, permissions, login flows, subscription rules, metadata, screenshots, edge states, guideline interpretation, and release sequencing.
 
-We are not an agency. Agencies can own delivery, but they are expensive, scope-based, and built around project handoffs.
-
-The status quo is the app staying as a Figma file, web app, spreadsheet, or abandoned version one.
-
-## Slide 5: Demo
-
-Upload a spec. Get an app. Upload a change request. Get an update.
-
-The customer owns the source of truth.
-
-OfficeOS owns readiness, implementation, QA, release, and update delivery.
-
-When the source of truth changes, the app changes.
-
-When the source of truth is incomplete, implementation does not start.
-
-That is how we avoid the normal agency loop where the product only becomes defined after repeated unpaid interpretation rounds.
-
-## Slide 6: Why Us / Why Now
-
-We have already lived the mobile delivery mess.
-
-This is not a theoretical problem for us.
-
-I worked for months on a relatively simple motivation app, and coding was not what made it take months. The work got stuck in product handoff, design decisions, missing screens, App Store submission, analytics, monetization, and release ownership.
-
-I have also personally gone through around 40 App Store rejection and review cycles. That means I know the patterns that block apps from shipping: privacy labels, permissions, login flows, subscription rules, metadata, screenshots, edge states, guideline interpretation, and release sequencing.
-
-Shipping is only the first part. I know the layer most first-time app builders miss: analytics, paywalls, subscriptions, monitoring, and the post-launch iteration needed to improve revenue and retention.
-
-That is also why this exists now. AI makes code cheaper, but production ownership is still scarce.
-
-The same way cloud separated application teams from infrastructure ownership, OfficeOS separates app owners from the delivery lifecycle.
-
-## Slide 7: Business Model
-
-Service revenue now, platform revenue as customers grow.
-
-Customers first pay a $499 launch package to move from approved product and design to a TestFlight-ready app.
-
-After launch, the app moves into a $49 per month keep-alive plan. That includes hosting, monitoring, and basic bug fixes.
-
-We do not hand customers a codebase and leave. OfficeOS keeps operating the app.
-
-Then customers add service modules as they need them: updates, product analytics, paywall A/B testing, and attribution link management are each $100 per month.
-
-This allows users to only pay for what they actually use.
-
-## Slide 8: Go To Market
-
-We would start with a controlled pilot program.
-
-We would work with small teams that have app ideas but do not want to operate the delivery lifecycle themselves.
-
-The goal of those pilots is feedback and delivery data.
-
-Only when the pipeline works reliably do we go public.
-
-While we are private, we can already collect early traction signals through LinkedIn, a waitlist, founder communities, agency partnerships, and direct outreach to teams that already have app specs or Figma files.
-
-When we go public, we will know how much delivery volume we can handle, where the pipeline breaks, and which parts of the workflow are ready to scale.
-
+AI makes code cheaper, but production ownership is still scarce; the same way cloud separated app teams from infrastructure ownership, OfficeOS separates app owners from the delivery lifecycle.
