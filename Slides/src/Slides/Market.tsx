@@ -3,32 +3,31 @@ import { SlideGrid, SlideIntro, SlideShell } from "@/components/SlideShell";
 export function Market() {
   return (
     <SlideShell
-      footnote="Replace the customer count and pricing with validated numbers before submission."
-      label="04 / 07"
+      label="04 / Market"
     >
       <SlideGrid>
         <SlideIntro
           eyebrow="Market + competition"
           items={[
             {
-              text: "Beachhead: founders, product owners, and agencies with apps already in users' hands.",
+              text: "Founders and agencies already know the direction.",
               tone: "blue",
             },
             {
-              text: "Status quo: freelancers, internal PMs, agencies, spreadsheets, TestFlight notes, and emergency fixes.",
+              text: "The status quo is handoff-heavy delivery after launch.",
               tone: "green",
             },
             {
-              text: "OfficeOS wins by operating the app after launch, not selling another project-management surface.",
+              text: "OfficeOS is the operator that keeps accounts alive.",
               tone: "orange",
             },
           ]}
-          subtitle="The first market is teams with direction and users, but no dedicated operator to keep the app moving."
+          subtitle="Start where there is already an app, a backlog, and no clear owner for the next release."
           title={
             <>
-              Start where
+              <span className="whitespace-nowrap">Start where</span>
               <br />
-              direction exists.
+              <span className="whitespace-nowrap">direction exists.</span>
             </>
           }
           tone="green"

@@ -2,30 +2,30 @@ import { SlideGrid, SlideIntro, SlideShell } from "@/components/SlideShell";
 
 export function Solution() {
   return (
-    <SlideShell label="02 / 07">
+    <SlideShell label="02 / Solution">
       <SlideGrid>
         <SlideIntro
-          eyebrow="Solution + product"
+          eyebrow="Accountable delivery"
           items={[
             {
-              text: "You set the direction: what should change, why it matters, and what cannot break.",
+              text: "You set the direction.",
               tone: "orange",
             },
             {
-              text: "OfficeOS owns execution: delivery, QA, release prep, and upload.",
+              text: "OfficeOS owns execution.",
               tone: "blue",
             },
             {
-              text: "Every release has an operator, not a loose chain of handoffs.",
+              text: "Every release has an operator.",
               tone: "green",
             },
           ]}
           subtitle="You direct. OfficeOS delivers."
           title={
             <>
-              OfficeOS owns
+              <span className="whitespace-nowrap">OfficeOS owns</span>
               <br />
-              delivery.
+              <span className="whitespace-nowrap">delivery.</span>
             </>
           }
           tone="blue"

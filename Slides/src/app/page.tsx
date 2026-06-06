@@ -29,11 +29,11 @@ type SlideDefinition = {
 const slides: SlideDefinition[] = [
   { Component: Problem, label: "01", title: "Problem" },
   { Component: Solution, label: "02", title: "Solution" },
-  { Component: WhyNow, label: "03", title: "Why Now" },
+  { Component: WhyNow, label: "03", title: "How It Works" },
   { Component: Market, label: "04", title: "Market" },
   { Component: BusinessModel, label: "05", title: "Business Model" },
-  { Component: GoToMarket, label: "06", title: "GTM" },
-  { Component: Team, label: "07", title: "Team" },
+  { Component: GoToMarket, label: "06", title: "Go To Market" },
+  { Component: Team, label: "07", title: "Why Us" },
 ];
 
 type SlideStageProps = {

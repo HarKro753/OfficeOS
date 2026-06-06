@@ -2,30 +2,30 @@ import { SlideGrid, SlideIntro, SlideShell } from "@/components/SlideShell";
 
 export function WhyNow() {
   return (
-    <SlideShell label="03 / 07">
+    <SlideShell label="03 / How It Works">
       <SlideGrid>
         <SlideIntro
-          eyebrow="Why now"
+          eyebrow="AI-native workflow"
           items={[
             {
-              text: "AI lowers the cost of writing code, but ownership after launch gets scarcer.",
-              tone: "rose",
+              text: "Request becomes workflow.",
+              tone: "orange",
             },
             {
-              text: "Agents can now do the repeatable work: tickets, tests, release notes, checks, and upload prep.",
+              text: "Human gates stay in place.",
               tone: "green",
             },
             {
-              text: "Human gates stay in place for direction, approval, and risk decisions.",
+              text: "Agents do the repeatable work.",
               tone: "blue",
             },
           ]}
-          subtitle="The bottleneck is moving from code production to accountable product operation."
+          subtitle="Humans steer. Agents execute."
           title={
             <>
-              Request in.
+              <span className="whitespace-nowrap">Request in.</span>
               <br />
-              Update out.
+              <span className="whitespace-nowrap">Update out.</span>
             </>
           }
           tone="green"

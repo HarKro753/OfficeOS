@@ -2,30 +2,30 @@ import { SlideGrid, SlideIntro, SlideShell } from "@/components/SlideShell";
 
 export function Problem() {
   return (
-    <SlideShell label="01 / 07">
+    <SlideShell label="01 / Problem">
       <SlideGrid>
         <SlideIntro
-          eyebrow="Problem + customer"
+          eyebrow="Ownership gap"
           items={[
             {
-              text: "The first build is when an app finally meets real users.",
+              text: "The app meets real users.",
               tone: "orange",
             },
             {
-              text: "Their behavior changes the roadmap, support load, and release priorities.",
+              text: "Their behavior changes the direction.",
               tone: "orange",
             },
             {
-              text: "Someone has to own the next move after launch, not just ship the first version.",
+              text: "Someone has to own the next move.",
               tone: "blue",
             },
           ]}
-          subtitle="For founders and agencies launching mobile apps, the real work starts after users touch the product."
+          subtitle="The first build is when the product finally meets real users."
           title={
             <>
-              The app ships.
+              <span className="whitespace-nowrap">The app ships.</span>
               <br />
-              Ownership begins.
+              <span className="whitespace-nowrap">Ownership begins.</span>
             </>
           }
           tone="orange"

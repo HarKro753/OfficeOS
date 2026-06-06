@@ -2,34 +2,30 @@ import { SlideGrid, SlideIntro, SlideShell } from "@/components/SlideShell";
 
 export function BusinessModel() {
   return (
-    <SlideShell label="05 / 07">
+    <SlideShell label="05 / Business Model">
       <SlideGrid>
         <SlideIntro
-          eyebrow="Business model + evidence"
+          eyebrow="Revenue model"
           items={[
             {
-              text: "Launch creates the first sale: scoped delivery, fixes, migration, or release work.",
+              text: "Launch creates the first sale.",
               tone: "blue",
             },
             {
-              text: "Operations create the account: monthly keep-alive for releases, QA, monitoring, and support load.",
+              text: "Operations create the account.",
               tone: "green",
             },
             {
-              text: "Add-ons compound retention: paywalls, analytics, onboarding, notifications, and growth loops.",
+              text: "Add-ons compound retention.",
               tone: "orange",
-            },
-            {
-              text: "Evidence today: shipped demo flow, public repo, and pilot conversations with ownership-ready teams.",
-              tone: "rose",
             },
           ]}
           subtitle="Delivery upfront. Lifecycle recurring."
           title={
             <>
-              Launch once.
+              <span className="whitespace-nowrap">Launch once.</span>
               <br />
-              Operate monthly.
+              <span className="whitespace-nowrap">Operate monthly.</span>
             </>
           }
           tone="green"
