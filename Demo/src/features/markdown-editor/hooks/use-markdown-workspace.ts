@@ -9,7 +9,7 @@ import type {
   WorkspaceItemId,
 } from "../types";
 
-const sourceDocumentsStorageKey = "officeos-demo-markdown-documents-v1";
+const defaultSourceDocumentsStorageKey = "officeos-demo-markdown-documents-v1";
 
 function isSourceDocKey(
   itemId: WorkspaceItemId,
@@ -32,13 +32,16 @@ function defaultDocuments(docs: SourceDoc[]): Record<SourceDocKey, string> {
   );
 }
 
-function readStoredDocuments(docs: SourceDoc[]): Record<SourceDocKey, string> {
+function readStoredDocuments(
+  docs: SourceDoc[],
+  storageKey: string,
+): Record<SourceDocKey, string> {
   const defaults = defaultDocuments(docs);
 
   if (typeof window === "undefined") return defaults;
 
   const storedDocuments = window.localStorage.getItem(
-    sourceDocumentsStorageKey,
+    storageKey,
   );
   if (!storedDocuments) return defaults;
 
@@ -64,18 +67,19 @@ function readStoredDocuments(docs: SourceDoc[]): Record<SourceDocKey, string> {
   }
 }
 
-function writeStoredDocuments(documents: Record<SourceDocKey, string>) {
+function writeStoredDocuments(
+  documents: Record<SourceDocKey, string>,
+  storageKey: string,
+) {
   if (typeof window === "undefined") return;
 
-  window.localStorage.setItem(
-    sourceDocumentsStorageKey,
-    JSON.stringify(documents),
-  );
+  window.localStorage.setItem(storageKey, JSON.stringify(documents));
 }
 
 export function useMarkdownWorkspace(
   initialDocs: SourceDoc[],
   initialAssets: MockAsset[],
+  storageKey = defaultSourceDocumentsStorageKey,
 ) {
   const defaultActiveDoc = initialDocs[0]?.key ?? "SPEC.md";
   const [activeDoc, setActiveDoc] = useState<SourceDocKey>(defaultActiveDoc);
@@ -85,7 +89,7 @@ export function useMarkdownWorkspace(
     initialDocs.map((doc) => doc.key),
   );
   const [documents, setDocuments] = useState<Record<SourceDocKey, string>>(() =>
-    readStoredDocuments(initialDocs),
+    readStoredDocuments(initialDocs, storageKey),
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const bindTextarea = useCallback((element: HTMLTextAreaElement | null) => {
@@ -93,8 +97,8 @@ export function useMarkdownWorkspace(
   }, []);
 
   useEffect(() => {
-    writeStoredDocuments(documents);
-  }, [documents]);
+    writeStoredDocuments(documents, storageKey);
+  }, [documents, storageKey]);
 
   const workspaceItems = useMemo<WorkspaceItem[]>(() => {
     const documentItems = initialDocs.map((doc) => ({

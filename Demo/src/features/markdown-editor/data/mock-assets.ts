@@ -2,7 +2,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { MockAsset, SourceDoc, SourceDocKey } from "../types";
 
-const templateDirectory = join(process.cwd(), "templates");
+type TemplateState = "empty" | "final";
+
+function templateDirectoryForState(templateState: TemplateState) {
+  return join(
+    process.cwd(),
+    "templates",
+    templateState === "empty" ? "empty" : "",
+  );
+}
 
 const mockSourceDocuments: Array<Omit<SourceDoc, "content">> = [
   {
@@ -28,7 +36,9 @@ const mockSourceDocuments: Array<Omit<SourceDoc, "content">> = [
   },
 ];
 
-function readTemplate(key: SourceDocKey) {
+function readTemplate(key: SourceDocKey, templateState: TemplateState) {
+  const templateDirectory = templateDirectoryForState(templateState);
+
   return readFileSync(join(templateDirectory, key), "utf8");
 }
 
@@ -53,11 +63,11 @@ export const mockAssets: MockAsset[] = [
   },
 ];
 
-export function getMockMarkdownEditorData() {
+export function getMockMarkdownEditorData(templateState: TemplateState = "final") {
   return {
     sourceDocs: mockSourceDocuments.map((doc) => ({
       ...doc,
-      content: readTemplate(doc.key),
+      content: readTemplate(doc.key, templateState),
     })),
     assets: mockAssets,
   };

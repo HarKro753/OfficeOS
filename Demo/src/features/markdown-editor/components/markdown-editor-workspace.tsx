@@ -10,11 +10,13 @@ import type { MockAsset, SourceDoc } from "../types";
 type MarkdownEditorWorkspaceProps = {
   assets: MockAsset[];
   initialDocs: SourceDoc[];
+  storageKey?: string;
 };
 
 export function MarkdownEditorWorkspace({
   assets,
   initialDocs,
+  storageKey,
 }: MarkdownEditorWorkspaceProps) {
   const {
     activeDoc,
@@ -28,7 +30,7 @@ export function MarkdownEditorWorkspace({
     selectWorkspaceItem,
     updateActiveDocument,
     workspaceItems,
-  } = useMarkdownWorkspace(initialDocs, assets);
+  } = useMarkdownWorkspace(initialDocs, assets, storageKey);
   const selectedMockAsset =
     activeItem.type === "asset"
       ? mockAssets.find((asset) => asset.path === activeItem.path)

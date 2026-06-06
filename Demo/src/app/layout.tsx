@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OfficeOS Markdown Demo",
-  description: "Mock markdown source editor for the OfficeOS demo",
+  title: "OfficeOS Demo",
+  description: "Mock OfficeOS chat intake and source editor demo",
 };
 
 export default function RootLayout({

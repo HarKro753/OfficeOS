@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { FileFormatIcon } from "./file-format-icon";
 import type { WorkspaceItem, WorkspaceItemId } from "../types";
@@ -17,13 +18,13 @@ export function TemplateSidebar({
   return (
     <aside className="flex w-[220px] shrink-0 flex-col overflow-hidden rounded-md border border-[#C8D0D8] bg-[#F8FAFC] shadow-[0_18px_70px_rgba(16,20,24,0.08)]">
       <header className="px-3 py-3">
-        <button
+        <Link
+          href="/chat"
           className="mb-3 inline-flex h-8 w-full items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-2 text-[11px] font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-          type="button"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to chat
-        </button>
+        </Link>
         <div className="flex items-center gap-2">
           <Image
             alt="OfficeOS"
