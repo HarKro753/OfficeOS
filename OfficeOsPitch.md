@@ -12,7 +12,7 @@ The problem is that an app is not a finished artifact.
 
 An app is a living product. It only becomes valuable when it keeps evolving around real users.
 
-That is not a small edge case. Apple reviewed 7.8 million app submissions in 2024 and rejected 1.9 million.
+In 2024 Apple reviewed 7.8 million app submissions and rejected 1.9 million.
 
 Even when an app ships, version one is not ownership. It is the first time the app meets real users.
 
@@ -23,8 +23,6 @@ That is the identity of apps: they have to keep changing according to customers.
 Today, that work falls into the handoff gap between builders and owners.
 
 ## Slide 2: Solution
-
-OfficeOS owns the app delivery stack.
 
 OfficeOS is the app delivery OS for teams that know what app they want, but do not want to run the whole mobile production lifecycle themselves.
 
@@ -45,14 +43,6 @@ The customer uploads `SPEC.md`, `DESIGN.md`, and the referenced assets.
 `SPEC.md` defines the app: metadata, goals, app navigation, sections, screens, requirements, and acceptance criteria.
 
 `DESIGN.md` defines the visual system: colors, typography, spacing, components, and design rules.
-
-OfficeOS does not start implementation just because a file was uploaded.
-
-First, the submission goes through a readiness gate.
-
-We check for completeness, contradictions, ambiguous requirements, missing screen context, missing assets, missing acceptance criteria, unsupported scope, data dependency gaps, and design-system conflicts.
-
-If the source of truth is not buildable, OfficeOS sends it back instead of guessing.
 
 If it passes, the app enters the delivery pipeline: implementation, QA, release preparation, and operating setup.
 

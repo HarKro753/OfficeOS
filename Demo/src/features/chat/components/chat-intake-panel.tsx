@@ -37,27 +37,20 @@ type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 
 type ChatIntakePanelProps = {
   frame?: "drawer" | "page";
-  onApproved?: (versionTarget: string) => void;
   onClose?: () => void;
+  onRequestSent?: (versionTarget: string) => void;
   onReviewSource?: (requestId: string) => void;
   workflow?: ProjectWorkflow;
 };
 
 const initialMessage =
-  "Describe the app you want OfficeOS to build. Include the users, core screens, flows, assets, integrations, and the design direction you want preserved.";
+  "Describe the app update you want OfficeOS to prepare. Include the app, user need, changed behavior, affected screens, data or storage expectations, and anything that should stay out of scope.";
 
-const questionResponse = [
-  "What is the app called?",
-  "Who is the primary user?",
-  "What problem should the app solve first?",
-  "What should the user be able to do in the first session?",
-  "Which screens must exist in the initial build?",
-  "What data, files, or assets should the app use?",
-  "Which integrations are required, if any?",
-  "What should be explicitly out of scope?",
-  "What visual style should the app follow?",
-  "What acceptance criteria would make the app ready to build?",
-].join("\n");
+const questionResponse =
+  "One blocker before I write the update package: History needs a persisted recently viewed list, but the request says the app should stay stateless and not store product history. Should OfficeOS store History locally on-device, dedupe repeat views, and clear it only when app data is reset?";
+
+const intakeCompleteResponse =
+  "Now I have the missing decision. I can write the governed update package with local on-device History, deduped repeat views, and reset-only clearing.";
 
 const progressSteps = [
   "Writing SPEC.md",
@@ -81,7 +74,7 @@ function buildInitialMessages(sourceReady = false): ChatMessage[] {
       id: "assistant-ready",
       speaker: "assistant",
       kind: "ready",
-      body: "Change request is ready for approval.",
+      body: "Change request is ready to send.",
     });
   }
 
@@ -90,8 +83,8 @@ function buildInitialMessages(sourceReady = false): ChatMessage[] {
 
 export function ChatIntakePanel({
   frame = "drawer",
-  onApproved,
   onClose,
+  onRequestSent,
   onReviewSource,
   workflow: providedWorkflow,
 }: ChatIntakePanelProps) {
@@ -106,6 +99,8 @@ export function ChatIntakePanel({
   const [submittedCount, setSubmittedCount] = useState(0);
   const [progressCount, setProgressCount] = useState(0);
   const [isWorking, setIsWorking] = useState(false);
+  const [startProgressAfterStreaming, setStartProgressAfterStreaming] =
+    useState(false);
   const [streamingMessage, setStreamingMessage] =
     useState<StreamingMessage>(null);
   const endRef = useRef<HTMLDivElement>(null);
@@ -158,7 +153,7 @@ export function ChatIntakePanel({
         ]);
         setStreamingMessage({
           id: assistantMessageId,
-          fullText: "Change request is ready for approval.",
+          fullText: "Change request is ready to send.",
         });
         setIsWorking(false);
       }, 420);
@@ -208,6 +203,34 @@ export function ChatIntakePanel({
     return () => window.clearTimeout(timeout);
   }, [messages, streamingMessage]);
 
+  useEffect(() => {
+    if (
+      streamingMessage ||
+      !startProgressAfterStreaming ||
+      isWorking ||
+      sourceReady
+    ) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setStartProgressAfterStreaming(false);
+      setProgressCount(0);
+      setIsWorking(true);
+      setMessages((previous) => [
+        ...previous,
+        {
+          id: "assistant-progress",
+          speaker: "assistant",
+          kind: "progress",
+          body: "",
+        },
+      ]);
+    }, 0);
+
+    return () => window.clearTimeout(timeout);
+  }, [isWorking, sourceReady, startProgressAfterStreaming, streamingMessage]);
+
   const submitPrompt = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -245,17 +268,21 @@ export function ChatIntakePanel({
     }
 
     if (!sourceReady) {
-      setProgressCount(0);
-      setIsWorking(true);
+      const assistantMessageId = "assistant-intake-complete";
+
       setMessages((previous) => [
         ...previous,
         {
-          id: "assistant-progress",
+          id: assistantMessageId,
           speaker: "assistant",
-          kind: "progress",
           body: "",
         },
       ]);
+      setStreamingMessage({
+        id: assistantMessageId,
+        fullText: intakeCompleteResponse,
+      });
+      setStartProgressAfterStreaming(true);
     }
   };
 
@@ -277,9 +304,9 @@ export function ChatIntakePanel({
     onReviewSource?.(request.id);
   };
 
-  const approveRequest = () => {
+  const sendRequest = () => {
     const request = generatedRequest ?? ensureGeneratedRequest();
-    onApproved?.(request.versionTarget);
+    onRequestSent?.(request.versionTarget);
   };
 
   const closeLabel = frame === "page" ? "Dashboard" : "Close";
@@ -380,11 +407,11 @@ export function ChatIntakePanel({
                         </button>
                         <button
                           className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
-                          onClick={approveRequest}
+                          onClick={sendRequest}
                           type="button"
                         >
                           <CheckCircle2 className="h-4 w-4" />
-                          Approve request
+                          Send request
                         </button>
                         <span className="mono text-[10px] font-black uppercase text-[#46515D]">
                           ChangeRequest.md
@@ -421,8 +448,8 @@ export function ChatIntakePanel({
                 : isStreaming
                   ? "OfficeOS is responding..."
                   : submittedCount === 0
-                    ? "Describe your project..."
-                    : "Answer the questions or add build details..."
+                    ? "Describe the app update..."
+                    : "Answer the blocker or add update details..."
             }
             rows={1}
             value={draft}

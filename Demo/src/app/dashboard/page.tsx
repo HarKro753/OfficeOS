@@ -34,30 +34,35 @@ type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 type ProjectVersion = ProjectWorkflow["state"]["versions"][number];
 
 const stages: Array<{
+  activeDetail: string;
   detail: string;
   icon: LucideIcon;
   id: ProjectStage;
   label: string;
 }> = [
   {
-    detail: "The update request has a change request and report attached.",
+    activeDetail: "OfficeOS is validating the submitted request package.",
+    detail: "The submitted request is contradiction-free and ready to build.",
     icon: Send,
-    id: "request-created",
-    label: "Request created",
+    id: "request-sent",
+    label: "Request sent",
   },
   {
-    detail: "A human approved the generated update package.",
-    icon: CheckCircle2,
-    id: "human-approved",
-    label: "Human approved",
-  },
-  {
-    detail: "OfficeOS is implementing the approved update.",
+    activeDetail: "OfficeOS is implementing the submitted update.",
+    detail: "OfficeOS finished applying the submitted update.",
     icon: Hammer,
     id: "in-implementation",
     label: "In implementation",
   },
   {
+    activeDetail: "OfficeOS is testing the implemented app.",
+    detail: "The implementation passed the request acceptance checks.",
+    icon: ClipboardCheck,
+    id: "test-passed",
+    label: "Test passed",
+  },
+  {
+    activeDetail: "OfficeOS is promoting the tested version to the live baseline.",
     detail: "The delivered version is the live baseline.",
     icon: CheckCircle2,
     id: "live",
@@ -67,31 +72,41 @@ const stages: Array<{
 
 function completedThrough(request: UpdateRequest | null) {
   if (!request) return projectStageIndex("live");
-  if (request.status === "generated") return projectStageIndex("request-created");
-  if (request.status === "approved") return projectStageIndex("human-approved");
-  return projectStageIndex("human-approved");
+  if (request.status === "sent") return projectStageIndex("request-sent");
+  if (request.status === "implementing") return projectStageIndex("request-sent");
+  if (request.status === "testing") return projectStageIndex("in-implementation");
+  return projectStageIndex("test-passed");
 }
 
 function activeIndex(request: UpdateRequest | null) {
   if (!request) return projectStageIndex("live");
-  if (request.status === "generated") return projectStageIndex("human-approved");
-  if (request.status === "approved") return projectStageIndex("in-implementation");
-  return projectStageIndex("in-implementation");
+  if (request.status === "sent") return projectStageIndex("in-implementation");
+  if (request.status === "implementing") return projectStageIndex("in-implementation");
+  if (request.status === "testing") return projectStageIndex("test-passed");
+  return projectStageIndex("live");
 }
 
-function showHumanApprovedToast(versionTarget: string) {
-  toast.success(`Human approval complete for v${versionTarget}.`, {
-    description: "The generated change request is approved for implementation.",
+function showRequestSentToast(versionTarget: string) {
+  toast.success(`Request sent for v${versionTarget}.`, {
+    description: "The submitted change request is contradiction-free.",
     duration: 6000,
-    id: "officeos-human-approved",
+    id: "officeos-request-sent",
   });
 }
 
 function showImplementationToast(versionTarget: string) {
   toast.success(`Implementation complete for v${versionTarget}.`, {
-    description: "OfficeOS finished applying the approved update package.",
+    description: "OfficeOS finished applying the update and is testing the app.",
     duration: 6000,
     id: "officeos-implementation-complete",
+  });
+}
+
+function showTestPassedToast(versionTarget: string) {
+  toast.success(`Tests passed for v${versionTarget}.`, {
+    description: "The implementation passed the request acceptance checks.",
+    duration: 6000,
+    id: "officeos-tests-passed",
   });
 }
 
@@ -154,7 +169,7 @@ function LifecycleStage({
             Project state
           </div>
           <h2 className="mt-1 text-2xl font-black leading-tight">
-            Request created to live
+            Request sent to live
           </h2>
         </div>
         <span className="mono rounded-md border border-[#D8DEE4] bg-[#F8FAFC] px-2.5 py-1.5 text-[10px] font-black uppercase text-[#46515D]">
@@ -211,7 +226,7 @@ function LifecycleStage({
                 {complete
                   ? stage.detail
                   : active
-                    ? `Waiting for ${stage.label.toLowerCase()}.`
+                    ? stage.activeDetail
                     : "This stage is not active yet."}
               </p>
             </li>
@@ -416,68 +431,93 @@ export default function DashboardPage() {
   const workflow = useProjectWorkflow();
   const { activeRequest, app, versions } = workflow.state;
   const [chatOpen, setChatOpen] = useState(false);
-  const approvedHandledRef = useRef(false);
-  const approvalTimersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
-  const approved = searchParams.get("approved") === "1";
+  const requestSentHandledRef = useRef(false);
+  const requestTimersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
+  const requestSent =
+    searchParams.get("sent") === "1" || searchParams.get("approved") === "1";
   const reportId = searchParams.get("reportId");
   const sourceOpen = searchParams.get("source") === "1";
   const selectedReport = reportId ? workflow.reportById(reportId) : null;
 
   useEffect(() => {
     return () => {
-      approvalTimersRef.current.forEach((timer) => clearTimeout(timer));
-      approvalTimersRef.current = [];
+      requestTimersRef.current.forEach((timer) => clearTimeout(timer));
+      requestTimersRef.current = [];
     };
   }, []);
 
   useEffect(() => {
-    if (!approved) {
-      approvedHandledRef.current = false;
+    if (!requestSent) {
+      requestSentHandledRef.current = false;
       return;
     }
 
-    if (approvedHandledRef.current) return;
+    if (requestSentHandledRef.current) return;
 
     if (!activeRequest) {
       router.replace("/dashboard");
       return;
     }
 
-    approvedHandledRef.current = true;
-    approvalTimersRef.current.forEach((timer) => clearTimeout(timer));
-    approvalTimersRef.current = [];
+    requestSentHandledRef.current = true;
+    requestTimersRef.current.forEach((timer) => clearTimeout(timer));
+    requestTimersRef.current = [];
 
     const versionTarget = activeRequest.versionTarget;
     const schedule = (callback: () => void, delay = STAGE_DELAY_MS) => {
       const timer = setTimeout(callback, delay);
-      approvalTimersRef.current.push(timer);
+      requestTimersRef.current.push(timer);
     };
-    const scheduleImplementation = () => {
-      workflow.beginApprovedImplementation();
+    const releaseUpdate = () => {
+      const completedState = workflow.releaseTestedUpdate();
+      showLiveToast(completedState.app.currentVersion);
+      router.replace("/dashboard");
+    };
+    const scheduleTesting = () => {
+      workflow.beginImplementationTesting();
+      showImplementationToast(versionTarget);
 
       schedule(() => {
-        const completedState = workflow.completeApprovedUpdate();
-        showImplementationToast(versionTarget);
-        showLiveToast(completedState.app.currentVersion);
-        router.replace("/dashboard");
+        const testedState = workflow.passImplementationTests();
+        const testedVersionTarget =
+          testedState.activeRequest?.versionTarget ?? versionTarget;
+        showTestPassedToast(testedVersionTarget);
+        schedule(releaseUpdate);
       });
     };
 
-    if (activeRequest.status === "generated") {
+    if (activeRequest.status === "test-passed") {
+      showTestPassedToast(versionTarget);
+      schedule(releaseUpdate);
+      return;
+    }
+
+    if (activeRequest.status === "testing") {
       schedule(() => {
-        workflow.approveGeneratedRequest();
-        showHumanApprovedToast(versionTarget);
-        scheduleImplementation();
+        const testedState = workflow.passImplementationTests();
+        const testedVersionTarget =
+          testedState.activeRequest?.versionTarget ?? versionTarget;
+        showTestPassedToast(testedVersionTarget);
+        schedule(releaseUpdate);
       });
       return;
     }
 
-    if (activeRequest.status === "approved") {
-      showHumanApprovedToast(versionTarget);
+    if (activeRequest.status === "implementing") {
+      schedule(scheduleTesting);
+      return;
     }
 
-    scheduleImplementation();
-  }, [activeRequest, approved, router, workflow]);
+    const sentState = workflow.markRequestSent();
+    const sentVersionTarget =
+      sentState.activeRequest?.versionTarget ?? versionTarget;
+    showRequestSentToast(sentVersionTarget);
+
+    schedule(() => {
+      workflow.beginRequestImplementation();
+      schedule(scheduleTesting);
+    });
+  }, [activeRequest, requestSent, router, workflow]);
 
   const openSourceReview = (requestId = activeRequest?.id) => {
     if (!requestId) return;
@@ -485,9 +525,9 @@ export default function DashboardPage() {
     router.push("/dashboard?source=1");
   };
 
-  const handleApproved = () => {
+  const handleRequestSent = () => {
     setChatOpen(false);
-    router.push("/dashboard?approved=1");
+    router.push("/dashboard?sent=1");
   };
 
   const openReport = (nextReportId: string) => {
@@ -521,8 +561,8 @@ export default function DashboardPage() {
 
       {sourceOpen ? (
         <SourcePackageOverlay
-          onApproved={handleApproved}
           onClose={closeSourceReview}
+          onRequestSent={handleRequestSent}
           request={activeRequest}
         />
       ) : null}
@@ -533,8 +573,8 @@ export default function DashboardPage() {
         title="Create update"
       >
         <ChatIntakePanel
-          onApproved={handleApproved}
           onClose={() => setChatOpen(false)}
+          onRequestSent={handleRequestSent}
           onReviewSource={(requestId) => openSourceReview(requestId)}
           workflow={workflow}
         />

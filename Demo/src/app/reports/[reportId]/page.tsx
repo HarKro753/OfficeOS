@@ -13,13 +13,15 @@ import {
   ExternalLink,
   FileText,
   Image as ImageIcon,
-  Play,
   Video,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { ReactNode } from "react";
+
+const MOCK_ACCEPTANCE_VIDEO_SRC =
+  "/Recording%202026-06-06%20at%2015-13-20.mp4";
 
 export default function ReportPage() {
   const params = useParams<{ reportId: string }>();
@@ -113,8 +115,8 @@ export default function ReportPage() {
               <CompactMeta label="Request" value={report.requestId} />
               <CompactMeta label="Created" value={formatDate(report.createdAt)} />
               <CompactMeta
-                label="Approved"
-                value={report.approvedAt ? formatDate(report.approvedAt) : "Pending"}
+                label="Sent"
+                value={report.sentAt ? formatDate(report.sentAt) : "Pending"}
               />
             </div>
           </div>
@@ -219,20 +221,16 @@ function AcceptanceEvidenceCard({
 }) {
   return (
     <article className="grid overflow-hidden rounded-md border border-[#D8DEE4] bg-[#F8FAFC] md:grid-cols-[280px_minmax(0,1fr)]">
-      <div className="grid aspect-video min-h-[180px] place-items-center bg-[#101418] p-4 text-white md:aspect-auto">
-        <div className="grid justify-items-center gap-3 text-center">
-          <div className="grid h-12 w-12 place-items-center rounded-full border border-white/20 bg-white/10">
-            <Play className="ml-0.5 h-5 w-5 fill-white" />
-          </div>
-          <div>
-            <div className="mono text-[10px] font-black uppercase text-white/65">
-              Mock video placeholder
-            </div>
-            <div className="mt-1 text-sm font-black leading-tight">
-              {evidence.videoLabel}
-            </div>
-          </div>
-        </div>
+      <div className="bg-[#101418] md:min-h-[180px]">
+        <video
+          aria-label={evidence.videoLabel}
+          className="h-full min-h-[180px] w-full object-cover"
+          controls
+          preload="metadata"
+        >
+          <source src={MOCK_ACCEPTANCE_VIDEO_SRC} type="video/mp4" />
+          {evidence.videoLabel}
+        </video>
       </div>
       <div className="min-w-0 p-4 sm:p-5">
         <div className="mono text-[10px] font-black uppercase text-[#2457FF]">

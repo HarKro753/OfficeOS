@@ -66,7 +66,7 @@ export function getUpdateReportAcceptanceEvidence(
     return report.acceptance.map((criteria, index) => ({
       criteria,
       description:
-        "This baseline criterion is represented with a mock verification video placeholder for now. Once real clips are attached, this slot should show the recorded path that proves the behavior remains available in the release.",
+        "This baseline criterion should be represented by a verification clip that proves the behavior remains available in the release.",
       videoLabel: `Baseline check ${index + 1}`,
     }));
   }

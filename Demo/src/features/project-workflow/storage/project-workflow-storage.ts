@@ -7,6 +7,7 @@ import {
 } from "../data/mock-workflow";
 import type {
   PreviewScreenshot,
+  ProjectStage,
   ProjectVersion,
   ProjectWorkflowState,
   UpdateReport,
@@ -49,10 +50,34 @@ function fallbackReport(value: Record<string, unknown>) {
   return updateReport(requestId, reportId);
 }
 
+function normalizeReportStatus(
+  value: unknown,
+): UpdateReport["status"] | undefined {
+  if (value === "approved") return "request-sent";
+  if (
+    value === "draft" ||
+    value === "request-sent" ||
+    value === "in-implementation" ||
+    value === "test-passed" ||
+    value === "live"
+  ) {
+    return value;
+  }
+
+  return undefined;
+}
+
 function normalizeReport(value: unknown): UpdateReport | null {
   if (!isRecord(value)) return null;
 
   const fallback = fallbackReport(value);
+  const status = normalizeReportStatus(value.status) ?? fallback.status;
+  const sentAt =
+    typeof value.sentAt === "string"
+      ? value.sentAt
+      : typeof value.approvedAt === "string"
+        ? value.approvedAt
+        : fallback.sentAt;
 
   return {
     ...fallback,
@@ -70,7 +95,58 @@ function normalizeReport(value: unknown): UpdateReport | null {
     sections: Array.isArray(value.sections)
       ? (value.sections as UpdateReport["sections"])
       : fallback.sections,
+    sentAt,
+    status,
   } as UpdateReport;
+}
+
+function normalizeRequestStage(value: unknown): ProjectStage {
+  if (value === "request-created" || value === "human-approved") {
+    return "request-sent";
+  }
+  if (
+    value === "request-sent" ||
+    value === "in-implementation" ||
+    value === "test-passed"
+  ) {
+    return value;
+  }
+
+  return "request-sent";
+}
+
+function normalizeRequestStatus(value: unknown): UpdateRequest["status"] {
+  if (value === "generated" || value === "approved") return "sent";
+  if (
+    value === "sent" ||
+    value === "implementing" ||
+    value === "testing" ||
+    value === "test-passed"
+  ) {
+    return value;
+  }
+
+  return "sent";
+}
+
+function normalizeActiveRequest(value: unknown): UpdateRequest | null {
+  if (!isRecord(value)) return null;
+
+  const fallback = generatedRequest();
+  const sentAt =
+    typeof value.sentAt === "string"
+      ? value.sentAt
+      : typeof value.approvedAt === "string"
+        ? value.approvedAt
+        : fallback.sentAt;
+
+  return {
+    ...fallback,
+    ...value,
+    sentAt,
+    stage: normalizeRequestStage(value.stage),
+    status: normalizeRequestStatus(value.status),
+  } as UpdateRequest;
 }
 
 function normalizeVersions(
@@ -118,12 +194,7 @@ export function normalizeState(value: unknown): ProjectWorkflowState {
   );
 
   return {
-    activeRequest: isRecord(value.activeRequest)
-      ? ({
-          ...generatedRequest(),
-          ...value.activeRequest,
-        } as UpdateRequest)
-      : null,
+    activeRequest: normalizeActiveRequest(value.activeRequest),
     app: {
       ...app,
       currentVersion,

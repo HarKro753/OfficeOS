@@ -2,9 +2,9 @@ import type { ProjectStage } from "../types";
 
 export function projectStageIndex(stage: ProjectStage) {
   return [
-    "request-created",
-    "human-approved",
+    "request-sent",
     "in-implementation",
+    "test-passed",
     "live",
   ].indexOf(stage);
 }

@@ -6,8 +6,8 @@ import { MarkdownEditorWorkspace } from "./components/markdown-editor-workspace"
 import { getClientMockChangeRequestData } from "./data/client-mock-assets";
 
 type SourcePackageOverlayProps = {
-  onApproved: (versionTarget: string) => void;
   onClose: () => void;
+  onRequestSent: (versionTarget: string) => void;
   request:
     | {
         id: string;
@@ -18,8 +18,8 @@ type SourcePackageOverlayProps = {
 };
 
 export function SourcePackageOverlay({
-  onApproved,
   onClose,
+  onRequestSent,
   request,
 }: SourcePackageOverlayProps) {
   const { assets, sourceDocs } = getClientMockChangeRequestData();
@@ -33,10 +33,10 @@ export function SourcePackageOverlay({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose]);
 
-  const approveRequest = () => {
+  const sendRequest = () => {
     if (!request?.sourceReady) return;
 
-    onApproved(request.versionTarget);
+    onRequestSent(request.versionTarget);
   };
 
   return (
@@ -66,11 +66,11 @@ export function SourcePackageOverlay({
             {request?.sourceReady ? (
               <button
                 className="inline-flex min-h-9 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
-                onClick={approveRequest}
+                onClick={sendRequest}
                 type="button"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Approve request
+                Send request
               </button>
             ) : null}
             <button

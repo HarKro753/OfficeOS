@@ -198,8 +198,8 @@ export function generatedRequest(): UpdateRequest {
     id: requestId,
     reportId: "report-yuka-history-update",
     sourceReady: true,
-    stage: "request-created",
-    status: "generated",
+    stage: "request-sent",
+    status: "sent",
     summary:
       "Add Product History as a top-level tab while preserving Scanner, Explore, and Product Details.",
     title: "Add product history tab",

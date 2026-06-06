@@ -67,22 +67,22 @@ export function useProjectWorkflow() {
     return sync(nextState).activeRequest ?? request;
   }, [sync]);
 
-  const approveGeneratedRequest = useCallback(() => {
+  const markRequestSent = useCallback(() => {
     const current = readState();
     const request = current.activeRequest ?? generatedRequest();
-    const approvedAt = new Date().toISOString();
-    const approvedRequest: UpdateRequest = {
+    const sentAt = request.sentAt ?? new Date().toISOString();
+    const sentRequest: UpdateRequest = {
       ...request,
-      approvedAt,
-      stage: "human-approved",
-      status: "approved",
+      sentAt,
+      stage: "request-sent",
+      status: "sent",
     };
     const nextState: ProjectWorkflowState = {
       ...current,
-      activeRequest: approvedRequest,
+      activeRequest: sentRequest,
       reports: current.reports.map((report) =>
         report.id === request.reportId
-          ? { ...report, approvedAt, status: "approved" }
+          ? { ...report, sentAt, status: "request-sent" }
           : report,
       ),
       versions: current.versions.map((version) =>
@@ -95,11 +95,11 @@ export function useProjectWorkflow() {
     return sync(nextState);
   }, [sync]);
 
-  const beginApprovedImplementation = useCallback(() => {
+  const beginRequestImplementation = useCallback(() => {
     const current = readState();
     const request = current.activeRequest;
 
-    if (!request || request.status === "generated") {
+    if (!request) {
       setState(current);
       return current;
     }
@@ -122,11 +122,60 @@ export function useProjectWorkflow() {
     return sync(nextState);
   }, [sync]);
 
-  const completeApprovedUpdate = useCallback(() => {
+  const passImplementationTests = useCallback(() => {
     const current = readState();
     const request = current.activeRequest;
 
-    if (!request || request.status === "generated") {
+    if (!request || request.status !== "testing") {
+      setState(current);
+      return current;
+    }
+
+    const testedRequest: UpdateRequest = {
+      ...request,
+      stage: "test-passed",
+      status: "test-passed",
+    };
+    const nextState: ProjectWorkflowState = {
+      ...current,
+      activeRequest: testedRequest,
+      reports: current.reports.map((report) =>
+        report.id === request.reportId
+          ? { ...report, status: "test-passed" }
+          : report,
+      ),
+    };
+
+    return sync(nextState);
+  }, [sync]);
+
+  const beginImplementationTesting = useCallback(() => {
+    const current = readState();
+    const request = current.activeRequest;
+
+    if (!request || request.status !== "implementing") {
+      setState(current);
+      return current;
+    }
+
+    const testingRequest: UpdateRequest = {
+      ...request,
+      stage: "test-passed",
+      status: "testing",
+    };
+    const nextState: ProjectWorkflowState = {
+      ...current,
+      activeRequest: testingRequest,
+    };
+
+    return sync(nextState);
+  }, [sync]);
+
+  const releaseTestedUpdate = useCallback(() => {
+    const current = readState();
+    const request = current.activeRequest;
+
+    if (!request || request.status !== "test-passed") {
       setState(current);
       return current;
     }
@@ -142,7 +191,7 @@ export function useProjectWorkflow() {
         report.id === request.reportId
           ? {
               ...report,
-              approvedAt: report.approvedAt ?? request.approvedAt,
+              sentAt: report.sentAt ?? request.sentAt,
               status: "live",
             }
           : report,
@@ -176,24 +225,28 @@ export function useProjectWorkflow() {
   return useMemo(
     () => ({
       activeReport,
-      approveGeneratedRequest,
-      beginApprovedImplementation,
-      completeApprovedUpdate,
+      beginImplementationTesting,
+      beginRequestImplementation,
       ensureGeneratedRequest,
+      markRequestSent,
+      passImplementationTests,
       previewScreenshots,
       previewVersion,
       reportById,
+      releaseTestedUpdate,
       state,
     }),
     [
       activeReport,
-      approveGeneratedRequest,
-      beginApprovedImplementation,
-      completeApprovedUpdate,
+      beginImplementationTesting,
+      beginRequestImplementation,
       ensureGeneratedRequest,
+      markRequestSent,
+      passImplementationTests,
       previewScreenshots,
       previewVersion,
       reportById,
+      releaseTestedUpdate,
       state,
     ],
   );

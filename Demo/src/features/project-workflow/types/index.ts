@@ -1,7 +1,7 @@
 export type ProjectStage =
-  | "request-created"
-  | "human-approved"
+  | "request-sent"
   | "in-implementation"
+  | "test-passed"
   | "live";
 
 export type PreviewScreenshot = {
@@ -24,7 +24,6 @@ export type ProjectVersion = {
 
 export type UpdateReport = {
   appName: string;
-  approvedAt?: string;
   acceptance: string[];
   changedScreens: string[];
   createdAt: string;
@@ -45,21 +44,27 @@ export type UpdateReport = {
     body: string;
     title: string;
   }>;
-  status: "draft" | "approved" | "in-implementation" | "live";
+  sentAt?: string;
+  status:
+    | "draft"
+    | "request-sent"
+    | "in-implementation"
+    | "test-passed"
+    | "live";
   summary: string;
   title: string;
   versionTarget: string;
 };
 
 export type UpdateRequest = {
-  approvedAt?: string;
   createdAt: string;
   generatedAt: string;
   id: string;
   reportId: string;
+  sentAt?: string;
   sourceReady: boolean;
   stage: Exclude<ProjectStage, "live">;
-  status: "generated" | "approved" | "implementing";
+  status: "sent" | "implementing" | "testing" | "test-passed";
   summary: string;
   title: string;
   versionTarget: string;

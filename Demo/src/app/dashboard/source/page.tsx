@@ -183,11 +183,11 @@ function DashboardSidebar({
 
 function SourcePackageWorkspace({
   dashboardHref = "/dashboard",
-  onApproved,
+  onRequestSent,
   workflow,
 }: {
   dashboardHref?: string;
-  onApproved: (versionTarget: string) => void;
+  onRequestSent: (versionTarget: string) => void;
   workflow: ProjectWorkflow;
 }) {
   const request = workflow.state.activeRequest?.sourceReady
@@ -195,10 +195,10 @@ function SourcePackageWorkspace({
     : null;
   const { assets, sourceDocs } = getClientMockChangeRequestData();
 
-  const approveRequest = () => {
+  const sendRequest = () => {
     if (!request) return;
 
-    onApproved(request.versionTarget);
+    onRequestSent(request.versionTarget);
   };
 
   if (!request) {
@@ -242,11 +242,11 @@ function SourcePackageWorkspace({
               </Link>
               <button
                 className="inline-flex min-h-8 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-2 text-[11px] font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
-                onClick={approveRequest}
+                onClick={sendRequest}
                 type="button"
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                Approve request
+                Send request
               </button>
             </>
           }
@@ -270,7 +270,7 @@ export default function DashboardSourcePage() {
   return (
     <DashboardPageLayout app={app}>
       <SourcePackageWorkspace
-        onApproved={() => router.push("/dashboard?approved=1")}
+        onRequestSent={() => router.push("/dashboard?sent=1")}
         workflow={workflow}
       />
     </DashboardPageLayout>
