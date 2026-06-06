@@ -25,7 +25,13 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { toast } from "sonner";
 
 const STAGE_DELAY_MS = 4000;
@@ -468,7 +474,7 @@ function DashboardDrawer({
   );
 }
 
-export default function DashboardPage() {
+function DashboardPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const workflow = useProjectWorkflow();
@@ -623,5 +629,17 @@ export default function DashboardPage() {
         />
       </DashboardDrawer>
     </DashboardPageLayout>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3" />
+      }
+    >
+      <DashboardPageContent />
+    </Suspense>
   );
 }

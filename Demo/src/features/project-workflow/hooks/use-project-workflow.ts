@@ -11,6 +11,7 @@ import {
 import { readState, writeState } from "../storage/project-workflow-storage";
 import type {
   ProjectWorkflowState,
+  UpdateReport,
   UpdateRequest,
 } from "../types";
 import { hasVersion, uniqueById } from "../utils/collections";
@@ -63,19 +64,22 @@ export function useProjectWorkflow() {
       stage: "request-sent",
       status: "sent",
     };
+    const sentReport: UpdateReport = {
+      ...report,
+      sentAt,
+      status: "request-sent",
+    };
     const nextState: ProjectWorkflowState = {
       ...current,
       activeRequest: sentRequest,
       reports: uniqueById(
-        current.reports.map((existingReport) =>
-          existingReport.id === request.reportId
-            ? { ...existingReport, sentAt, status: "request-sent" }
-            : existingReport,
-        ).concat({
-          ...report,
-          sentAt,
-          status: "request-sent",
-        }),
+        current.reports
+          .map((existingReport): UpdateReport =>
+            existingReport.id === request.reportId
+              ? { ...existingReport, sentAt, status: "request-sent" }
+              : existingReport,
+          )
+          .concat(sentReport),
       ),
       versions: hasVersion(current, request.versionTarget)
         ? current.versions.map((version) =>
