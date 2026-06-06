@@ -1,7 +1,7 @@
 # OfficeOS
 
 <p align="center">
-  <img src="Assets/logo.svg" alt="OfficeOS logo" width="220" />
+  <img src="Assets/github-banner.png" alt="OfficeOS GitHub banner" width="100%" />
 </p>
 
 **Bring the app direction. OfficeOS owns delivery.**
