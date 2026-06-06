@@ -79,11 +79,7 @@ The prototype includes:
 - A delivery timeline for request sent, implementation, test passed, and live.
 - An update report with changed screens, acceptance criteria, release links, and known limitations.
 
-[Watch the demo video](Assets/DemoVid.mp4)
-
-<a href="Assets/DemoVid.mp4">
-  <img src="Assets/3-HowItWorks.png" alt="Click to watch the OfficeOS demo video" width="100%" />
-</a>
+https://github.com/user-attachments/assets/72edcb4a-0000-4a44-8ebd-f145ffec2d47
 
 ## Repository Structure
 
