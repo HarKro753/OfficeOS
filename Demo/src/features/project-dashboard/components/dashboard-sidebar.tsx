@@ -12,14 +12,21 @@ import {
   Rocket,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export type DashboardWorkspaceId = "dashboard" | "history" | "logs" | "source";
+type DashboardWorkspaceId = "dashboard" | "history" | "logs" | "source";
 
 type DashboardSidebarProps = {
   activeRequest: ProjectWorkflowState["activeRequest"];
-  activeWorkspace: DashboardWorkspaceId;
   app: ProjectWorkflowState["app"];
-  onSelectWorkspace: (workspace: DashboardWorkspaceId) => void;
+};
+
+const dashboardWorkspaceHrefs: Record<DashboardWorkspaceId, string> = {
+  dashboard: "/dashboard",
+  history: "/dashboard/history",
+  logs: "/dashboard/logs",
+  source: "/dashboard/source",
 };
 
 const workflowItems = [
@@ -68,10 +75,9 @@ const workflowItems = [
 
 export function DashboardSidebar({
   activeRequest,
-  activeWorkspace,
   app,
-  onSelectWorkspace,
 }: DashboardSidebarProps) {
+  const pathname = usePathname();
   const sourceReady = Boolean(activeRequest?.sourceReady);
 
   return (
@@ -124,25 +130,19 @@ export function DashboardSidebar({
             const isSource = workspace === "source";
             const disabled =
               !workspace || ("requiresSource" in item && !sourceReady);
-            const active = workspace === activeWorkspace;
-
-            return (
-              <button
-                aria-current={active ? "page" : undefined}
-                className={`group flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left transition focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1 ${
-                  active
-                    ? "bg-[#E5EAF0] text-[#101418]"
-                    : disabled
-                      ? "cursor-not-allowed text-[#9AA5B1]"
-                      : "text-[#46515D] hover:bg-white"
-                }`}
-                disabled={disabled}
-                key={item.label}
-                onClick={() => {
-                  if (workspace) onSelectWorkspace(workspace);
-                }}
-                type="button"
-              >
+            const href = workspace
+              ? dashboardWorkspaceHrefs[workspace]
+              : undefined;
+            const active = Boolean(href && pathname === href);
+            const itemClassName = `group flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left transition focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1 ${
+              active
+                ? "bg-[#E5EAF0] text-[#101418]"
+                : disabled
+                  ? "cursor-not-allowed text-[#9AA5B1]"
+                  : "text-[#46515D] hover:bg-white"
+            }`;
+            const itemContent = (
+              <>
                 <Icon className="h-4 w-4 shrink-0" />
                 <span className="min-w-0 flex-1 truncate text-xs font-black">
                   {item.label}
@@ -150,7 +150,32 @@ export function DashboardSidebar({
                 {isSource && sourceReady ? (
                   <span className="h-2 w-2 rounded-full bg-[#2457FF]" />
                 ) : null}
-              </button>
+              </>
+            );
+
+            if (!workspace || disabled || !href) {
+              return (
+                <button
+                  aria-current={active ? "page" : undefined}
+                  className={itemClassName}
+                  disabled={disabled}
+                  key={item.label}
+                  type="button"
+                >
+                  {itemContent}
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                aria-current={active ? "page" : undefined}
+                className={itemClassName}
+                href={href}
+                key={item.label}
+              >
+                {itemContent}
+              </Link>
             );
           })}
         </div>

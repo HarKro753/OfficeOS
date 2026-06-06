@@ -6,18 +6,19 @@ import {
 } from "@/features/markdown-editor";
 import type { useProjectWorkflow } from "@/features/project-workflow";
 import { ArrowLeft, CheckCircle2, FileText } from "lucide-react";
+import Link from "next/link";
 
 type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 
 type SourcePackageWorkspaceProps = {
+  dashboardHref?: string;
   onApproved: (versionTarget: string) => void;
-  onBack: () => void;
   workflow: ProjectWorkflow;
 };
 
 export function SourcePackageWorkspace({
+  dashboardHref = "/dashboard",
   onApproved,
-  onBack,
   workflow,
 }: SourcePackageWorkspaceProps) {
   const request = workflow.state.activeRequest?.sourceReady
@@ -44,14 +45,13 @@ export function SourcePackageWorkspace({
             Create an update first so OfficeOS can prepare SPEC.md, DESIGN.md,
             ChangeRequest.md, and the update report.
           </p>
-          <button
+          <Link
             className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-            onClick={onBack}
-            type="button"
+            href={dashboardHref}
           >
             <ArrowLeft className="h-4 w-4" />
             Dashboard
-          </button>
+          </Link>
         </div>
       </section>
     );
@@ -77,14 +77,13 @@ export function SourcePackageWorkspace({
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
+            <Link
               className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-              onClick={onBack}
-              type="button"
+              href={dashboardHref}
             >
               <ArrowLeft className="h-4 w-4" />
               Dashboard
-            </button>
+            </Link>
             <button
               className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
               onClick={approveRequest}
@@ -103,7 +102,6 @@ export function SourcePackageWorkspace({
           backLabel="Dashboard"
           frame="embedded"
           initialDocs={sourceDocs}
-          onBack={onBack}
           storageKey={`officeos-demo-markdown-documents-v1-${request.id}`}
         />
       </section>

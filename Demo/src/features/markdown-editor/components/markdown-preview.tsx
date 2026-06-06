@@ -578,7 +578,7 @@ export function MarkdownPreview({ assets, markdown }: MarkdownPreviewProps) {
         <span className="my-3 block overflow-hidden rounded-md border border-[#D8DEE4] bg-[#F8FAFC]">
           <Image
             alt={alt || asset.description}
-            className="h-auto w-full object-contain"
+            className="mx-auto max-h-[360px] w-auto max-w-full object-contain"
             height={imageDimensions(asset.path).height}
             src={`/${asset.path}`}
             width={imageDimensions(asset.path).width}

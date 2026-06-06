@@ -1,4 +1,4 @@
-import { ProjectDashboard } from "@/features/project-dashboard";
+import { redirect } from "next/navigation";
 
 type HomeProps = {
   searchParams?: Promise<{
@@ -13,5 +13,5 @@ export default async function Home({ searchParams }: HomeProps) {
     ? approvedParam[0] === "1"
     : approvedParam === "1";
 
-  return <ProjectDashboard approved={approved} />;
+  redirect(approved ? "/dashboard?approved=1" : "/dashboard");
 }
