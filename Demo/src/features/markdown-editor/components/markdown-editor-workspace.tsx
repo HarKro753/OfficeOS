@@ -1,17 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import { CsvPreview } from "./csv-preview";
 import { EditorHeader } from "./editor-header";
-import { FileFormatIcon } from "./file-format-icon";
 import { TemplateSidebar } from "./template-sidebar";
 import { useMarkdownWorkspace } from "../hooks/use-markdown-workspace";
-import type { SourceDoc } from "../types";
+import type { MockAsset, SourceDoc } from "../types";
 
 type MarkdownEditorWorkspaceProps = {
+  assets: MockAsset[];
   initialDocs: SourceDoc[];
 };
 
 export function MarkdownEditorWorkspace({
+  assets,
   initialDocs,
 }: MarkdownEditorWorkspaceProps) {
   const {
@@ -21,13 +23,12 @@ export function MarkdownEditorWorkspace({
     bindTextarea,
     closeWorkspaceItem,
     currentContent,
-    insertAssetReference,
     mockAssets,
     openItems,
     selectWorkspaceItem,
     updateActiveDocument,
     workspaceItems,
-  } = useMarkdownWorkspace(initialDocs);
+  } = useMarkdownWorkspace(initialDocs, assets);
   const selectedMockAsset =
     activeItem.type === "asset"
       ? mockAssets.find((asset) => asset.path === activeItem.path)
@@ -55,54 +56,29 @@ export function MarkdownEditorWorkspace({
               <textarea
                 ref={bindTextarea}
                 aria-label={`${activeDoc} editor`}
-                className="mono block min-h-full w-full resize-none border-0 bg-white px-5 py-5 text-[10px] leading-[1.55] text-[#101418] outline-none selection:bg-[#DDE7FF]"
+                className="mono block min-h-full w-full resize-none border-0 bg-white px-5 py-5 text-[10px] leading-[1.55] text-[#101418] outline-none selection:bg-[#E5EAF0]"
                 onChange={(event) =>
                   updateActiveDocument(event.target.value)
                 }
                 spellCheck={false}
                 value={currentContent}
               />
+            ) : selectedMockAsset?.kind === "image" ? (
+              <div className="relative min-h-full w-full bg-[#F8FAFC]">
+                <Image
+                  alt={selectedMockAsset.name}
+                  className="object-contain p-8"
+                  fill
+                  sizes="calc(100vw - 260px)"
+                  src={`/${selectedMockAsset.path}`}
+                />
+              </div>
+            ) : selectedMockAsset?.name.endsWith(".csv") ? (
+              <CsvPreview path={selectedMockAsset.path} />
             ) : (
               <div className="flex min-h-full items-center justify-center p-5">
-                <div className="w-full max-w-[560px] border border-[#D8DEE4] bg-[#F8FAFC] p-5">
-                  <div className="flex items-center gap-3">
-                    <FileFormatIcon item={activeItem} size="lg" />
-                    <div className="min-w-0">
-                      <div className="mono truncate text-sm font-black">
-                        {activeItem.label}
-                      </div>
-                      <div className="mono mt-1 truncate text-[11px] font-bold text-[#46515D]">
-                        {activeItem.path}
-                      </div>
-                    </div>
-                  </div>
-                  {selectedMockAsset ? (
-                    <>
-                      {selectedMockAsset.kind === "image" ? (
-                        <div className="mt-5 overflow-hidden rounded-md border border-[#D8DEE4] bg-white">
-                          <div className="relative aspect-[16/10] w-full bg-[#EEF2F5]">
-                            <Image
-                              alt={selectedMockAsset.name}
-                              className="object-contain"
-                              fill
-                              sizes="560px"
-                              src={`/${selectedMockAsset.path}`}
-                            />
-                          </div>
-                        </div>
-                      ) : null}
-                      <p className="mt-4 text-xs font-bold leading-5 text-[#46515D]">
-                        {selectedMockAsset.description}
-                      </p>
-                      <button
-                        className="mt-4 inline-flex h-8 items-center justify-center rounded-md bg-[#101418] px-3 text-[11px] font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-                        onClick={() => insertAssetReference(selectedMockAsset)}
-                        type="button"
-                      >
-                        Insert reference
-                      </button>
-                    </>
-                  ) : null}
+                <div className="text-xs font-bold text-[#687482]">
+                  Preview unavailable.
                 </div>
               </div>
             )}

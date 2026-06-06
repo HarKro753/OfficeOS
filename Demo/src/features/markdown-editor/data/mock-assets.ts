@@ -1,4 +1,36 @@
-import type { MockAsset } from "../types";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import type { MockAsset, SourceDoc, SourceDocKey } from "../types";
+
+const templateDirectory = join(process.cwd(), "templates");
+
+const mockSourceDocuments: Array<Omit<SourceDoc, "content">> = [
+  {
+    key: "SPEC.md",
+    label: "SPEC.md",
+    role: "Product contract",
+    description:
+      "Defines the app, navigation, screens, requirements, and acceptance criteria.",
+  },
+  {
+    key: "DESIGN.md",
+    label: "DESIGN.md",
+    role: "Design contract",
+    description:
+      "Defines colors, typography, layout, components, and visual constraints.",
+  },
+  {
+    key: "ChangeRequest.md",
+    label: "Update brief",
+    role: "Change contract",
+    description:
+      "Defines the governed app update that modifies the source of truth.",
+  },
+];
+
+function readTemplate(key: SourceDocKey) {
+  return readFileSync(join(templateDirectory, key), "utf8");
+}
 
 export const mockAssets: MockAsset[] = [
   {
@@ -6,12 +38,6 @@ export const mockAssets: MockAsset[] = [
     path: "assets/data/openfoodfacts-yuka-sample.csv",
     kind: "file",
     description: "Mock product dataset for scan, search, and explore behavior.",
-  },
-  {
-    name: "yuka-app-icon.png",
-    path: "assets/brand/yuka-app-icon.png",
-    kind: "image",
-    description: "Placeholder app icon reference for the mobile shell.",
   },
   {
     name: "explore-screen.png",
@@ -26,3 +52,13 @@ export const mockAssets: MockAsset[] = [
     description: "Mock visual reference for nutrient detail expansion.",
   },
 ];
+
+export function getMockMarkdownEditorData() {
+  return {
+    sourceDocs: mockSourceDocuments.map((doc) => ({
+      ...doc,
+      content: readTemplate(doc.key),
+    })),
+    assets: mockAssets,
+  };
+}

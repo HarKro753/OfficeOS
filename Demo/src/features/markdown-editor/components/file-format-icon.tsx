@@ -16,7 +16,7 @@ function fileFormat(item: WorkspaceItem): FileFormat {
 
 const formatStyles: Record<FileFormat, string> = {
   csv: "text-[#107A48]",
-  md: "text-[#2457FF]",
+  md: "text-[#46515D]",
   png: "text-[#8A5800]",
 };
 

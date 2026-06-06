@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { mockAssets } from "../data/mock-assets";
 import type {
   MockAsset,
   SourceDoc,
@@ -9,7 +8,6 @@ import type {
   WorkspaceItem,
   WorkspaceItemId,
 } from "../types";
-import { assetMarkdown } from "../utils/assets";
 
 const sourceDocumentsStorageKey = "officeos-demo-markdown-documents-v1";
 
@@ -75,7 +73,10 @@ function writeStoredDocuments(documents: Record<SourceDocKey, string>) {
   );
 }
 
-export function useMarkdownWorkspace(initialDocs: SourceDoc[]) {
+export function useMarkdownWorkspace(
+  initialDocs: SourceDoc[],
+  initialAssets: MockAsset[],
+) {
   const defaultActiveDoc = initialDocs[0]?.key ?? "SPEC.md";
   const [activeDoc, setActiveDoc] = useState<SourceDocKey>(defaultActiveDoc);
   const [activeItemId, setActiveItemId] =
@@ -103,7 +104,7 @@ export function useMarkdownWorkspace(initialDocs: SourceDoc[]) {
       role: doc.role,
     }));
 
-    const assetItems = mockAssets.map((asset) => ({
+    const assetItems = initialAssets.map((asset) => ({
       id: `asset:${asset.path}` as const,
       type: "asset" as const,
       label: asset.name,
@@ -112,7 +113,7 @@ export function useMarkdownWorkspace(initialDocs: SourceDoc[]) {
     }));
 
     return [...documentItems, ...assetItems];
-  }, [initialDocs]);
+  }, [initialAssets, initialDocs]);
 
   const openItems = useMemo(
     () => {
@@ -163,29 +164,6 @@ export function useMarkdownWorkspace(initialDocs: SourceDoc[]) {
     }));
   };
 
-  const insertAssetReference = (asset: MockAsset) => {
-    const snippet = assetMarkdown(asset);
-    const textarea = textareaRef.current;
-
-    setDocuments((previous) => {
-      const content = previous[activeDoc] ?? "";
-      const start = textarea?.selectionStart ?? content.length;
-      const end = textarea?.selectionEnd ?? content.length;
-      const before = content.slice(0, start);
-      const after = content.slice(end);
-      const prefix = before.endsWith("\n") || before.length === 0 ? "" : "\n\n";
-      const suffix =
-        after.startsWith("\n") || after.length === 0 ? "\n" : "\n\n";
-
-      return {
-        ...previous,
-        [activeDoc]: `${before}${prefix}${snippet}${suffix}${after}`,
-      };
-    });
-
-    window.requestAnimationFrame(() => textareaRef.current?.focus());
-  };
-
   return {
     activeDoc,
     activeItem,
@@ -193,8 +171,7 @@ export function useMarkdownWorkspace(initialDocs: SourceDoc[]) {
     bindTextarea,
     closeWorkspaceItem,
     currentContent,
-    insertAssetReference,
-    mockAssets,
+    mockAssets: initialAssets,
     openItems,
     selectWorkspaceItem,
     updateActiveDocument,

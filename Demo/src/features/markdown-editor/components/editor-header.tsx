@@ -33,7 +33,7 @@ export function EditorHeader({
               }`}
             >
               <button
-                className="flex min-w-0 flex-1 items-center gap-2 self-stretch px-3 text-left focus:outline-none focus:ring-2 focus:ring-[#2457FF] focus:ring-inset"
+                className="flex min-w-0 flex-1 items-center gap-2 self-stretch px-3 text-left focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-inset"
                 onClick={() => selectWorkspaceItem(item.id)}
                 type="button"
               >
@@ -44,7 +44,7 @@ export function EditorHeader({
               </button>
               <button
                 aria-label={`Close ${item.label}`}
-                className="mr-1 grid h-5 w-5 shrink-0 place-items-center rounded text-[#8A94A0] transition hover:bg-[#E5EAF0] hover:text-[#101418] focus:outline-none focus:ring-2 focus:ring-[#2457FF] focus:ring-offset-1"
+                className="mr-1 grid h-5 w-5 shrink-0 place-items-center rounded text-[#8A94A0] transition hover:bg-[#E5EAF0] hover:text-[#101418] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
                 onClick={() => closeWorkspaceItem(item.id)}
                 type="button"
               >
