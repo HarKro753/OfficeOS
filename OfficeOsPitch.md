@@ -68,51 +68,31 @@ That is the core system: upload the app definition, get the app back; upload a c
 
 ## Slide 4: Market + Competition
 
-This is not a bet that every small business needs an app.
+Mobile app development is a large, proven market.
 
-It is a bet that the teams who already know they need an app do not want to own the full mobile delivery lifecycle.
+Clutch data puts the average app development project at about $90,780, with typical projects taking around 11 months.
 
-The market is already real. Apple reported 1.96 million apps on the App Store in 2024, 7.77 million app submissions reviewed, and 1.93 million rejected.
+Apple reported 7.77 million App Store submissions reviewed in 2024 and 1.93 million rejected. That shows how much mobile delivery work exists beyond writing code.
 
-That is the important signal: mobile app work does not end when code exists. It has to survive review, release, monitoring, monetization, updates, and repeated product changes.
+The US alone has 36.2 million small businesses. We do not need all of them.
 
-The bottom-up beachhead is narrow.
+Our beachhead is app-ready founders, small teams, and agencies that already have a spec, Figma file, client request, or clear app direction.
 
-The US has 36.2 million small businesses. We do not need all of them.
-
-We start with app-ready founders, small teams, and agencies that already have a spec, a Figma file, a client request, or a clear app direction, but no mobile delivery owner.
-
-At current pricing, one customer is worth $499 at launch plus $49 per month for the keep-alive plan, or about $1,087 in first-year base revenue before update and growth modules.
+At current pricing, one customer is worth about $1,087 in first-year base revenue before update and growth modules.
 
 1,000 customers is about $1.1 million in first-year base revenue.
 
 10,000 customers is about $10.9 million in first-year base revenue.
 
-If half of those customers add only one $100 per month service module, the same base becomes about $1.7 million and $16.9 million in first-year revenue.
+If half of those customers add one $100 per month service module, that becomes about $1.7 million and $16.9 million in first-year revenue.
 
-That is still a disciplined wedge. The larger opportunity is the existing app development services budget. Clutch data puts the average app development project at about $90,780, with typical projects taking around 11 months.
+Competition is clear.
 
-OfficeOS does not need to convince customers to buy a new category from scratch. It productizes part of the money they already spend on agencies, freelancers, no-code tools, and internal coordination.
+We are not a dev tool. Lovable, Bolt.new, Replit, Cursor, Bilt, FlutterFlow, Adalo, Thunkable, and Draftbit help people build faster, but the customer still has to operate the mobile delivery process.
 
-The competition splits into four groups.
+We are not an agency. Agencies can own delivery, but they are expensive, scope-based, and built around project handoffs.
 
-AI app builders and coding tools like Lovable, Bolt, Replit, Cursor, and Bilt make app creation faster. They are strong at generation, but the customer still owns product clarity, QA, release readiness, App Store review, analytics, monetization, monitoring, and updates.
-
-No-code and low-code mobile builders like FlutterFlow, Adalo, Thunkable, and Draftbit reduce build cost. They are tools, not accountable delivery owners. The customer still has to learn the platform, resolve edge cases, decide what is production-ready, and keep the app alive.
-
-Agencies and freelancers can own delivery, but they are expensive, scope-based, slow to iterate, and usually operate around project handoffs.
-
-The status quo is the biggest competitor: the app stays as a Figma file, web app, spreadsheet, or first version that never becomes a living product.
-
-OfficeOS wins by owning the gap between app direction and app operation.
-
-The customer owns the source of truth.
-
-OfficeOS owns readiness, implementation, QA, release preparation, monitoring, monetization setup, maintenance, and change delivery.
-
-The wedge is not "generate an app."
-
-The wedge is "keep the app shippable after the idea becomes real."
+The status quo is the app staying as a Figma file, web app, spreadsheet, or abandoned version one.
 
 ## Slide 5: Demo
 

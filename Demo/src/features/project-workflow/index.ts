@@ -272,6 +272,7 @@ function normalizeReport(value: unknown): UpdateReport | null {
     ...value,
     screenshots: Array.isArray(value.screenshots)
       ? value.screenshots.map((screenshot, index) => ({
+          ...fallback.screenshots[index],
           ...(isRecord(screenshot) ? screenshot : {}),
           description: fallback.screenshots[index]?.description,
           label: fallback.screenshots[index]?.label ?? "Screenshot",
