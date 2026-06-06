@@ -64,9 +64,6 @@ export function UpdateReportOverlay({
               <h2 className="mt-0.5 text-lg font-black leading-tight sm:text-xl">
                 {report.title}
               </h2>
-              <div className="mt-0.5 text-xs font-black text-[#46515D]">
-                Update Report - v{report.versionTarget}
-              </div>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {releaseLinks.map((link) => (
