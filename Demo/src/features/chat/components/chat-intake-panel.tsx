@@ -44,13 +44,13 @@ type ChatIntakePanelProps = {
 };
 
 const initialMessage =
-  "Describe the app update you want OfficeOS to prepare. Include the app, user need, changed behavior, affected screens, data or storage expectations, and anything that should stay out of scope.";
+  "What update should OfficeOS prepare?";
 
 const questionResponse =
-  "One blocker before I write the update package: History needs a persisted recently viewed list, but the request says the app should stay stateless and not store product history. Should OfficeOS store History locally on-device, dedupe repeat views, and clear it only when app data is reset?";
+  "Should History show the same product only once, or should every view create a new row?";
 
 const intakeCompleteResponse =
-  "Now I have the missing decision. I can write the governed update package with local on-device History, deduped repeat views, and reset-only clearing.";
+  "Got it. I will prepare the update with one row per product.";
 
 const progressSteps = [
   "Writing SPEC.md",
@@ -448,8 +448,8 @@ export function ChatIntakePanel({
                 : isStreaming
                   ? "OfficeOS is responding..."
                   : submittedCount === 0
-                    ? "Describe the app update..."
-                    : "Answer the blocker or add update details..."
+                    ? "Add history for viewed products..."
+                    : "Answer the question..."
             }
             rows={1}
             value={draft}

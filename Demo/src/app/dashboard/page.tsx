@@ -18,10 +18,10 @@ import {
   ClipboardCheck,
   ExternalLink,
   Hammer,
+  LoaderCircle,
   Plus,
   Send,
   ShieldCheck,
-  Clock3,
   type LucideIcon,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -150,6 +150,41 @@ function ExternalReference({ href, label }: { href: string; label: string }) {
   );
 }
 
+function StatusIndicator({
+  active,
+  complete,
+  loading,
+}: {
+  active: boolean;
+  complete: boolean;
+  loading: boolean;
+}) {
+  const label = complete ? "done" : active ? "in progress" : "queued";
+
+  return (
+    <span
+      className={`mono inline-flex h-6 items-center gap-1.5 rounded border bg-white px-1.5 text-[8px] font-black uppercase ${
+        complete
+          ? "border-[#B6DCC8] text-[#107A48]"
+          : active
+            ? "border-[#C8D6FF] text-[#183FBF]"
+            : "border-[#D8DEE4] text-[#687482]"
+      }`}
+    >
+      {complete ? (
+        <CheckCircle2 className="h-3 w-3 text-[#20B26B]" />
+      ) : loading ? (
+        <LoaderCircle className="h-3 w-3 animate-spin text-[#2457FF]" />
+      ) : active ? (
+        <Circle className="h-3 w-3 fill-[#2457FF] text-[#2457FF]" />
+      ) : (
+        <Circle className="h-3 w-3 text-[#8A94A0]" />
+      )}
+      {label}
+    </span>
+  );
+}
+
 function LifecycleStage({
   currentVersion,
   request,
@@ -160,6 +195,7 @@ function LifecycleStage({
   const doneIndex = completedThrough(request);
   const currentIndex = activeIndex(request);
   const displayedVersion = request?.versionTarget ?? currentVersion;
+  const hasLoadingRequest = Boolean(request && request.status !== "test-passed");
 
   return (
     <section className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.05)]">
@@ -181,42 +217,30 @@ function LifecycleStage({
         {stages.map((stage, index) => {
           const complete = index <= doneIndex;
           const active = !complete && index === currentIndex;
-          const Icon = complete ? CheckCircle2 : active ? Clock3 : Circle;
+          const StageIcon = stage.icon;
 
           return (
             <li
-              className={`min-h-[148px] rounded-md border p-3 ${
-                complete
-                  ? "border-[#B6DCC8] bg-[#F1FBF6]"
-                  : active
-                    ? "border-[#C8D6FF] bg-[#F4F7FF]"
-                    : "border-[#D8DEE4] bg-[#F8FAFC]"
-              }`}
+              className="min-h-[148px] rounded-md border border-[#D8DEE4] bg-white p-3"
               key={stage.id}
             >
               <div className="flex items-start justify-between gap-3">
                 <span
-                  className={`grid h-9 w-9 shrink-0 place-items-center rounded-md border ${
+                  className={`grid h-9 w-9 shrink-0 place-items-center rounded-md border bg-white ${
                     complete
-                      ? "border-[#107A48] bg-[#20B26B] text-white"
+                      ? "border-[#20B26B] text-[#107A48]"
                       : active
-                        ? "border-[#C8D6FF] bg-[#EDF3FF] text-[#2457FF]"
-                        : "border-[#D8DEE4] bg-white text-[#8A94A0]"
+                        ? "border-[#2457FF] text-[#2457FF]"
+                        : "border-[#D8DEE4] text-[#8A94A0]"
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <StageIcon className="h-4 w-4" />
                 </span>
-                <span
-                  className={`mono rounded px-1.5 py-1 text-[8px] font-black uppercase ${
-                    complete
-                      ? "bg-[#EAF8F1] text-[#107A48]"
-                      : active
-                        ? "bg-[#EDF3FF] text-[#183FBF]"
-                        : "bg-white text-[#8A94A0]"
-                  }`}
-                >
-                  {complete ? "done" : active ? "waiting" : "queued"}
-                </span>
+                <StatusIndicator
+                  active={active}
+                  complete={complete}
+                  loading={active && hasLoadingRequest}
+                />
               </div>
               <div className="mono mt-4 text-[9px] font-black uppercase text-[#687482]">
                 {String(index + 1).padStart(2, "0")}

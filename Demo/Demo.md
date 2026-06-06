@@ -2,6 +2,12 @@ The demo will start with an already created app. It has a version hsitory of v1.
 
 We will create a update request for v1.1 with requesting a relatively simple history feature. the chat will have a hardcoded response firstly some questions then it will create the updated spec and the change request.
 
+Expected prompt:
+
+```
+Add a history screen for viewed products. as a new tab.
+```
+
 user will look at the source which redirects to a spec.md which shows like exactly how the task is thought off.
 
 User will approve it.
