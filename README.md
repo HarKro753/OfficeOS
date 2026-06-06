@@ -4,6 +4,9 @@
   <img src="Assets/github-banner.png" alt="OfficeOS GitHub banner" width="100%" />
 </p>
 
+**Demo**
+https://github.com/user-attachments/assets/72edcb4a-0000-4a44-8ebd-f145ffec2d47
+
 **Bring the app direction. OfficeOS owns delivery.**
 
 OfficeOS is an app delivery operating layer for teams that know what mobile app they want, but do not want to run the production lifecycle themselves.
@@ -78,8 +81,6 @@ The prototype includes:
 - A markdown workspace for reviewing generated source documents.
 - A delivery timeline for request sent, implementation, test passed, and live.
 - An update report with changed screens, acceptance criteria, release links, and known limitations.
-
-https://github.com/user-attachments/assets/72edcb4a-0000-4a44-8ebd-f145ffec2d47
 
 ## Repository Structure
 
