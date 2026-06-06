@@ -5,8 +5,8 @@ app:
   name: YUKA
 request:
   title: Add product history tab
-  requestedBy:
-  date:
+  requestedBy: OfficeOS Demo
+  date: 2026-06-06
   priority: normal
   changeType: feature
 ---
@@ -85,7 +85,7 @@ Navigation rules:
 
 ### Screen: Product History
 
-![Product History](../../AppScreenshots/explore.png)
+![Product History](assets/screens/explore-screen.png)
 
 This screen shows recently viewed products in chronological order. The visual should follow the same clean white iOS style as Explore and Product Details. Product rows or cards should show product image, name, brand, score, and last viewed time/date.
 

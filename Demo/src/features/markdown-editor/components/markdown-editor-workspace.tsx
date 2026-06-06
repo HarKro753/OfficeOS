@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { CsvPreview } from "./csv-preview";
 import { EditorHeader } from "./editor-header";
+import { MarkdownPreview } from "./markdown-preview";
 import { TemplateSidebar } from "./template-sidebar";
 import { useMarkdownWorkspace } from "../hooks/use-markdown-workspace";
 import type { MockAsset, SourceDoc } from "../types";
@@ -22,13 +23,11 @@ export function MarkdownEditorWorkspace({
     activeDoc,
     activeItem,
     activeItemId,
-    bindTextarea,
     closeWorkspaceItem,
     currentContent,
     mockAssets,
     openItems,
     selectWorkspaceItem,
-    updateActiveDocument,
     workspaceItems,
   } = useMarkdownWorkspace(initialDocs, assets, storageKey);
   const selectedMockAsset =
@@ -55,16 +54,15 @@ export function MarkdownEditorWorkspace({
 
           <section className="relative min-h-0 flex-1 overflow-auto bg-white">
             {activeItem.type === "document" ? (
-              <textarea
-                ref={bindTextarea}
-                aria-label={`${activeDoc} editor`}
-                className="mono block min-h-full w-full resize-none border-0 bg-white px-5 py-5 text-[10px] leading-[1.55] text-[#101418] outline-none selection:bg-[#E5EAF0]"
-                onChange={(event) =>
-                  updateActiveDocument(event.target.value)
-                }
-                spellCheck={false}
-                value={currentContent}
-              />
+              <div
+                aria-label={`${activeDoc} markdown preview`}
+                className="min-h-full bg-white"
+              >
+                <MarkdownPreview
+                  assets={mockAssets}
+                  markdown={currentContent}
+                />
+              </div>
             ) : selectedMockAsset?.kind === "image" ? (
               <div className="relative min-h-full w-full bg-[#F8FAFC]">
                 <Image

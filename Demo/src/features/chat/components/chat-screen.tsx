@@ -24,6 +24,11 @@ type ChatMessage = {
   kind?: "progress" | "ready";
 };
 
+type StreamingMessage = {
+  fullText: string;
+  id: string;
+} | null;
+
 const initialMessage =
   "Describe the app you want OfficeOS to build. Include the users, core screens, flows, assets, integrations, and the design direction you want preserved.";
 
@@ -64,20 +69,26 @@ export function ChatScreen() {
   const [submittedCount, setSubmittedCount] = useState(0);
   const [progressCount, setProgressCount] = useState(0);
   const [isWorking, setIsWorking] = useState(false);
+  const [streamingMessage, setStreamingMessage] =
+    useState<StreamingMessage>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isStreaming = streamingMessage !== null;
 
   const sourceReady = useMemo(
-    () => messages.some((message) => message.kind === "ready"),
-    [messages],
+    () =>
+      messages.some(
+        (message) => message.kind === "ready" && message.body.length > 0,
+      ) && !isStreaming,
+    [isStreaming, messages],
   );
 
   useEffect(() => {
     endRef.current?.scrollIntoView({
       block: "end",
-      behavior: isWorking ? "auto" : "smooth",
+      behavior: isWorking || isStreaming ? "auto" : "smooth",
     });
-  }, [messages, progressCount, isWorking]);
+  }, [messages, progressCount, isWorking, isStreaming]);
 
   useEffect(() => {
     const textarea = textareaRef.current;
@@ -93,15 +104,21 @@ export function ChatScreen() {
 
     if (progressCount >= progressSteps.length) {
       const timeout = window.setTimeout(() => {
+        const assistantMessageId = "assistant-ready";
+
         setMessages((previous) => [
           ...previous,
           {
-            id: "assistant-ready",
+            id: assistantMessageId,
             speaker: "assistant",
             kind: "ready",
-            body: "Source package is ready for approval.",
+            body: "",
           },
         ]);
+        setStreamingMessage({
+          id: assistantMessageId,
+          fullText: "Source package is ready for approval.",
+        });
         setIsWorking(false);
       }, 420);
 
@@ -115,11 +132,46 @@ export function ChatScreen() {
     return () => window.clearTimeout(timeout);
   }, [isWorking, progressCount]);
 
+  useEffect(() => {
+    if (!streamingMessage) return;
+
+    const currentMessage = messages.find(
+      (message) => message.id === streamingMessage.id,
+    );
+    const currentLength = currentMessage?.body.length ?? 0;
+
+    const timeout = window.setTimeout(() => {
+      if (currentLength >= streamingMessage.fullText.length) {
+        setStreamingMessage(null);
+        return;
+      }
+
+      const nextBody = streamingMessage.fullText.slice(0, currentLength + 4);
+
+      setMessages((previous) =>
+        previous.map((message) =>
+          message.id === streamingMessage.id
+            ? {
+                ...message,
+                body: nextBody,
+              }
+            : message,
+        ),
+      );
+
+      if (nextBody.length >= streamingMessage.fullText.length) {
+        setStreamingMessage(null);
+      }
+    }, currentLength >= streamingMessage.fullText.length ? 0 : 24);
+
+    return () => window.clearTimeout(timeout);
+  }, [messages, streamingMessage]);
+
   const submitPrompt = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const cleanDraft = draft.trim();
-    if (!cleanDraft || isWorking) return;
+    if (!cleanDraft || isWorking || isStreaming) return;
 
     const nextCount = submittedCount + 1;
     setSubmittedCount(nextCount);
@@ -134,14 +186,20 @@ export function ChatScreen() {
     ]);
 
     if (nextCount === 1) {
+      const assistantMessageId = "assistant-questions";
+
       setMessages((previous) => [
         ...previous,
         {
-          id: "assistant-questions",
+          id: assistantMessageId,
           speaker: "assistant",
-          body: questionResponse,
+          body: "",
         },
       ]);
+      setStreamingMessage({
+        id: assistantMessageId,
+        fullText: questionResponse,
+      });
       return;
     }
 
@@ -244,7 +302,9 @@ export function ChatScreen() {
                       </p>
                     )}
 
-                    {message.kind === "ready" ? (
+                    {message.kind === "ready" &&
+                    streamingMessage?.id !== message.id &&
+                    message.body.length > 0 ? (
                       <div className="mt-4 flex flex-wrap items-center gap-2">
                         <Link
                           className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
@@ -277,13 +337,15 @@ export function ChatScreen() {
             <textarea
               ref={textareaRef}
               className="max-h-[154px] min-h-11 flex-1 resize-none rounded-md border border-[#C8D0D8] bg-white px-3 py-2.5 text-sm font-bold leading-6 outline-none placeholder:text-[#8A94A0] focus:ring-2 focus:ring-[#101418]"
-              disabled={isWorking}
+              disabled={isWorking || isStreaming}
               id="chat-prompt"
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={
                 isWorking
                   ? "OfficeOS is preparing the source package..."
+                  : isStreaming
+                    ? "OfficeOS is responding..."
                   : submittedCount === 0
                     ? "Describe your project..."
                     : "Answer the questions or add build details..."
@@ -294,7 +356,7 @@ export function ChatScreen() {
             <button
               aria-label="Send message"
               className="grid h-11 w-11 shrink-0 place-items-center rounded-md bg-[#101418] text-white transition hover:bg-[#26313B] disabled:cursor-not-allowed disabled:bg-[#A9B5C2] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-              disabled={!draft.trim() || isWorking}
+              disabled={!draft.trim() || isWorking || isStreaming}
               type="submit"
             >
               <Send className="h-4 w-4" />

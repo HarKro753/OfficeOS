@@ -111,7 +111,7 @@ The onboarding flow should stay short: five questions total. Each screen uses th
 
 #### Screen: Onboarding Name
 
-![Onboarding question visual pattern](../../AppScreenshots/onbaording.png)
+![Onboarding question visual pattern](assets/brand/yuka-app-icon.png)
 
 Ask: "What should we call you?"
 
@@ -123,7 +123,7 @@ Expected behavior: the user enters a first name or nickname and taps Continue. T
 
 #### Screen: Onboarding Age
 
-![Onboarding age question](../../AppScreenshots/onbaording.png)
+![Onboarding age question](assets/brand/yuka-app-icon.png)
 
 Ask: "How old are you?"
 
@@ -143,7 +143,7 @@ Expected behavior: the user selects one age range and taps Continue.
 
 #### Screen: Onboarding Country / Market
 
-![Onboarding country market](../../AppScreenshots/onbaording.png)
+![Onboarding country market](assets/brand/yuka-app-icon.png)
 
 Ask: "Where do you usually shop for food?"
 
@@ -163,7 +163,7 @@ Expected behavior: the user selects or enters one market and taps Continue.
 
 #### Screen: Onboarding Dietary Preferences
 
-![Onboarding dietary preferences](../../AppScreenshots/onbaording.png)
+![Onboarding dietary preferences](assets/brand/yuka-app-icon.png)
 
 Ask: "Do you follow any food preferences?"
 
@@ -183,7 +183,7 @@ Expected behavior: the user can select one or more preferences and taps Continue
 
 #### Screen: Onboarding Favorite Categories
 
-![Onboarding favorite categories](../../AppScreenshots/onbaording.png)
+![Onboarding favorite categories](assets/brand/yuka-app-icon.png)
 
 Ask: "What kinds of food do you want to see more of?"
 
@@ -210,7 +210,7 @@ If there is no match for a scanned barcode or search query, OfficeOS should prov
 
 #### Screen: Product Search
 
-![Product search](../../AppScreenshots/search.png)
+![Product search](assets/screens/explore-screen.png)
 
 This screen shows typed product search with native iOS keyboard behavior. Search suggestions/results appear as a simple vertical list, with small product/category icons, bold matching text, and muted secondary text. The user can clear the search or close the search mode. Selecting a result opens Product Details.
 
@@ -220,13 +220,13 @@ This section lets users browse healthy products without scanning first. It shoul
 
 #### Screen: Explore Home
 
-![Explore home](../../AppScreenshots/explore.png)
+![Explore home](assets/screens/explore-screen.png)
 
 This is the main Explore screen. It uses a large title, category rows, horizontal product carousels, product cards with images, product name, brand, and score. Category headers should open category-specific result lists if that behavior is implemented.
 
 #### Screen: Explore Filter Open
 
-![Explore filter open](../../AppScreenshots/explore-filter-open.png)
+![Explore filter open](assets/screens/explore-screen.png)
 
 This screen shows the explore filter menu opened from the top-right control. Filters include Low Calorie, High Protein, High Nutri Score, Vegan, and Vegetarian. The menu should feel like a lightweight iOS floating panel with soft blur/shadow and simple icon-text rows.
 
@@ -236,19 +236,19 @@ This section explains the selected product's score and provides healthier simila
 
 #### Screen: Product Details Overview
 
-![Product details overview](../../AppScreenshots/details.png)
+![Product details overview](assets/screens/product-details-expanded.png)
 
 This screen shows product image, product name, brand, score, score label, positive nutrition factors, and negative nutrition factors. Nutrient rows show icon, nutrient name, qualitative label, per-100g value, and colored status dot. Back and share controls are circular floating iOS-style buttons.
 
 #### Screen: Product Details Expanded Nutrients
 
-![Product details expanded nutrients](../../AppScreenshots/detail-expanded-sections.png)
+![Product details expanded nutrients](assets/screens/product-details-expanded.png)
 
 This screen shows nutrient rows expanded with colored threshold bars and a marker indicating the product's value. Expanded rows should help users understand why the score is good, moderate, or poor without requiring technical nutrition knowledge.
 
 #### Screen: Product Details Alternatives
 
-![Product details alternatives](../../AppScreenshots/detail-footer-alternative-cards.png)
+![Product details alternatives](assets/screens/product-details-expanded.png)
 
 This lower product-detail state shows alternative products after the nutrient breakdown. Alternatives should be products from similar categories that are healthier or otherwise useful substitutions. Each alternative should show product image, name, brand/source, score, and score label. A short explanation should clarify that ratings are based on nutritional value, ingredient quality, and processing level.
 

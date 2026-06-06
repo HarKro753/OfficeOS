@@ -60,7 +60,7 @@ Example:
 
 ### Screen: Product History
 
-![Product History](assets/screens/product-history.png)
+![Product History](assets/screens/explore-screen.png)
 
 This screen lists recently scanned or opened products. Each row shows product image, product name, brand, score, and the date it was last opened.
 

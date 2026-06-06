@@ -76,13 +76,13 @@ This section lets users configure personal app behavior.
 
 #### Screen: Preferences Index
 
-![Preferences Index](assets/screens/preferences-index.png)
+![Preferences Index](assets/screens/explore-screen.png)
 
 This is the main preferences screen. It links to streak settings, notes, likes, app icon, and other personalization areas.
 
 #### Screen: App Icon
 
-![App Icon](assets/screens/preferences-app-icon.png)
+![App Icon](assets/brand/yuka-app-icon.png)
 
 This screen lets users choose a custom app icon.
 

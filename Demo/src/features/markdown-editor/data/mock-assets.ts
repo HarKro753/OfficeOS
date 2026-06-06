@@ -50,6 +50,12 @@ export const mockAssets: MockAsset[] = [
     description: "Mock product dataset for scan, search, and explore behavior.",
   },
   {
+    name: "yuka-app-icon.png",
+    path: "assets/brand/yuka-app-icon.png",
+    kind: "image",
+    description: "Mock brand asset for the YUKA app identity.",
+  },
+  {
     name: "explore-screen.png",
     path: "assets/screens/explore-screen.png",
     kind: "image",
