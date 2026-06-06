@@ -1,24 +1,40 @@
 import { MarkdownEditorWorkspace } from "@/features/markdown-editor";
 import { getMockMarkdownEditorData } from "@/features/markdown-editor/data/mock-assets";
+import { redirect } from "next/navigation";
 
 type SourcePageProps = {
   searchParams?: Promise<{
-    state?: string | string[];
+    origin?: string | string[];
+    requestId?: string | string[];
+    version?: string | string[];
   }>;
 };
 
 export default async function SourcePage({ searchParams }: SourcePageProps) {
   const resolvedSearchParams = await searchParams;
-  const state = resolvedSearchParams?.state;
-  const sourceState = Array.isArray(state) ? state[0] : state;
-  const templateState = sourceState === "final" ? "final" : "empty";
+  const requestIdParam = resolvedSearchParams?.requestId;
+  const versionParam = resolvedSearchParams?.version;
+  const requestId = Array.isArray(requestIdParam)
+    ? requestIdParam[0]
+    : requestIdParam;
+  const version = Array.isArray(versionParam) ? versionParam[0] : versionParam;
+
+  if (!requestId && !version) {
+    redirect("/chat");
+  }
+
+  const templateState = "final";
   const { assets, sourceDocs } = getMockMarkdownEditorData(templateState);
 
   return (
     <MarkdownEditorWorkspace
       assets={assets}
+      backHref="/chat"
+      backLabel="Back to chat"
       initialDocs={sourceDocs}
-      storageKey={`officeos-demo-markdown-documents-v1-${templateState}`}
+      storageKey={`officeos-demo-markdown-documents-v1-${
+        requestId ?? `version-${version}`
+      }`}
     />
   );
 }

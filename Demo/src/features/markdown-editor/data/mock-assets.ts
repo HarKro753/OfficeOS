@@ -34,6 +34,13 @@ const mockSourceDocuments: Array<Omit<SourceDoc, "content">> = [
     description:
       "Defines the governed app update that modifies the source of truth.",
   },
+  {
+    key: "UpdateReport.md",
+    label: "Update report",
+    role: "Delivery report",
+    description:
+      "Summarizes the submitted update, changed screens, screenshots, and QA checks.",
+  },
 ];
 
 function readTemplate(key: SourceDocKey, templateState: TemplateState) {
@@ -66,6 +73,30 @@ export const mockAssets: MockAsset[] = [
     path: "assets/screens/product-details-expanded.png",
     kind: "image",
     description: "Mock visual reference for nutrient detail expansion.",
+  },
+  {
+    name: "explore.png",
+    path: "assets/screens/app-preview/explore.png",
+    kind: "image",
+    description: "Submitted update screenshot for the Explore screen.",
+  },
+  {
+    name: "explore-filter-open.png",
+    path: "assets/screens/app-preview/explore-filter-open.png",
+    kind: "image",
+    description: "Submitted update screenshot for the open Explore filter.",
+  },
+  {
+    name: "detail-expanded-sections.png",
+    path: "assets/screens/app-preview/detail-expanded-sections.png",
+    kind: "image",
+    description: "Submitted update screenshot for expanded detail sections.",
+  },
+  {
+    name: "detail-footer-alternative-cards.png",
+    path: "assets/screens/app-preview/detail-footer-alternative-cards.png",
+    kind: "image",
+    description: "Submitted update screenshot for alternative product cards.",
   },
 ];
 

@@ -1,4 +1,8 @@
-export type SourceDocKey = "SPEC.md" | "DESIGN.md" | "ChangeRequest.md";
+export type SourceDocKey =
+  | "SPEC.md"
+  | "DESIGN.md"
+  | "ChangeRequest.md"
+  | "UpdateReport.md";
 
 export type SourceDoc = {
   key: SourceDocKey;

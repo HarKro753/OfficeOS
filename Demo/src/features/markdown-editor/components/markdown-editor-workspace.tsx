@@ -10,12 +10,16 @@ import type { MockAsset, SourceDoc } from "../types";
 
 type MarkdownEditorWorkspaceProps = {
   assets: MockAsset[];
+  backHref?: string;
+  backLabel?: string;
   initialDocs: SourceDoc[];
   storageKey?: string;
 };
 
 export function MarkdownEditorWorkspace({
   assets,
+  backHref = "/chat",
+  backLabel = "Back to chat",
   initialDocs,
   storageKey,
 }: MarkdownEditorWorkspaceProps) {
@@ -40,6 +44,8 @@ export function MarkdownEditorWorkspace({
       <section className="flex min-h-dvh flex-1 gap-3 overflow-hidden lg:min-h-[calc(100dvh-2rem)]">
         <TemplateSidebar
           activeItemId={activeItemId}
+          backHref={backHref}
+          backLabel={backLabel}
           selectWorkspaceItem={selectWorkspaceItem}
           workspaceItems={workspaceItems}
         />

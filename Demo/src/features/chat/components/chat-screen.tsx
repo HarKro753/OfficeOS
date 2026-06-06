@@ -1,13 +1,16 @@
 "use client";
 
 import {
+  ArrowLeft,
   CheckCircle2,
   CircleDot,
-  FileText,
+  Eye,
   Loader2,
   Send,
 } from "lucide-react";
+import { useProjectWorkflow } from "@/features/project-workflow";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useEffect,
   useMemo,
@@ -53,19 +56,36 @@ const progressSteps = [
   "Checking empty source handoff",
 ];
 
-function buildInitialMessages(): ChatMessage[] {
-  return [
+function buildInitialMessages(sourceReady = false): ChatMessage[] {
+  const messages: ChatMessage[] = [
     {
       id: "assistant-initial",
       speaker: "assistant",
       body: initialMessage,
     },
   ];
+
+  if (sourceReady) {
+    messages.push({
+      id: "assistant-ready",
+      speaker: "assistant",
+      kind: "ready",
+      body: "Source package is ready for approval.",
+    });
+  }
+
+  return messages;
 }
 
 export function ChatScreen() {
+  const router = useRouter();
+  const workflow = useProjectWorkflow();
+  const { approveGeneratedRequest, ensureGeneratedRequest } = workflow;
+  const hasGeneratedSource = Boolean(workflow.state.activeRequest?.sourceReady);
   const [draft, setDraft] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>(buildInitialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(() =>
+    buildInitialMessages(hasGeneratedSource),
+  );
   const [submittedCount, setSubmittedCount] = useState(0);
   const [progressCount, setProgressCount] = useState(0);
   const [isWorking, setIsWorking] = useState(false);
@@ -82,6 +102,9 @@ export function ChatScreen() {
       ) && !isStreaming,
     [isStreaming, messages],
   );
+  const generatedRequest = workflow.state.activeRequest?.sourceReady
+    ? workflow.state.activeRequest
+    : null;
 
   useEffect(() => {
     endRef.current?.scrollIntoView({
@@ -106,6 +129,7 @@ export function ChatScreen() {
       const timeout = window.setTimeout(() => {
         const assistantMessageId = "assistant-ready";
 
+        ensureGeneratedRequest();
         setMessages((previous) => [
           ...previous,
           {
@@ -130,7 +154,7 @@ export function ChatScreen() {
     }, 620);
 
     return () => window.clearTimeout(timeout);
-  }, [isWorking, progressCount]);
+  }, [ensureGeneratedRequest, isWorking, progressCount]);
 
   useEffect(() => {
     if (!streamingMessage) return;
@@ -231,6 +255,11 @@ export function ChatScreen() {
     event.currentTarget.form?.requestSubmit();
   };
 
+  const approveRequest = () => {
+    approveGeneratedRequest();
+    router.push("/?approved=1");
+  };
+
   return (
     <main className="flex min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
       <section className="mx-auto flex min-h-[calc(100dvh-1rem)] w-full max-w-[1180px] flex-col overflow-hidden rounded-md border border-[#C8D0D8] bg-white shadow-[0_18px_70px_rgba(16,20,24,0.10)] sm:min-h-[calc(100dvh-1.5rem)]">
@@ -244,10 +273,10 @@ export function ChatScreen() {
 
           <Link
             className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-            href="/source?state=empty"
+            href="/"
           >
-            <FileText className="h-4 w-4" />
-            Source
+            <ArrowLeft className="h-4 w-4" />
+            Dashboard
           </Link>
         </header>
 
@@ -307,12 +336,22 @@ export function ChatScreen() {
                     message.body.length > 0 ? (
                       <div className="mt-4 flex flex-wrap items-center gap-2">
                         <Link
+                          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+                          href={`/source?origin=chat&requestId=${
+                            generatedRequest?.id ?? "request-yuka-explore-update"
+                          }`}
+                        >
+                          <Eye className="h-4 w-4" />
+                          View spec
+                        </Link>
+                        <button
                           className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
-                          href="/source?state=final"
+                          onClick={approveRequest}
+                          type="button"
                         >
                           <CheckCircle2 className="h-4 w-4" />
-                          Approve source package
-                        </Link>
+                          Approve request
+                        </button>
                         <span className="mono text-[10px] font-black uppercase text-[#46515D]">
                           Demo/templates
                         </span>
