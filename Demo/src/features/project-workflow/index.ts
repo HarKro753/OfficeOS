@@ -10,6 +10,7 @@ export type ProjectStage =
 
 export type PreviewScreenshot = {
   alt: string;
+  description?: string;
   label: string;
   src: string;
 };
@@ -26,8 +27,17 @@ export type ProjectVersion = {
 };
 
 export type UpdateReport = {
+  appName: string;
+  approvedAt?: string;
+  changedScreens: string[];
   createdAt: string;
+  documentType: string;
+  documentVersion: string;
   id: string;
+  implementationNotes: string;
+  knownLimitations: string;
+  preservedBehavior: string[];
+  qaChecklist: string[];
   requestId: string;
   screenshots: PreviewScreenshot[];
   sections: Array<{
@@ -35,6 +45,7 @@ export type UpdateReport = {
     title: string;
   }>;
   status: "draft" | "approved" | "in-implementation" | "live";
+  summary: string;
   title: string;
   versionTarget: string;
 };
@@ -100,22 +111,30 @@ const baselineScreenshots: PreviewScreenshot[] = [
 const updateScreenshots: PreviewScreenshot[] = [
   {
     alt: "YUKA explore screen after update",
+    description:
+      "The Explore screen becomes the primary update evidence. It should continue to show product discovery content while making the updated browsing state easy to inspect.",
     label: "Explore",
     src: "/assets/screens/app-preview/explore.png",
   },
   {
     alt: "YUKA explore filter opened after update",
-    label: "Filters",
+    description:
+      "The filter state should be visible and reviewable so OfficeOS can verify category and product-discovery controls.",
+    label: "Explore Filter Open",
     src: "/assets/screens/app-preview/explore-filter-open.png",
   },
   {
     alt: "YUKA expanded detail sections after update",
-    label: "Detail sections",
+    description:
+      "Product detail sections should expose more evidence in an expanded state without hiding the existing product summary.",
+    label: "Product Details Expanded",
     src: "/assets/screens/app-preview/detail-expanded-sections.png",
   },
   {
     alt: "YUKA alternative cards after update",
-    label: "Alternatives",
+    description:
+      "The product detail footer should show alternative product cards for healthier comparison.",
+    label: "Alternative Cards",
     src: "/assets/screens/app-preview/detail-footer-alternative-cards.png",
   },
 ];
@@ -163,8 +182,33 @@ function baselineState(): ProjectWorkflowState {
 
 function updateReport(requestId: string, reportId: string): UpdateReport {
   return {
+    appName: "YUKA",
+    approvedAt: "2026-06-06T09:24:00.000Z",
+    changedScreens: [
+      "Explore now has a clearer guided browsing and filtering state.",
+      "Product details now show expanded evidence sections.",
+      "Product details now include alternative recommendation cards.",
+    ],
     createdAt: generatedAt,
+    documentType: "mobile-app-update-report",
+    documentVersion: "alpha",
     id: reportId,
+    implementationNotes:
+      "The update should use the submitted screenshots as visual references. The implementation work should focus on the Explore and product detail surfaces only; no new authenticated systems or live App Store/PostHog integrations are required for this mock update.",
+    knownLimitations:
+      "This is a mocked update report. No real App Store, PostHog, or backend release automation is connected.",
+    preservedBehavior: [
+      "Onboarding remains part of the baseline app.",
+      "Search remains available and should not be degraded by the Explore update.",
+      "Existing product detail access remains intact.",
+    ],
+    qaChecklist: [
+      "Explore screen matches the submitted update screenshot.",
+      "Explore filter state can be opened and reviewed.",
+      "Expanded product detail sections are visible.",
+      "Alternative cards appear in the product detail footer.",
+      "Onboarding, search, and baseline detail navigation remain usable.",
+    ],
     requestId,
     screenshots: updateScreenshots,
     sections: [
@@ -184,7 +228,9 @@ function updateReport(requestId: string, reportId: string): UpdateReport {
         title: "QA focus",
       },
     ],
-    status: "draft",
+    status: "in-implementation",
+    summary:
+      "This update adds a richer Explore workflow for YUKA. The app should show clearer filtering, expanded product detail evidence, and alternative recommendation cards while preserving the existing onboarding, search, and product detail baseline from version 1.0.",
     title: "Add guided Explore improvements",
     versionTarget: "1.1",
   };
@@ -212,6 +258,31 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function normalizeReport(value: unknown): UpdateReport | null {
+  if (!isRecord(value)) return null;
+
+  const requestId =
+    typeof value.requestId === "string" ? value.requestId : generatedRequest().id;
+  const reportId =
+    typeof value.id === "string" ? value.id : generatedRequest().reportId;
+  const fallback = updateReport(requestId, reportId);
+
+  return {
+    ...fallback,
+    ...value,
+    screenshots: Array.isArray(value.screenshots)
+      ? value.screenshots.map((screenshot, index) => ({
+          ...(isRecord(screenshot) ? screenshot : {}),
+          description: fallback.screenshots[index]?.description,
+          label: fallback.screenshots[index]?.label ?? "Screenshot",
+        }))
+      : fallback.screenshots,
+    sections: Array.isArray(value.sections)
+      ? (value.sections as UpdateReport["sections"])
+      : fallback.sections,
+  } as UpdateReport;
+}
+
 function normalizeState(value: unknown): ProjectWorkflowState {
   const fallback = baselineState();
   if (!isRecord(value)) return fallback;
@@ -229,7 +300,10 @@ function normalizeState(value: unknown): ProjectWorkflowState {
     },
     logs: Array.isArray(value.logs) ? (value.logs as ProjectLog[]) : fallback.logs,
     reports: Array.isArray(value.reports)
-      ? (value.reports as UpdateReport[])
+      ? value.reports.flatMap((report) => {
+          const normalizedReport = normalizeReport(report);
+          return normalizedReport ? [normalizedReport] : [];
+        })
       : fallback.reports,
     versions: Array.isArray(value.versions)
       ? (value.versions as ProjectVersion[])

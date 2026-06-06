@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { CsvPreview } from "./csv-preview";
 import { EditorHeader } from "./editor-header";
 import { MarkdownPreview } from "./markdown-preview";
@@ -9,6 +10,7 @@ import { useMarkdownWorkspace } from "../hooks/use-markdown-workspace";
 import type { MockAsset, SourceDoc } from "../types";
 
 type MarkdownEditorWorkspaceProps = {
+  actions?: ReactNode;
   assets: MockAsset[];
   backHref?: string;
   backLabel?: string;
@@ -19,6 +21,7 @@ type MarkdownEditorWorkspaceProps = {
 };
 
 export function MarkdownEditorWorkspace({
+  actions,
   assets,
   backHref = "/chat",
   backLabel = "Back to chat",
@@ -48,7 +51,7 @@ export function MarkdownEditorWorkspace({
       className={`flex flex-1 gap-3 overflow-hidden ${
         frame === "page"
           ? "min-h-dvh lg:min-h-[calc(100dvh-2rem)]"
-          : "min-h-0"
+          : "h-full min-h-0"
       }`}
     >
       <TemplateSidebar
@@ -64,6 +67,7 @@ export function MarkdownEditorWorkspace({
       <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-[#C8D0D8] bg-white shadow-[0_18px_70px_rgba(16,20,24,0.08)]">
         <EditorHeader
           activeItemId={activeItemId}
+          actions={actions}
           closeWorkspaceItem={closeWorkspaceItem}
           openItems={openItems}
           selectWorkspaceItem={selectWorkspaceItem}
@@ -103,7 +107,7 @@ export function MarkdownEditorWorkspace({
 
   if (frame === "embedded") {
     return (
-      <section className="flex h-full min-h-0 flex-col bg-[#E9EDF2] text-[#101418]">
+      <section className="flex h-full min-h-0 overflow-hidden bg-[#E9EDF2] text-[#101418]">
         {workspace}
       </section>
     );

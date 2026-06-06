@@ -58,46 +58,28 @@ export function SourcePackageWorkspace({
   }
 
   return (
-    <section className="flex min-h-[calc(100dvh-1rem)] min-w-0 flex-col gap-3 sm:min-h-[calc(100dvh-1.5rem)]">
-      <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <div className="mono text-[10px] font-black uppercase text-[#46515D]">
-              Source package / v{request.versionTarget}
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
-              <FileText className="h-5 w-5 text-[#2457FF]" />
-              <h1 className="text-2xl font-black leading-tight">
-                {request.title}
-              </h1>
-            </div>
-            <div className="mono mt-2 truncate text-[10px] font-black uppercase text-[#8A94A0]">
-              {request.id}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <Link
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-              href={dashboardHref}
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Dashboard
-            </Link>
-            <button
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-3 text-xs font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
-              onClick={approveRequest}
-              type="button"
-            >
-              <CheckCircle2 className="h-4 w-4" />
-              Approve request
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <section className="min-h-0 flex-1">
+    <section className="flex h-[calc(100dvh-1rem)] min-h-0 min-w-0 flex-col sm:h-[calc(100dvh-1.5rem)]">
+      <section className="min-h-0 flex-1 overflow-hidden">
         <MarkdownEditorWorkspace
+          actions={
+            <>
+              <Link
+                className="inline-flex min-h-8 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-2 text-[11px] font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+                href={dashboardHref}
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Dashboard
+              </Link>
+              <button
+                className="inline-flex min-h-8 items-center justify-center gap-2 rounded-md bg-[#20B26B] px-2 text-[11px] font-black text-white transition hover:bg-[#188C54] focus:outline-none focus:ring-2 focus:ring-[#20B26B] focus:ring-offset-1"
+                onClick={approveRequest}
+                type="button"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Approve request
+              </button>
+            </>
+          }
           assets={assets}
           backLabel="Dashboard"
           frame="embedded"

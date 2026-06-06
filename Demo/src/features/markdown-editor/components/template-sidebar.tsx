@@ -26,7 +26,7 @@ export function TemplateSidebar({
   const fullMode = mode === "full";
 
   return (
-    <aside className="flex w-[220px] shrink-0 flex-col overflow-hidden rounded-md border border-[#C8D0D8] bg-[#F8FAFC] shadow-[0_18px_70px_rgba(16,20,24,0.08)]">
+    <aside className="flex h-full w-[220px] shrink-0 flex-col overflow-hidden rounded-md border border-[#C8D0D8] bg-[#F8FAFC] shadow-[0_18px_70px_rgba(16,20,24,0.08)] lg:sticky lg:top-3 lg:max-h-[calc(100dvh-1.5rem)]">
       {fullMode ? (
         <header className="px-3 py-3">
           {onBack ? (
