@@ -118,6 +118,7 @@ The current prototype focuses on the product workflow: app direction in, source-
 
 ## Source Materials
 
+- [Miro slides board](https://miro.com/app/board/uXjVHJdkql8=/?share_link_id=49241611693)
 - [Demo video](Assets/DemoVid.mp4)
 - [Problem slide](Assets/1-Problem.png)
 - [Solution slide](Assets/2-Solution.png)
