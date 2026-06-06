@@ -393,6 +393,11 @@ export function useProjectWorkflow() {
     ? state.reports.find((report) => report.id === state.activeRequest?.reportId) ??
       null
     : null;
+  const reportById = useCallback(
+    (reportId: string) =>
+      state.reports.find((report) => report.id === reportId) ?? null,
+    [state.reports],
+  );
   const previewVersion = state.activeRequest?.versionTarget ?? state.app.currentVersion;
   const previewScreenshots =
     state.activeRequest?.sourceReady && activeReport
@@ -406,6 +411,7 @@ export function useProjectWorkflow() {
       ensureGeneratedRequest,
       previewScreenshots,
       previewVersion,
+      reportById,
       state,
     }),
     [
@@ -414,6 +420,7 @@ export function useProjectWorkflow() {
       ensureGeneratedRequest,
       previewScreenshots,
       previewVersion,
+      reportById,
       state,
     ],
   );

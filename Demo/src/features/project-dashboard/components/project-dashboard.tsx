@@ -1,26 +1,40 @@
 "use client";
 
 import { useProjectWorkflow } from "@/features/project-workflow";
+import { Toaster } from "@/components/ui/sonner";
 import {
-  Bell,
   Clock3,
   ExternalLink,
   Plus,
   ShieldCheck,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { AppPreviewPanel } from "./app-preview-panel";
 import { LifecycleStage } from "./lifecycle-stage";
-import { UpdateReportPanel } from "./update-report-panel";
 
 export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
   const router = useRouter();
   const workflow = useProjectWorkflow();
   const { activeRequest, app, logs, versions } = workflow.state;
+  const approvedVersion = activeRequest?.versionTarget ?? "1.1";
+
+  useEffect(() => {
+    if (!approved) return;
+
+    toast.success("Approved. Implementation is starting.", {
+      description: `OfficeOS is using the generated source package and update report to prepare v${approvedVersion}.`,
+      duration: 6000,
+      id: "officeos-update-approved",
+    });
+  }, [approved, approvedVersion]);
 
   return (
     <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
+      <Toaster />
       <section className="mx-auto flex w-full max-w-[1440px] flex-col gap-3">
         <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)] sm:p-5">
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-center">
@@ -69,21 +83,6 @@ export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
           </div>
         </header>
 
-        {approved ? (
-          <section className="flex items-start gap-3 border border-[#B6DCC8] bg-[#F1FBF6] p-3 text-[#107A48]">
-            <Bell className="mt-0.5 h-4 w-4 shrink-0" />
-            <div>
-              <div className="text-sm font-black">
-                Approved. Implementation is starting.
-              </div>
-              <p className="mt-1 text-xs font-bold leading-5 text-[#1B6B47]">
-                OfficeOS is using the generated source package and update
-                report to prepare v{activeRequest?.versionTarget ?? "1.1"}.
-              </p>
-            </div>
-          </section>
-        ) : null}
-
         <LifecycleStage request={activeRequest} />
 
         <AppPreviewPanel
@@ -93,10 +92,7 @@ export function ProjectDashboard({ approved = false }: { approved?: boolean }) {
         />
 
         <section className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_420px]">
-          <div className="grid gap-3">
-            <VersionHistory versions={versions} />
-            <UpdateReportPanel report={workflow.activeReport} />
-          </div>
+          <VersionHistory versions={versions} />
           <LiveLogs logs={logs} />
         </section>
       </section>
@@ -136,32 +132,66 @@ function VersionHistory({
       </div>
       <ol className="mt-3 divide-y divide-[#E5EAF0] border-t border-[#E5EAF0]">
         {versions.map((version) => (
-          <li
-            className="grid gap-3 py-3 sm:grid-cols-[72px_1fr_auto] sm:items-center"
-            key={version.id}
-          >
-            <div className="mono text-sm font-black text-[#183FBF]">
-              v{version.version}
-            </div>
-            <div className="min-w-0">
-              <div className="text-sm font-black">{version.title}</div>
-              <p className="mt-1 text-xs font-bold leading-5 text-[#46515D]">
-                {version.summary}
-              </p>
-            </div>
-            <span
-              className={`mono w-fit rounded px-2 py-1 text-[8px] font-black uppercase ${
-                version.status === "live"
-                  ? "bg-[#EAF8F1] text-[#107A48]"
-                  : "bg-[#EDF3FF] text-[#183FBF]"
-              }`}
-            >
-              {version.status}
-            </span>
-          </li>
+          <VersionRow key={version.id} version={version} />
         ))}
       </ol>
     </section>
+  );
+}
+
+function VersionRow({
+  version,
+}: {
+  version: ReturnType<typeof useProjectWorkflow>["state"]["versions"][number];
+}) {
+  const content = (
+    <>
+      <div className="mono text-sm font-black text-[#183FBF]">
+        v{version.version}
+      </div>
+      <div className="min-w-0">
+        <div className="text-sm font-black">{version.title}</div>
+        <p className="mt-1 text-xs font-bold leading-5 text-[#46515D]">
+          {version.summary}
+        </p>
+      </div>
+      <div className="flex items-center justify-between gap-2 sm:justify-end">
+        <span
+          className={`mono w-fit rounded px-2 py-1 text-[8px] font-black uppercase ${
+            version.status === "live"
+              ? "bg-[#EAF8F1] text-[#107A48]"
+              : "bg-[#EDF3FF] text-[#183FBF]"
+          }`}
+        >
+          {version.status}
+        </span>
+        {version.reportId ? (
+          <span className="inline-flex h-8 translate-y-1 items-center justify-center gap-1.5 rounded-md bg-[#101418] px-2.5 text-[10px] font-black text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
+            View report
+            <ExternalLink className="h-3 w-3" />
+          </span>
+        ) : null}
+      </div>
+    </>
+  );
+
+  if (version.reportId) {
+    return (
+      <li className="border-b border-[#E5EAF0] last:border-b-0">
+        <Link
+          className="group relative grid gap-3 px-3 py-3 transition hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-inset sm:grid-cols-[72px_1fr_auto] sm:items-center"
+          href={`/reports/${version.reportId}`}
+        >
+          {content}
+        </Link>
+      </li>
+    );
+  }
+
+  return (
+    <li className="grid gap-3 px-3 py-3 sm:grid-cols-[72px_1fr_auto] sm:items-center">
+      {content}
+    </li>
   );
 }
 
