@@ -3,14 +3,14 @@
 ## Slide 1: Problem
 
 ```text
-The problem is that building code got easier, but turning app direction into a shipped and maintained mobile product still needs accountable delivery.
+The problem is that mobile apps become useless when user feedback does not turn into product changes after launch.
 ```
 
-Code got cheaper, but mobile delivery is not just coding.
+Code got cheaper, but mobile app ownership did not.
 
-A clear app idea still has to become a spec, an implementation plan, a tested build, an approved release, and future updates.
+Users show you what the app actually needs only after they start using it.
 
-Most teams do not want to personally manage that chain every time the app changes, so the bottleneck becomes accountability.
+If the app does not change with that feedback, the first build becomes a stale artifact instead of a useful product.
 
 ## Slide 2: Solution
 
@@ -22,21 +22,21 @@ OfficeOS is for app-ready founders, small teams, and agencies that know what the
 
 They bring the direction: what the app should do, how it should feel, and what needs to change next.
 
-An OfficeOS operator turns that direction into a standardized spec, runs multiple coding agents and automation against it, and manages the work until the approved build is tested and shipped.
+OfficeOS takes that direction and turns it into a tested and shipped mobile app.
 
 ## Slide 3: How It Works
 
 ```text
-A standardized spec comes in, an operator coordinates agents and automation, and OfficeOS tests and ships the approved app.
+Direction becomes a standardized spec, an operator coordinates agents and automation, and OfficeOS tests and ships the approved app.
 ```
 
-The workflow starts with `SPEC.md`, `DESIGN.md`, referenced assets, or a `ChangeRequest.md`.
+The workflow starts with customer direction: what the app should do, how it should feel, and what needs to change next, and an OfficeOS operator turns that direction into a standardized product spec.
 
 OfficeOS checks whether the spec is complete enough to build, because unclear direction should be fixed before coding starts.
 
-Then an operator uses multiple coding agents in parallel, plus automation for documentation, checks, and release preparation.
+Then an operator uses multiple coding agents in parallel, plus automation to implement the request at AI speed.
 
-After approval, OfficeOS tests the app, fixes issues if found, and ships the release.
+Finally, OfficeOS tests the app, fixes issues if found, and ships the release.
 
 ## Slide 4: Market
 
@@ -46,9 +46,8 @@ The market exists because teams already spend real money on mobile apps, but the
 
 Mobile app delivery is a large, proven market: Clutch puts the average app development project near $90,780 and 11 months, while Apple reviewed 7.77 million App Store submissions in 2024 and rejected 1.93 million.
 
-Our beachhead is app-ready founders, small teams, and agencies that already have a spec, Figma file, client request, product brief, or existing app update.
-
 Dev tools and no-code builders help people create faster, while agencies can take accountability but are expensive, project-scoped, and usually not built for an ongoing update loop.
+
 
 ## Slide 5: Business Model
 
