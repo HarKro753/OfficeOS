@@ -1,0 +1,110 @@
+{
+  "opportunity_lenses": [
+    {
+      "name": "audience",
+      "questions": [
+        "Who has this problem most intensely?",
+        "Who has this problem repeatedly?",
+        "Who already pays for a workaround?",
+        "Who has reputation or revenue risk if this goes wrong?"
+      ]
+    },
+    {
+      "name": "painful_moment",
+      "questions": [
+        "When does the user feel stuck?",
+        "When does delay become expensive?",
+        "When does coordination break?",
+        "When does trust or verification matter?"
+      ]
+    },
+    {
+      "name": "current_alternative",
+      "questions": [
+        "What does the customer do today instead?",
+        "Which tool, person, agency, spreadsheet, or manual process substitutes for this?",
+        "What does doing nothing cost?",
+        "What is good about the current alternative?"
+      ]
+    },
+    {
+      "name": "broken_tradeoff",
+      "questions": [
+        "Is the current alternative too slow?",
+        "Is it too expensive?",
+        "Is it too hard to trust?",
+        "Does it require too much management?",
+        "Does it fail when quality matters?"
+      ]
+    },
+    {
+      "name": "scope",
+      "questions": [
+        "For which customer/context is the claim most true?",
+        "Which edge cases can be excluded for now?",
+        "Where does the product become much harder?",
+        "What is the smallest useful version?"
+      ]
+    },
+    {
+      "name": "timing",
+      "questions": [
+        "What changed recently?",
+        "Why would this be easier now than two years ago?",
+        "What new behavior, platform, regulation, or technology creates urgency?",
+        "Is this timing real or just hype?"
+      ]
+    }
+  ],
+  "solution_shapes": [
+    "concierge MVP",
+    "productized service",
+    "AI workflow tool",
+    "vertical SaaS",
+    "managed marketplace",
+    "expert network",
+    "verification layer",
+    "monitoring/alerting tool",
+    "API/infrastructure",
+    "template or playbook system",
+    "copilot inside an existing workflow",
+    "done-for-you delivery service"
+  ],
+  "scoring_dimensions": [
+    "pain intensity",
+    "frequency",
+    "reachability",
+    "budget",
+    "alternative weakness",
+    "value clarity",
+    "scope control",
+    "founder advantage"
+  ],
+  "validation_tests": [
+    {
+      "name": "manual concierge test",
+      "use_when": "The solution can be delivered manually before building software",
+      "output": "Run the workflow for 3-5 target customers and measure willingness to pay or repeat usage"
+    },
+    {
+      "name": "cold outreach test",
+      "use_when": "The audience is reachable by email, LinkedIn, communities, or lists",
+      "output": "Send a scoped pain-based message and measure reply quality"
+    },
+    {
+      "name": "fake door test",
+      "use_when": "The value proposition can be described before product exists",
+      "output": "Landing page or form measuring intent from the exact niche"
+    },
+    {
+      "name": "workflow teardown",
+      "use_when": "The customer currently uses a messy manual or multi-tool workflow",
+      "output": "Interview users and document current steps, costs, delays, and failure points"
+    },
+    {
+      "name": "paid pilot",
+      "use_when": "The problem is expensive enough to justify immediate payment",
+      "output": "Sell a narrow pilot before building a scalable product"
+    }
+  ]
+}

@@ -4,19 +4,94 @@
     {
       "id": 1,
       "prompt": "I have a vague idea for an AI tool that helps small businesses with customer support, but I don't know what niche to pick. Help me use a double diamond process to find the best wedge.",
-      "expected_output": "A broad opportunity map, clustered customer/problem areas, 3-5 scored candidate niches, and a recommended wedge with clear scope and validation steps.",
+      "expected_output": "Starts a file-based double diamond workspace, completes only the next appropriate phase by default, writes the phase artifact plus checkpoint, updates PROGRESS.md, and stops with a clear next-phase recommendation instead of generating the entire workspace at once.",
       "files": []
     },
     {
       "id": 2,
       "prompt": "My startup idea feels too complex to pitch. There are agencies, freelancers, internal teams, and AI tools that can all do parts of it. Help me simplify without lying.",
-      "expected_output": "A structured process that separates core, proof, scope, and FAQ; narrows the customer/context; names alternatives and broken tradeoffs; and produces a scoped truthful one-liner.",
+      "expected_output": "Uses anti-pattern handling, creates/update stage artifacts and a checkpoint, separates core/proof/scope/FAQ, narrows the customer/context, and stops at the relevant gate rather than jumping straight to a polished final pitch.",
       "files": []
     },
     {
       "id": 3,
       "prompt": "Ich will mit LLMs neue Startup-Ideen finden. Mir ist wichtig, erst maximal breit zu werden und danach hart zu spezifizieren. Fuehre mich durch den Prozess.",
-      "expected_output": "A German-language double diamond ideation workflow that first expands across audiences, moments, pains, alternatives, and solution shapes, then narrows into specific testable concepts.",
+      "expected_output": "A German-language phase-gated file workflow that starts with intake or discovery, writes a checkpoint, updates progress, and explains the next stage instead of completing all stages in one response.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "I don't have a startup idea yet. I have experience building internal tools for operations teams. Use a broad-to-specific LLM ideation process to find promising startup directions.",
+      "expected_output": "Creates the initial workspace and first phase artifact for broad ideation from the user's experience, with a checkpoint that identifies whether to continue into discovery or clustering.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "I built a tool for creators, but 'creators' is too broad. Help me find a sharper niche and first wedge using double diamond thinking.",
+      "expected_output": "Runs the next incomplete double diamond phase for creator niche finding, preserving broad segmentation before convergence, with checkpointed reasoning and no premature final concept unless prior phases exist.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Use the double diamond method on this idea: AI that turns meeting notes into follow-up actions. I want to know whether this should be a tool, service, workflow automation, or vertical SaaS.",
+      "expected_output": "Uses phase-gated broad-to-specific workflow; if earlier artifacts do not exist, begins with intake/discovery and checkpoint rather than immediately recommending a product form.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "I keep weakening my pitch because I can think of too many edge cases. Help me scope the claim instead of making it vague.",
+      "expected_output": "Loads anti-pattern guidance, creates a pitch-clarification workspace or relevant phase files, writes a checkpoint decision about scope, and avoids finalizing the claim without a gate.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "We want to pitch a hackathon project, but it combines AI agents, mobile apps, QA, and deployment. Use double diamond to find the simplest story.",
+      "expected_output": "Starts or resumes a file-based pitch simplification workflow, writes the next stage artifact and checkpoint, and does not produce final 10s/30s pitch drafts until the wedge decision has been checkpointed.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "Ich habe drei moegliche Richtungen fuer ein Produkt: Agentur ersetzen, Developer-Workflow verbessern, oder non-technical Founder unterstuetzen. Hilf mir breit zu analysieren und dann eine Richtung zu waehlen.",
+      "expected_output": "A German staged workflow that expands the three directions first, writes a checkpoint, and only scores/selects a wedge after the discover/define artifacts exist.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "Take this vague idea and turn it into a validation plan: AI compliance assistant for startups. I need to know what niche to test first and how to test it without building much.",
+      "expected_output": "Creates or resumes a staged compliance ideation workspace; begins with broad opportunity mapping and checkpointing unless prior define artifacts exist, then later phases can produce validation experiments.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "Create a full double diamond ideation workspace for this idea: AI for handling customer onboarding in B2B SaaS. I want the work saved stage by stage so we can resume later.",
+      "expected_output": "Creates the project workspace and proceeds stage by stage with artifacts, checkpoints, and PROGRESS updates; by default it completes only the next phase and stops for a checkpoint instead of writing 00-04 in one go.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Resume this double diamond project. PROGRESS.md says intake and discover are done, but define/develop/deliver are incomplete. Continue from the first incomplete stage instead of starting over.",
+      "expected_output": "Reads existing progress and completed artifacts, resumes at Define, writes the next define artifact plus checkpoint, updates PROGRESS.md, and avoids redoing intake/discover or jumping to develop/deliver.",
+      "files": [
+        {
+          "path": "b2b-saas-onboarding/PROGRESS.md",
+          "content": "# Progress: b2b-saas-onboarding\n\n*Skill: double-diamond-ideation | Started: 2026-06-08*\n\n## Context\n\n**Starting idea:** AI for handling customer onboarding in B2B SaaS\n**Language:** English\n**Mode:** File-based\n**Current phase:** 02 Define\n**Current gate:** Define\n**Next action:** Cluster the completed wide map\n\n## Phase Checklist\n\n- [x] 00 Intake artifact\n- [x] 00 Intake checkpoint\n- [x] 01 Discover artifact\n- [x] 01 Discover checkpoint\n- [ ] 02 Define artifacts\n- [ ] 02 Define checkpoint\n- [ ] 03 Develop artifact\n- [ ] 03 Develop checkpoint\n- [ ] 04 Deliver artifacts\n- [ ] 04 Deliver checkpoint\n"
+        },
+        {
+          "path": "b2b-saas-onboarding/01-discover/wide-map.md",
+          "content": "# Wide Map: b2b-saas-onboarding\n\n*Skill: double-diamond-ideation | Generated: 2026-06-08*\n\n## Audience Lenses\n\n- Customer success teams at B2B SaaS companies\n- Founders doing onboarding manually\n- Implementation managers for high-touch SaaS\n\n## Painful Moments\n\n- First 30 days after close\n- Handing off from sales to success\n- Collecting customer data and configuring workspace\n\n## Current Alternatives\n\n- Manual CSM checklists\n- Notion docs\n- Spreadsheets\n- Generic onboarding tools\n"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "My idea is messy and I am worried competitors can do parts of it. Use the skill properly, including files and anti-pattern handling, to get me to a scoped claim.",
+      "expected_output": "Uses required anti-pattern handling, creates stage artifacts plus checkpoints instead of only chat reasoning, and reaches a scoped claim only after the relevant wedge or pitch gate has been documented.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "prompt": "Run a full double diamond for an AI tool for local service businesses, but do not just dump all files at once. I want reasoning and decision gates between stages.",
+      "expected_output": "Acknowledges the full target but executes the next phase first, writes the phase artifact and checkpoint, updates PROGRESS.md, and stops at the checkpoint with a clear continuation path.",
       "files": []
     }
   ]

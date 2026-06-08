@@ -50,6 +50,147 @@ Good pattern:
 
 ## Workflow
 
+### File-Based Operating Model
+
+This skill should not rely on one-session memory for serious ideation work.
+
+When filesystem access is available, create a project workspace and write every phase to files. Later phases must read the previous files before synthesizing the next stage.
+
+Use this structure:
+
+```text
+{project-name}/
+├── PROGRESS.md
+├── 00-intake/
+│   ├── brief.md
+│   └── checkpoint.md
+├── 01-discover/
+│   ├── wide-map.md
+│   └── checkpoint.md
+├── 02-define/
+│   ├── clusters.md
+│   ├── candidate-wedges.md
+│   ├── scoring.md
+│   └── checkpoint.md
+├── 03-develop/
+│   ├── solution-shapes.md
+│   └── checkpoint.md
+├── 04-deliver/
+│   ├── concept.md
+│   ├── validation-plan.md
+│   ├── pitch.md
+│   └── checkpoint.md
+└── raw/
+    └── notes.md
+```
+
+Use a kebab-case project name based on the user's idea, such as `ai-compliance-assistant` or `creator-update-workflows`. If no name is obvious, ask for one or choose a neutral descriptive name.
+
+If filesystem access is not available, simulate the same structure in the response with clear file labels. Do not collapse the workflow into one unstructured answer.
+
+### Phase-Gated Execution
+
+Do not generate the whole workspace in one pass by default.
+
+This skill works by alternating between:
+
+1. Read previous artifacts.
+2. Produce exactly the next phase artifact(s).
+3. Re-read or inspect the new artifact(s).
+4. Write a concise `checkpoint.md` for that phase.
+5. Update `PROGRESS.md`.
+6. Stop and present the checkpoint to the user.
+
+The checkpoint is not private chain-of-thought. It is a decision record: what was learned, what changed, what candidates remain, what was rejected, and what the next phase should do.
+
+Default rule:
+
+**Complete at most one phase per assistant turn.**
+
+Only continue into the next phase when one of these is true:
+
+1. The user explicitly says to continue.
+2. The user explicitly asked for an unattended full run.
+3. The current phase is purely mechanical and has no real decision point.
+
+Even in an unattended full run, do not write all files in a single reasoning pass. Run the same loop internally for each phase: write artifact, inspect it, write checkpoint, update progress, then continue.
+
+Important convergence gates:
+
+1. After `01-discover/wide-map.md`, stop before clustering unless the user asked for unattended continuation.
+2. After `02-define/scoring.md`, stop before solution-shape development unless the user confirms or unattended continuation was requested.
+3. After `03-develop/solution-shapes.md`, stop before final concept selection unless the user confirms or unattended continuation was requested.
+
+### Resume Behavior
+
+Before starting a new session, check whether a relevant ideation workspace already exists in the current directory or subdirectories.
+
+If `{project-name}/PROGRESS.md` exists:
+
+1. Read `PROGRESS.md`.
+2. Read the latest completed phase files.
+3. Resume from the first incomplete phase.
+4. Do not redo earlier phases unless the user asks or the prior files are clearly insufficient.
+
+### Progress Tracking
+
+Create and update `{project-name}/PROGRESS.md` after every phase.
+
+Use this format:
+
+```markdown
+# Progress: {project-name}
+
+*Skill: double-diamond-ideation | Started: {date}*
+
+## Context
+
+**Starting idea:**
+**Language:**
+**Mode:** File-based / Simulated files
+**Current phase:**
+
+## Phase Checklist
+
+- [ ] 00 Intake
+- [ ] 01 Discover: wide map
+- [ ] 02 Define: clusters, candidate wedges, scoring
+- [ ] 03 Develop: solution shapes
+- [ ] 04 Deliver: concept, validation plan, pitch
+
+## Decisions
+
+- [Decision log entries]
+
+## Open Questions
+
+- [Questions that need user input or validation]
+```
+
+### File Rules
+
+1. Write each phase artifact immediately after completing that phase.
+2. Read the previous phase files before creating the next phase artifact.
+3. Write a `checkpoint.md` before marking a phase complete.
+4. Do not write later-phase files before the earlier phase checkpoint exists.
+5. Keep raw exploration in `raw/` or phase files; keep final recommendations in `04-deliver/`.
+6. Do not overwrite user-edited files blindly. If a file exists, read it first and append or update carefully.
+7. Every artifact should include a short header: `# {Title}: {project-name}` and `*Skill: double-diamond-ideation | Generated: {date}*`.
+
+### Required Resource Rules
+
+Bundled resources are not optional inspiration. They are required inputs for the parts of the workflow they support.
+
+Load these files before producing the corresponding output:
+
+1. **Always load `data/lens-bank.json` before Phase 1 divergence.** Use it to broaden audiences, moments, alternatives, broken tradeoffs, solution shapes, and validation tests.
+2. **Always load `references/scoring-rubric.md` before Phase 3 convergence.** Use it whenever ranking niches, wedges, audiences, or solution shapes.
+3. **Always load `references/anti-patterns.md` when the user mentions complexity, competitors, edge cases, technical-founder overthinking, vague pitches, or simplifying without lying.**
+4. **Always load `references/double-diamond-canvas.md` when the user wants a full ideation session, workshop-style flow, worksheet, or guided end-to-end process.**
+5. **Always load `references/artifact-templates.md` before writing or updating phase files.** Use its templates for `PROGRESS.md`, intake, wide map, clusters, scoring, solution shapes, concept, validation, and pitch artifacts.
+
+If a required resource cannot be loaded, state that the corresponding phase cannot be completed properly and continue only with phases whose required inputs are available.
+
 ### Phase 0: Frame The Starting Point
 
 First capture the current raw material. Keep this short.
@@ -64,7 +205,21 @@ Ask or infer:
 
 If the user already gave enough context, do not over-interview. Move into divergence.
 
+Write the result to `{project-name}/00-intake/brief.md`.
+Inspect the brief, then write `{project-name}/00-intake/checkpoint.md` with:
+
+1. What the starting idea appears to be.
+2. What is still ambiguous.
+3. Whether there is enough input to diverge.
+4. The recommended next action.
+
+Update `PROGRESS.md`. Stop unless the user explicitly asked to continue.
+
 ### Phase 1: Diverge On The Problem Space
+
+Before this phase, load `data/lens-bank.json`. Use its lenses as the minimum divergence set, then add context-specific lenses relevant to the user's domain.
+
+Read `{project-name}/00-intake/brief.md` before writing the wide map.
 
 Generate a broad map before judging. Explore at least these lenses:
 
@@ -81,7 +236,19 @@ Generate a broad map before judging. Explore at least these lenses:
 
 If current market facts, competitor claims, pricing, regulations, or recent trends matter, research them with web search and cite sources. If the task is purely conceptual, stay offline.
 
+Write the result to `{project-name}/01-discover/wide-map.md`.
+Inspect the wide map, then write `{project-name}/01-discover/checkpoint.md` with:
+
+1. The strongest audience/moment patterns.
+2. Surprising or weak opportunity areas.
+3. Which areas should be clustered next.
+4. Any missing information that would improve clustering.
+
+Update `PROGRESS.md`. Stop unless the user explicitly asked to continue.
+
 ### Phase 2: Cluster The Map
+
+Read `{project-name}/01-discover/wide-map.md` before clustering.
 
 Group the broad ideas into clusters. Do not score individual random ideas yet; score clusters first.
 
@@ -105,7 +272,20 @@ For each cluster, write:
 5. Why might this be a good wedge?
 6. What makes it risky or weak?
 
+Write the result to `{project-name}/02-define/clusters.md`.
+Inspect the clusters, then write or update `{project-name}/02-define/checkpoint.md` with:
+
+1. Which clusters look strongest.
+2. Which clusters look weak or too broad.
+3. What the scoring phase should pay attention to.
+
+Update `PROGRESS.md`. Stop unless the user explicitly asked to continue.
+
 ### Phase 3: Converge On Candidate Niches
+
+Before this phase, load `references/scoring-rubric.md`. Use its dimensions, interpretation bands, tie-breakers, red flags, and green flags when comparing candidates.
+
+Read `{project-name}/02-define/clusters.md` before selecting and scoring candidates.
 
 Pick 3-5 candidate niches. Use this scoring rubric:
 
@@ -120,7 +300,23 @@ Pick 3-5 candidate niches. Use this scoring rubric:
 
 Use simple scoring from 1-5. Explain tradeoffs, not just totals. A niche with a lower total can still be best if it is sharper, easier to test, or more founder-aligned.
 
+Write candidate descriptions to `{project-name}/02-define/candidate-wedges.md`.
+Write scoring details to `{project-name}/02-define/scoring.md`.
+Inspect the candidates and scoring, then update `{project-name}/02-define/checkpoint.md` with:
+
+1. Recommended wedge.
+2. Runner-up wedge.
+3. Why the recommendation won.
+4. Which assumptions could reverse the decision.
+5. Whether to proceed to solution-shape divergence.
+
+Update `PROGRESS.md`. Stop unless the user explicitly asked to continue.
+
 ### Phase 4: Diverge On Solution Shapes
+
+Use the `solution_shapes` in `data/lens-bank.json` as the minimum set for this phase. If Phase 1 already loaded that file, reuse it; otherwise load it before generating solution shapes.
+
+Read `{project-name}/02-define/candidate-wedges.md` and `{project-name}/02-define/scoring.md` before generating solution shapes.
 
 After selecting promising niches, broaden again. For each candidate niche, generate multiple solution shapes:
 
@@ -146,7 +342,20 @@ For each solution shape, answer:
 5. What is the smallest credible version?
 6. What would make the customer trust it?
 
+Write the result to `{project-name}/03-develop/solution-shapes.md`.
+Inspect the solution shapes, then write `{project-name}/03-develop/checkpoint.md` with:
+
+1. Best solution shape.
+2. Best low-build / concierge shape.
+3. Highest-risk shape.
+4. What the final concept should preserve.
+5. What should be excluded.
+
+Update `PROGRESS.md`. Stop unless the user explicitly asked to continue.
+
 ### Phase 5: Converge On A Specific Concept
+
+Read `{project-name}/03-develop/solution-shapes.md`, `{project-name}/02-define/scoring.md`, and `{project-name}/01-discover/wide-map.md` before choosing the final concept.
 
 Choose the strongest concept and specify it tightly.
 
@@ -178,7 +387,19 @@ Use this template:
 **Fastest test:** [How to validate without building too much]
 ```
 
+Write the final concept to `{project-name}/04-deliver/concept.md`.
+Inspect the concept, then write `{project-name}/04-deliver/checkpoint.md` with:
+
+1. Whether the concept is scoped enough.
+2. Whether the one-liner is understandable.
+3. Which assumptions need validation.
+4. Whether validation and pitch files can be written next.
+
+Update `PROGRESS.md`. Stop unless the user explicitly asked to continue.
+
 ### Phase 6: Stress-Test The Concept
+
+Read `{project-name}/04-deliver/concept.md` before stress-testing.
 
 Stress-test without destroying focus.
 
@@ -200,7 +421,20 @@ If the concept fails, do not patch the wording. Go back to the relevant phase:
 3. If solution feels arbitrary, return to Phase 4.
 4. If pitch is complex, narrow the scope.
 
+Write the validation plan to `{project-name}/04-deliver/validation-plan.md`.
+Write pitch-ready messaging to `{project-name}/04-deliver/pitch.md`.
+Update `{project-name}/04-deliver/checkpoint.md` with:
+
+1. Final concept decision.
+2. Fastest validation path.
+3. Pitch scope.
+4. Remaining open questions.
+
+Update `PROGRESS.md`.
+
 ## Handling Complexity
+
+If the user is asking about complexity, competitors, edge cases, technical-founder overthinking, vague pitches, or simplifying without lying, load `references/anti-patterns.md` before answering this section.
 
 Complex ideas need ordering, not full deletion.
 
@@ -237,66 +471,77 @@ Scoped and strong:
 
 **"We help non-technical app owners ship reliable updates without managing developers."**
 
-## Output Formats
+## Deliverable Modes
 
-Choose the output format based on the user's request.
+Choose the target depth based on the user's request, but still execute through phase gates.
 
-### If The User Wants Exploration
+In every mode, work on the next incomplete phase only by default. Do not batch-create all listed files in one pass. The lists below define the target artifact set, not a command to write everything immediately.
 
-Use:
+### Exploration Only
 
-```markdown
-## Wide Map
-[Broad opportunity map across audiences, moments, pains, alternatives]
+Target artifact set:
 
-## Clusters
-[Grouped opportunity areas]
+1. `PROGRESS.md`
+2. `00-intake/brief.md`
+3. `00-intake/checkpoint.md`
+4. `01-discover/wide-map.md`
+5. `01-discover/checkpoint.md`
+6. `02-define/clusters.md`
+7. `02-define/checkpoint.md`
 
-## Candidate Niches
-[3-5 scored niches with tradeoffs]
+Final response at each gate: summarize the latest checkpoint, link the files, and state the next incomplete phase.
 
-## Recommendation
-[Best next narrowing move]
-```
+### Wedge Selection
 
-### If The User Wants A Specific Idea
+Target artifact set:
 
-Use:
+1. `PROGRESS.md`
+2. `00-intake/brief.md`
+3. `00-intake/checkpoint.md`
+4. `01-discover/wide-map.md`
+5. `01-discover/checkpoint.md`
+6. `02-define/clusters.md`
+7. `02-define/candidate-wedges.md`
+8. `02-define/scoring.md`
+9. `02-define/checkpoint.md`
 
-```markdown
-## Best Concept
-[Filled concept template]
+Final response at each gate: name the current decision, unresolved uncertainty, and next incomplete phase.
 
-## Why This Wedge
-[Why this is the strongest scope]
+### Full Concept Development
 
-## Alternatives Considered
-[Other good options and why they lost]
+Target artifact set:
 
-## Validation Plan
-[Fastest tests]
-```
+1. `PROGRESS.md`
+2. `00-intake/brief.md`
+3. `00-intake/checkpoint.md`
+4. `01-discover/wide-map.md`
+5. `01-discover/checkpoint.md`
+6. `02-define/clusters.md`
+7. `02-define/candidate-wedges.md`
+8. `02-define/scoring.md`
+9. `02-define/checkpoint.md`
+10. `03-develop/solution-shapes.md`
+11. `03-develop/checkpoint.md`
+12. `04-deliver/concept.md`
+13. `04-deliver/validation-plan.md`
+14. `04-deliver/pitch.md`
+15. `04-deliver/checkpoint.md`
 
-### If The User Wants A Pitch
+Final response at each gate: summarize the latest checkpoint and key file paths. Do not paste every artifact back into chat.
 
-Use:
+### Pitch Clarification
 
-```markdown
-## Scope
-[Who and what this pitch is for]
+If the user only asks for pitch clarification but no full ideation session, still create or update:
 
-## One-Liner
-[Clear scoped statement]
+1. `PROGRESS.md`
+2. `00-intake/brief.md`
+3. `00-intake/checkpoint.md`
+4. `02-define/candidate-wedges.md`
+5. `02-define/checkpoint.md`
+6. `04-deliver/pitch.md`
+7. `04-deliver/checkpoint.md`
 
-## 10-Second Pitch
-[One spoken version]
-
-## 30-Second Pitch
-[One spoken version]
-
-## What To Leave Out
-[Details that belong in FAQ/proof, not the opening]
-```
+If complexity, competitors, or edge cases are involved, also load `references/anti-patterns.md` and include a Core/Proof/Scope/FAQ split in `04-deliver/pitch.md`.
 
 ## Quality Bar
 
@@ -314,3 +559,14 @@ The final idea should answer:
 
 If those answers are missing, continue narrowing.
 
+## Reference Files
+
+Read the required file at the phase where it applies.
+
+| File | When To Read | Purpose |
+| --- | --- | --- |
+| `references/artifact-templates.md` | Before writing or updating any phase artifact | Stable markdown templates for `PROGRESS.md` and all stage files |
+| `data/lens-bank.json` | Before Phase 1 and Phase 4 | Divergence lenses, solution shapes, scoring dimensions, validation tests |
+| `references/scoring-rubric.md` | Before Phase 3 | Wedge scoring, interpretation bands, tie-breakers, red/green flags |
+| `references/anti-patterns.md` | When complexity, competitors, edge cases, or vague pitches appear | Failure modes and corrections for truthful simplification |
+| `references/double-diamond-canvas.md` | For full guided sessions, workshops, or reusable worksheets | Complete Discover/Define/Develop/Deliver canvas |
