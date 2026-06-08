@@ -1,0 +1,23 @@
+{
+  "skill_name": "double-diamond-ideation",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I have a vague idea for an AI tool that helps small businesses with customer support, but I don't know what niche to pick. Help me use a double diamond process to find the best wedge.",
+      "expected_output": "A broad opportunity map, clustered customer/problem areas, 3-5 scored candidate niches, and a recommended wedge with clear scope and validation steps.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "My startup idea feels too complex to pitch. There are agencies, freelancers, internal teams, and AI tools that can all do parts of it. Help me simplify without lying.",
+      "expected_output": "A structured process that separates core, proof, scope, and FAQ; narrows the customer/context; names alternatives and broken tradeoffs; and produces a scoped truthful one-liner.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Ich will mit LLMs neue Startup-Ideen finden. Mir ist wichtig, erst maximal breit zu werden und danach hart zu spezifizieren. Fuehre mich durch den Prozess.",
+      "expected_output": "A German-language double diamond ideation workflow that first expands across audiences, moments, pains, alternatives, and solution shapes, then narrows into specific testable concepts.",
+      "files": []
+    }
+  ]
+}
