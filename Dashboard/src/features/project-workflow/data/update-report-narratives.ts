@@ -4,8 +4,8 @@ export type UpdateReportNarrative = {
   acceptanceParagraphs: string[];
   deliveryParagraphs: string[];
   deliveryTitle: string;
+  resolutionParagraphs: string[];
   screenEvidence: string[];
-  testingParagraphs: string[];
 };
 
 export type UpdateReportAcceptanceEvidence = {
@@ -26,13 +26,13 @@ const historyUpdateNarrative: UpdateReportNarrative = {
     "The History screen is designed around recognition. Each row carries the product image, product name, brand, score, score label, last viewed time, and a chevron affordance. That set of fields matches the source brief and gives users enough context to confidently reopen the right product.",
   ],
   deliveryTitle: "Product History was added as an accountable v1.1 update.",
+  resolutionParagraphs: [
+    "The review pass was framed around the user journeys in ChangeRequest.md. The critical check is that opening Product Details from scan, search, Explore, and Alternatives writes the product to History and moves it to the top of the list.",
+    "The same pass records the persistence and navigation rules that are easy to miss in a superficial visual review: repeat views produce one row, an empty History screen has a clear empty state, every populated row opens Product Details, and back navigation returns to History when that was the origin.",
+  ],
   screenEvidence: [
     "The submitted build evidence shows History as the active tab and presents recently viewed products as native-feeling rows. This is the only new screen introduced in v1.1, which keeps the scope intentionally narrow.",
     "The screenshot also confirms the intended hierarchy: History is a top-level app section, while each row remains a path back into Product Details.",
-  ],
-  testingParagraphs: [
-    "The review pass was framed around the user journeys in ChangeRequest.md. The critical check is that opening Product Details from scan, search, Explore, and Alternatives writes the product to History and moves it to the top of the list.",
-    "The same pass records the persistence and navigation rules that are easy to miss in a superficial visual review: repeat views produce one row, an empty History screen has a clear empty state, every populated row opens Product Details, and back navigation returns to History when that was the origin.",
   ],
 };
 
@@ -44,11 +44,11 @@ function fallbackNarrative(report: UpdateReport): UpdateReportNarrative {
     ],
     deliveryParagraphs: [report.summary],
     deliveryTitle: report.title,
+    resolutionParagraphs: [
+      "The baseline report records the screens and behavior expected to remain available.",
+    ],
     screenEvidence: [
       "The screenshots attached to this report are the visual evidence for the delivered version.",
-    ],
-    testingParagraphs: [
-      "The baseline report records the screens and behavior expected to remain available.",
     ],
   };
 }

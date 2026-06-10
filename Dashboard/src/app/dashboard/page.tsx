@@ -61,37 +61,28 @@ const stages: Array<{
     label: "In implementation",
   },
   {
-    activeDetail: "OfficeOS is testing the implemented app.",
-    detail: "The implementation passed the request acceptance checks.",
+    activeDetail: "OfficeOS is preparing the answer and evidence package.",
+    detail: "The answer was sent back with the required evidence attached.",
     icon: ClipboardCheck,
-    id: "test-passed",
-    label: "Test passed",
-  },
-  {
-    activeDetail: "OfficeOS is promoting the tested version to the live baseline.",
-    detail: "The delivered version is the live baseline.",
-    icon: CheckCircle2,
-    id: "live",
-    label: "Live",
+    id: "resolved",
+    label: "Resolved",
   },
 ];
 
 function completedThrough(request: UpdateRequest | null) {
-  if (!request) return projectStageIndex("live");
+  if (!request) return projectStageIndex("resolved");
   if (request.status === "draft") return -1;
   if (request.status === "sent") return projectStageIndex("request-sent");
   if (request.status === "implementing") return projectStageIndex("request-sent");
-  if (request.status === "testing") return projectStageIndex("in-implementation");
-  return projectStageIndex("test-passed");
+  return projectStageIndex("resolved");
 }
 
 function activeIndex(request: UpdateRequest | null) {
-  if (!request) return projectStageIndex("live");
+  if (!request) return projectStageIndex("resolved");
   if (request.status === "draft") return -1;
   if (request.status === "sent") return projectStageIndex("in-implementation");
   if (request.status === "implementing") return projectStageIndex("in-implementation");
-  if (request.status === "testing") return projectStageIndex("test-passed");
-  return projectStageIndex("live");
+  return projectStageIndex("resolved");
 }
 
 function showRequestSentToast(versionTarget: string) {
@@ -104,25 +95,17 @@ function showRequestSentToast(versionTarget: string) {
 
 function showImplementationToast(versionTarget: string) {
   toast.success(`Implementation complete for v${versionTarget}.`, {
-    description: "OfficeOS finished applying the update and is testing the app.",
+    description: "OfficeOS is preparing the answer and evidence package.",
     duration: 6000,
     id: "officeos-implementation-complete",
   });
 }
 
-function showTestPassedToast(versionTarget: string) {
-  toast.success(`Tests passed for v${versionTarget}.`, {
-    description: "The implementation passed the request acceptance checks.",
+function showResolvedToast(versionTarget: string) {
+  toast.success(`Answer sent for v${versionTarget}.`, {
+    description: "The request was resolved with Markdown and evidence attached.",
     duration: 6000,
-    id: "officeos-tests-passed",
-  });
-}
-
-function showLiveToast(versionTarget: string) {
-  toast.success(`v${versionTarget} is live.`, {
-    description: "The previous live baseline has been retired.",
-    duration: 6000,
-    id: "officeos-update-live",
+    id: "officeos-request-resolved",
   });
 }
 
@@ -238,7 +221,7 @@ function LifecycleStage({
             Project state
           </div>
           <h2 className="mt-1 text-2xl font-black leading-tight">
-            Request sent to live
+            Request sent to resolved
           </h2>
         </div>
         <span className="mono rounded-md border border-[#D8DEE4] bg-[#F8FAFC] px-2.5 py-1.5 text-[10px] font-black uppercase text-[#46515D]">
@@ -246,7 +229,7 @@ function LifecycleStage({
         </span>
       </div>
 
-      <ol className="mt-4 grid gap-2 lg:grid-cols-4">
+      <ol className="mt-4 grid gap-2 lg:grid-cols-3">
         {stages.map((stage, index) => {
           const complete = index <= doneIndex;
           const active = !complete && index === currentIndex;
@@ -517,43 +500,24 @@ function DashboardPageContent() {
       const timer = setTimeout(callback, delay);
       requestTimersRef.current.push(timer);
     };
-    const releaseUpdate = () => {
-      const completedState = workflow.releaseTestedUpdate();
-      showLiveToast(completedState.app.currentVersion);
+    const resolveUpdate = () => {
+      const completedState = workflow.resolveRequest();
+      showResolvedToast(completedState.app.currentVersion);
       router.replace("/dashboard");
     };
-    const scheduleTesting = () => {
-      workflow.beginImplementationTesting();
+    const finishImplementation = () => {
       showImplementationToast(versionTarget);
-
-      schedule(() => {
-        const testedState = workflow.passImplementationTests();
-        const testedVersionTarget =
-          testedState.activeRequest?.versionTarget ?? versionTarget;
-        showTestPassedToast(testedVersionTarget);
-        schedule(releaseUpdate);
-      });
+      schedule(resolveUpdate);
     };
 
-    if (activeRequest.status === "test-passed") {
-      showTestPassedToast(versionTarget);
-      schedule(releaseUpdate);
-      return;
-    }
-
-    if (activeRequest.status === "testing") {
-      schedule(() => {
-        const testedState = workflow.passImplementationTests();
-        const testedVersionTarget =
-          testedState.activeRequest?.versionTarget ?? versionTarget;
-        showTestPassedToast(testedVersionTarget);
-        schedule(releaseUpdate);
-      });
+    if (activeRequest.status === "resolved") {
+      showResolvedToast(versionTarget);
+      schedule(() => router.replace("/dashboard"));
       return;
     }
 
     if (activeRequest.status === "implementing") {
-      schedule(scheduleTesting);
+      schedule(resolveUpdate);
       return;
     }
 
@@ -564,7 +528,7 @@ function DashboardPageContent() {
 
     schedule(() => {
       workflow.beginRequestImplementation();
-      schedule(scheduleTesting);
+      schedule(finishImplementation);
     });
   }, [activeRequest, requestSent, router, workflow]);
 

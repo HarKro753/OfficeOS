@@ -4,7 +4,6 @@ export function projectStageIndex(stage: ProjectStage) {
   return [
     "request-sent",
     "in-implementation",
-    "test-passed",
-    "live",
+    "resolved",
   ].indexOf(stage);
 }

@@ -175,12 +175,12 @@ export function UpdateReportOverlay({
 
             <section className="border border-[#C8D0D8] bg-white p-5">
               <ReportSectionHeader
-                eyebrow="Testing record"
+                eyebrow="Resolution record"
                 icon={<ClipboardCheck className="h-4 w-4" />}
-                title="What Was Checked"
+                title="What Was Sent Back"
               />
               <div className="mt-4 space-y-4 text-sm font-bold leading-7 text-[#46515D]">
-                {narrative.testingParagraphs.map((paragraph) => (
+                {narrative.resolutionParagraphs.map((paragraph) => (
                   <p key={paragraph}>{paragraph}</p>
                 ))}
                 <p>{report.knownLimitations}</p>

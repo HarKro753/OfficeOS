@@ -132,60 +132,11 @@ export function useProjectWorkflow() {
     return sync(nextState);
   }, [sync]);
 
-  const passImplementationTests = useCallback(() => {
-    const current = readState();
-    const request = current.activeRequest;
-
-    if (!request || request.status !== "testing") {
-      setState(current);
-      return current;
-    }
-
-    const testedRequest: UpdateRequest = {
-      ...request,
-      stage: "test-passed",
-      status: "test-passed",
-    };
-    const nextState: ProjectWorkflowState = {
-      ...current,
-      activeRequest: testedRequest,
-      reports: current.reports.map((report) =>
-        report.id === request.reportId
-          ? { ...report, status: "test-passed" }
-          : report,
-      ),
-    };
-
-    return sync(nextState);
-  }, [sync]);
-
-  const beginImplementationTesting = useCallback(() => {
+  const resolveRequest = useCallback(() => {
     const current = readState();
     const request = current.activeRequest;
 
     if (!request || request.status !== "implementing") {
-      setState(current);
-      return current;
-    }
-
-    const testingRequest: UpdateRequest = {
-      ...request,
-      stage: "test-passed",
-      status: "testing",
-    };
-    const nextState: ProjectWorkflowState = {
-      ...current,
-      activeRequest: testingRequest,
-    };
-
-    return sync(nextState);
-  }, [sync]);
-
-  const releaseTestedUpdate = useCallback(() => {
-    const current = readState();
-    const request = current.activeRequest;
-
-    if (!request || request.status !== "test-passed") {
       setState(current);
       return current;
     }
@@ -202,7 +153,7 @@ export function useProjectWorkflow() {
           ? {
               ...report,
               sentAt: report.sentAt ?? request.sentAt,
-              status: "live",
+              status: "resolved",
             }
           : report,
       ),
@@ -235,28 +186,24 @@ export function useProjectWorkflow() {
   return useMemo(
     () => ({
       activeReport,
-      beginImplementationTesting,
       beginRequestImplementation,
       ensureGeneratedRequest,
       markRequestSent,
-      passImplementationTests,
       previewScreenshots,
       previewVersion,
       reportById,
-      releaseTestedUpdate,
+      resolveRequest,
       state,
     }),
     [
       activeReport,
-      beginImplementationTesting,
       beginRequestImplementation,
       ensureGeneratedRequest,
       markRequestSent,
-      passImplementationTests,
       previewScreenshots,
       previewVersion,
       reportById,
-      releaseTestedUpdate,
+      resolveRequest,
       state,
     ],
   );

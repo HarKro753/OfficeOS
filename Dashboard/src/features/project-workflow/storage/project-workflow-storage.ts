@@ -57,7 +57,7 @@ function normalizeReportStatus(
     value === "draft" ||
     value === "request-sent" ||
     value === "in-implementation" ||
-    value === "test-passed" ||
+    value === "resolved" ||
     value === "live"
   ) {
     return value;
@@ -109,7 +109,7 @@ function normalizeRequestStage(value: unknown): UpdateRequest["stage"] {
   if (
     value === "request-sent" ||
     value === "in-implementation" ||
-    value === "test-passed"
+    value === "resolved"
   ) {
     return value;
   }
@@ -124,8 +124,7 @@ function normalizeRequestStatus(value: unknown): UpdateRequest["status"] {
     value === "draft" ||
     value === "sent" ||
     value === "implementing" ||
-    value === "testing" ||
-    value === "test-passed"
+    value === "resolved"
   ) {
     return value;
   }
@@ -152,8 +151,8 @@ function normalizeActiveRequest(value: unknown): UpdateRequest | null {
       ? stage
       : status === "implementing"
         ? "in-implementation"
-        : status === "testing" || status === "test-passed"
-          ? "test-passed"
+        : status === "resolved"
+          ? "resolved"
           : "request-sent";
 
   return {

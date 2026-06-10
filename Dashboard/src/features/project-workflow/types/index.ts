@@ -1,8 +1,7 @@
 export type ProjectStage =
   | "request-sent"
   | "in-implementation"
-  | "test-passed"
-  | "live";
+  | "resolved";
 
 export type PreviewScreenshot = {
   alt: string;
@@ -49,7 +48,7 @@ export type UpdateReport = {
     | "draft"
     | "request-sent"
     | "in-implementation"
-    | "test-passed"
+    | "resolved"
     | "live";
   summary: string;
   title: string;
@@ -63,8 +62,8 @@ export type UpdateRequest = {
   reportId: string;
   sentAt?: string;
   sourceReady: boolean;
-  stage: Exclude<ProjectStage, "live"> | "draft";
-  status: "draft" | "sent" | "implementing" | "testing" | "test-passed";
+  stage: ProjectStage | "draft";
+  status: "draft" | "sent" | "implementing" | "resolved";
   summary: string;
   title: string;
   versionTarget: string;
