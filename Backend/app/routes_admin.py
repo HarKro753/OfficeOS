@@ -6,9 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth import create_magic_token, require_admin
+from app.auth import require_admin
 from app.db import get_db
-from app.email_service import send_magic_link
 from app.models import (
     AcceptanceCriterion,
     Deliverable,
@@ -21,8 +20,6 @@ from app.models import (
     WorkspaceMember,
 )
 from app.schemas import (
-    InviteCreate,
-    InviteOut,
     RequestOut,
     UserOut,
     WorkspaceCreate,
@@ -40,25 +37,6 @@ async def list_users(
 ):
     rows = await db.scalars(select(User).order_by(User.created_at.desc()))
     return list(rows)
-
-
-@router.post("/invites", response_model=InviteOut)
-async def create_invite(
-    payload: InviteCreate,
-    admin: User = Depends(require_admin),
-    db: AsyncSession = Depends(get_db),
-):
-    token, auth_token = await create_magic_token(
-        db,
-        email=str(payload.email),
-        role=payload.role,
-        workspace_name=payload.workspace_name,
-        app_name=payload.app_name,
-        created_by_user_id=admin.id,
-    )
-    await db.commit()
-    link = await send_magic_link(str(payload.email), token)
-    return InviteOut(email=str(payload.email), invite_link=link, expires_at=auth_token.expires_at)
 
 
 @router.post("/workspaces", response_model=WorkspaceOut)

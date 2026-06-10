@@ -1,6 +1,7 @@
 "use client";
 
 import { Toaster } from "@/components/ui/sonner";
+import { AuthGate } from "@/features/auth";
 import { ChatIntakePanel } from "@/features/chat";
 import { SourcePackageOverlay } from "@/features/markdown-editor";
 import {
@@ -598,12 +599,14 @@ function DashboardPageContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense
-      fallback={
-        <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3" />
-      }
-    >
-      <DashboardPageContent />
-    </Suspense>
+    <AuthGate>
+      <Suspense
+        fallback={
+          <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3" />
+        }
+      >
+        <DashboardPageContent />
+      </Suspense>
+    </AuthGate>
   );
 }

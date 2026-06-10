@@ -1,6 +1,6 @@
 import hashlib
+import hmac
 import secrets
-import uuid
 from datetime import UTC, datetime, timedelta
 
 from fastapi import Depends, Header, HTTPException, status
@@ -9,7 +9,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db import get_db
-from app.models import AuthToken, SessionToken, User, UserRole, Workspace, WorkspaceMember
+from app.models import SessionToken, User, UserRole, Workspace, WorkspaceMember
+
+GLOBAL_WORKSPACE_NAME = "OfficeOS"
+GLOBAL_APP_NAME = "YUKA"
+GLOBAL_BUNDLE_ID = "com.officeos.yuka"
+PASSWORD_HASH_ALGORITHM = "pbkdf2_sha256"
+PASSWORD_HASH_ITERATIONS = 390_000
 
 
 def hash_token(token: str) -> str:
@@ -20,57 +26,77 @@ def new_token() -> str:
     return secrets.token_urlsafe(32)
 
 
-async def create_magic_token(
-    db: AsyncSession,
-    *,
-    email: str,
-    role: UserRole = UserRole.customer,
-    workspace_name: str | None = None,
-    app_name: str | None = None,
-    created_by_user_id: uuid.UUID | None = None,
-) -> tuple[str, AuthToken]:
-    token = new_token()
-    auth_token = AuthToken(
-        email=email.lower().strip(),
-        token_hash=hash_token(token),
-        role=role,
-        workspace_name=workspace_name,
-        app_name=app_name,
-        created_by_user_id=created_by_user_id,
-        expires_at=datetime.now(UTC)
-        + timedelta(minutes=settings.magic_link_expires_minutes),
+def normalize_email(email: str) -> str:
+    return email.lower().strip()
+
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_urlsafe(16)
+    password_hash = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode(),
+        salt.encode(),
+        PASSWORD_HASH_ITERATIONS,
+    ).hex()
+    return (
+        f"{PASSWORD_HASH_ALGORITHM}${PASSWORD_HASH_ITERATIONS}"
+        f"${salt}${password_hash}"
     )
-    db.add(auth_token)
-    await db.flush()
-    return token, auth_token
 
 
-async def consume_magic_token(db: AsyncSession, token: str) -> tuple[str, User]:
-    auth_token = await db.scalar(
-        select(AuthToken).where(AuthToken.token_hash == hash_token(token))
+def verify_password(password: str, stored_hash: str | None) -> bool:
+    if not stored_hash:
+        return False
+
+    try:
+        algorithm, iterations, salt, password_hash = stored_hash.split("$", 3)
+        if algorithm != PASSWORD_HASH_ALGORITHM:
+            return False
+        next_hash = hashlib.pbkdf2_hmac(
+            "sha256",
+            password.encode(),
+            salt.encode(),
+            int(iterations),
+        ).hex()
+        return hmac.compare_digest(next_hash, password_hash)
+    except (TypeError, ValueError):
+        return False
+
+
+async def ensure_global_workspace_membership(db: AsyncSession, user: User) -> None:
+    workspace = await db.scalar(
+        select(Workspace).where(
+            Workspace.name == GLOBAL_WORKSPACE_NAME,
+            Workspace.app_name == GLOBAL_APP_NAME,
+        )
     )
-    now = datetime.now(UTC)
-    if not auth_token or auth_token.consumed_at or auth_token.expires_at < now:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid link")
-
-    user = await db.scalar(select(User).where(User.email == auth_token.email))
-    if not user:
-        user = User(email=auth_token.email, role=auth_token.role)
-        db.add(user)
-        await db.flush()
-    else:
-        user.role = auth_token.role
-
-    if auth_token.workspace_name or auth_token.app_name:
+    if not workspace:
         workspace = Workspace(
-            name=auth_token.workspace_name or auth_token.app_name or "Workspace",
-            app_name=auth_token.app_name or auth_token.workspace_name or "App",
+            name=GLOBAL_WORKSPACE_NAME,
+            app_name=GLOBAL_APP_NAME,
+            bundle_id=GLOBAL_BUNDLE_ID,
         )
         db.add(workspace)
         await db.flush()
-        db.add(WorkspaceMember(workspace_id=workspace.id, user_id=user.id, role=user.role))
 
-    auth_token.consumed_at = now
+    member = await db.get(
+        WorkspaceMember,
+        {"workspace_id": workspace.id, "user_id": user.id},
+    )
+    if not member:
+        db.add(
+            WorkspaceMember(
+                workspace_id=workspace.id,
+                user_id=user.id,
+                role=user.role,
+            )
+        )
+    elif user.role == UserRole.admin and member.role != UserRole.admin:
+        member.role = UserRole.admin
+
+
+async def create_session_token(db: AsyncSession, user: User) -> str:
+    now = datetime.now(UTC)
     session_token = new_token()
     db.add(
         SessionToken(
@@ -79,8 +105,7 @@ async def consume_magic_token(db: AsyncSession, token: str) -> tuple[str, User]:
             expires_at=now + timedelta(days=settings.session_expires_days),
         )
     )
-    await db.commit()
-    return session_token, user
+    return session_token
 
 
 async def get_current_user(

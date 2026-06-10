@@ -1,8 +1,8 @@
 "use client";
 
 import { Toaster } from "@/components/ui/sonner";
+import { AuthGate, SignOutButton } from "@/features/auth";
 import {
-  createAdminInvite,
   criterionHasVideo,
   listAdminRequests,
   requestHasAnswer,
@@ -18,15 +18,11 @@ import {
   CheckCircle2,
   ClipboardCheck,
   FileText,
-  Link2,
   LoaderCircle,
-  Mail,
   PlaySquare,
   RefreshCcw,
-  Send,
   ShieldCheck,
   Upload,
-  Users,
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
@@ -60,8 +56,6 @@ function AdminSidebar() {
         </div>
         {[
           ["Requests", ClipboardCheck],
-          ["Users", Users],
-          ["Invites", Mail],
         ].map(([label, Icon]) => (
           <button
             className="flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left text-[#46515D] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
@@ -75,6 +69,9 @@ function AdminSidebar() {
           </button>
         ))}
       </nav>
+      <footer className="border-t border-[#D8DEE4] p-3">
+        <SignOutButton />
+      </footer>
     </aside>
   );
 }
@@ -104,13 +101,17 @@ function criterionUploadId(criterionId: string) {
 }
 
 export default function AdminPage() {
+  return (
+    <AuthGate>
+      <AdminPageContent />
+    </AuthGate>
+  );
+}
+
+function AdminPageContent() {
   const [adminToken, setAdminToken] = useState("");
   const [requests, setRequests] = useState<AdminRequest[]>([]);
   const [selectedId, setSelectedId] = useState("");
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteAppName, setInviteAppName] = useState("");
-  const [inviteWorkspaceName, setInviteWorkspaceName] = useState("");
-  const [lastInviteLink, setLastInviteLink] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -159,31 +160,6 @@ export default function AdminPage() {
     return () => window.clearTimeout(hydrationTimer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const createInvite = async () => {
-    if (!adminToken || !inviteEmail.trim()) return;
-
-    setSaving(true);
-    try {
-      const invite = await createAdminInvite(adminToken, {
-        app_name: inviteAppName.trim() || null,
-        email: inviteEmail.trim(),
-        role: "customer",
-        workspace_name: inviteWorkspaceName.trim() || null,
-      });
-      setLastInviteLink(invite.invite_link);
-      setInviteEmail("");
-      setInviteAppName("");
-      setInviteWorkspaceName("");
-      toast.success("Invite link created.", {
-        description: invite.email,
-      });
-    } catch (caught) {
-      toast.error(caught instanceof Error ? caught.message : "Could not create invite.");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const replaceSelectedRequest = (nextRequest: AdminRequest) => {
     setRequests((current) =>
@@ -351,51 +327,6 @@ export default function AdminPage() {
               )}
             </div>
 
-            <div className="mt-4 rounded-md border border-[#D8DEE4] bg-[#F8FAFC] p-3">
-              <div className="flex items-center gap-2">
-                <Link2 className="h-4 w-4 text-[#183FBF]" />
-                <div className="text-sm font-black">Create invite link</div>
-              </div>
-              <div className="mt-3 grid gap-2">
-                <input
-                  className="min-h-10 rounded-md border border-[#C8D0D8] bg-white px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#101418]"
-                  onChange={(event) => setInviteEmail(event.target.value)}
-                  placeholder="customer@example.com"
-                  type="email"
-                  value={inviteEmail}
-                />
-                <input
-                  className="min-h-10 rounded-md border border-[#C8D0D8] bg-white px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#101418]"
-                  onChange={(event) => setInviteWorkspaceName(event.target.value)}
-                  placeholder="Workspace name"
-                  type="text"
-                  value={inviteWorkspaceName}
-                />
-                <div className="flex gap-2">
-                  <input
-                    className="min-h-10 min-w-0 flex-1 rounded-md border border-[#C8D0D8] bg-white px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#101418]"
-                    onChange={(event) => setInviteAppName(event.target.value)}
-                    placeholder="App name"
-                    type="text"
-                    value={inviteAppName}
-                  />
-                  <button
-                    className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] disabled:opacity-60"
-                    disabled={!adminToken || saving}
-                    onClick={() => void createInvite()}
-                    type="button"
-                  >
-                    <Send className="h-4 w-4" />
-                    Create
-                  </button>
-                </div>
-              </div>
-              {lastInviteLink ? (
-                <div className="mt-3 rounded-md border border-[#B6DCC8] bg-white p-2 text-[11px] font-bold text-[#107A48]">
-                  {lastInviteLink}
-                </div>
-              ) : null}
-            </div>
           </section>
 
           {selectedRequest ? (

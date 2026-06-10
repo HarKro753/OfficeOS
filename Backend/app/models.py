@@ -43,6 +43,7 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(320), unique=True, nullable=False)
     name: Mapped[str | None] = mapped_column(String(160))
+    password_hash: Mapped[str | None] = mapped_column(String(255))
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, name="user_role"), default=UserRole.customer, nullable=False
     )
@@ -86,25 +87,6 @@ class WorkspaceMember(Base):
 
     workspace: Mapped[Workspace] = relationship()
     user: Mapped[User] = relationship()
-
-
-class AuthToken(Base):
-    __tablename__ = "auth_tokens"
-
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
-    email: Mapped[str] = mapped_column(String(320), nullable=False)
-    token_hash: Mapped[str] = mapped_column(String(128), unique=True, nullable=False)
-    role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole, name="user_role"), default=UserRole.customer, nullable=False
-    )
-    workspace_name: Mapped[str | None] = mapped_column(String(160))
-    app_name: Mapped[str | None] = mapped_column(String(160))
-    created_by_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=now_utc, nullable=False
-    )
 
 
 class SessionToken(Base):

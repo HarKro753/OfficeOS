@@ -1,5 +1,5 @@
-import uuid
 from datetime import datetime
+import uuid
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -15,31 +15,15 @@ class UserOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class AuthRequest(BaseModel):
+class AuthCredentials(BaseModel):
     email: EmailStr
-
-
-class AuthConsume(BaseModel):
-    token: str
+    password: str = Field(min_length=8, max_length=128)
 
 
 class AuthResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserOut
-
-
-class InviteCreate(BaseModel):
-    email: EmailStr
-    role: UserRole = UserRole.customer
-    workspace_name: str | None = None
-    app_name: str | None = None
-
-
-class InviteOut(BaseModel):
-    email: str
-    invite_link: str
-    expires_at: datetime
 
 
 class WorkspaceCreate(BaseModel):

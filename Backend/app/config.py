@@ -22,7 +22,6 @@ class Settings(BaseSettings):
     s3_secret_access_key: str
     s3_presign_expires_seconds: int = 900
 
-    magic_link_expires_minutes: int = 30
     session_expires_days: int = 30
 
     @property

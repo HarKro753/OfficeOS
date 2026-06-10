@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthGate, SignOutButton } from "@/features/auth";
 import {
   getUpdateReportAcceptanceEvidence,
   getUpdateReportNarrative,
@@ -24,6 +25,14 @@ const MOCK_ACCEPTANCE_VIDEO_SRC =
   "/Recording%202026-06-06%20at%2015-13-20.mp4";
 
 export default function ReportPage() {
+  return (
+    <AuthGate>
+      <ReportPageContent />
+    </AuthGate>
+  );
+}
+
+function ReportPageContent() {
   const params = useParams<{ reportId: string }>();
   const workflow = useProjectWorkflow();
   const report = workflow.reportById(params.reportId);
@@ -91,6 +100,7 @@ export default function ReportPage() {
                   <ExternalLink className="h-4 w-4" />
                 </a>
               ))}
+              <SignOutButton variant="header" />
             </div>
           </div>
 

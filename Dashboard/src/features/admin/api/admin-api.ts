@@ -32,19 +32,6 @@ export type AdminRequest = {
   workspace_id: string;
 };
 
-export type AdminInvite = {
-  email: string;
-  expires_at: string;
-  invite_link: string;
-};
-
-export type CreateInvitePayload = {
-  app_name?: string | null;
-  email: string;
-  role: "customer" | "admin";
-  workspace_name?: string | null;
-};
-
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ??
   "http://localhost:8000";
@@ -82,13 +69,6 @@ async function apiFetch<T>(
 
 export function listAdminRequests(token: string) {
   return apiFetch<AdminRequest[]>("/admin/requests", token);
-}
-
-export function createAdminInvite(token: string, payload: CreateInvitePayload) {
-  return apiFetch<AdminInvite>("/admin/invites", token, {
-    body: JSON.stringify(payload),
-    method: "POST",
-  });
 }
 
 export function startAdminRequest(token: string, requestId: string) {

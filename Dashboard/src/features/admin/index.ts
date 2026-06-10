@@ -1,5 +1,4 @@
 export {
-  createAdminInvite,
   criterionHasVideo,
   listAdminRequests,
   requestHasAnswer,
@@ -11,8 +10,6 @@ export {
 export type {
   AdminCriterion,
   AdminDeliverable,
-  AdminInvite,
   AdminRequest,
   AdminRequestStatus,
-  CreateInvitePayload,
 } from "./api/admin-api";
