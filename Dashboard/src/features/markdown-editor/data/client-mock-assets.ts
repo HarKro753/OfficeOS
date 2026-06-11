@@ -264,35 +264,6 @@ Empty state: if no products have been viewed yet, show a simple empty state expl
 
 - \`assets/screens/v1.1/history.png\``,
   },
-  {
-    key: "UpdateReport.md",
-    label: "Update report",
-    role: "Delivery report",
-    description:
-      "Summarizes the submitted update, changed screens, screenshots, and QA checks.",
-    content: `# Update Report
-
-## Summary
-
-This update adds one new page to YUKA: Product History. History gives users a top-level place to revisit products they recently opened.
-
-## Screenshot Evidence
-
-![Product History](assets/screens/v1.1/history.png)
-
-## Changed Screens
-
-- Product History was added as the only new v1.1 page.
-- The bottom app navigation now includes Scanner, Explore, and History.
-- History rows show image, name, brand, score, score label, viewed time, and chevron.
-
-## QA Checklist
-
-- History screen matches submitted screenshot.
-- Products opened from scan, search, Explore, or Alternatives appear in History.
-- Selecting a History row opens Product Details.
-- Existing Scanner, Explore, and detail navigation remain usable.`,
-  },
 ];
 
 export function getClientMockMarkdownEditorData() {

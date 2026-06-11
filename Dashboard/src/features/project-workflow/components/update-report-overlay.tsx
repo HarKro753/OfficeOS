@@ -27,7 +27,8 @@ export function UpdateReportOverlay({
   report: UpdateReport;
 }) {
   const narrative = getUpdateReportNarrative(report);
-  const [activeVideoLabel, setActiveVideoLabel] = useState<string | null>(null);
+  const [activeVideo, setActiveVideo] =
+    useState<UpdateReportAcceptanceEvidence | null>(null);
   const releaseLinks = [
     {
       href: report.releaseLinks.appStoreUrl,
@@ -39,8 +40,8 @@ export function UpdateReportOverlay({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
 
-      if (activeVideoLabel) {
-        setActiveVideoLabel(null);
+      if (activeVideo) {
+        setActiveVideo(null);
         return;
       }
 
@@ -49,7 +50,7 @@ export function UpdateReportOverlay({
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [activeVideoLabel, onClose]);
+  }, [activeVideo, onClose]);
 
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-[#101418]/40 p-2 text-[#101418] sm:p-4">
@@ -166,7 +167,7 @@ export function UpdateReportOverlay({
                       evidence={evidence}
                       index={index}
                       key={evidence.criteria}
-                      onOpenVideo={setActiveVideoLabel}
+                      onOpenVideo={setActiveVideo}
                     />
                   ),
                 )}
@@ -189,10 +190,10 @@ export function UpdateReportOverlay({
           </div>
         </div>
       </section>
-      {activeVideoLabel ? (
+      {activeVideo ? (
         <VideoEvidenceOverlay
-          label={activeVideoLabel}
-          onClose={() => setActiveVideoLabel(null)}
+          evidence={activeVideo}
+          onClose={() => setActiveVideo(null)}
         />
       ) : null}
     </div>
@@ -206,14 +207,16 @@ function ReportAcceptanceEvidence({
 }: {
   evidence: UpdateReportAcceptanceEvidence;
   index: number;
-  onOpenVideo: (label: string) => void;
+  onOpenVideo: (evidence: UpdateReportAcceptanceEvidence) => void;
 }) {
+  const videoSrc = evidence.videoSrc ?? ACCEPTANCE_VIDEO_SRC;
+
   return (
     <article className="grid overflow-hidden rounded-md border border-[#D8DEE4] bg-[#F8FAFC] md:grid-cols-[180px_minmax(0,1fr)]">
       <button
         aria-label={`Open ${evidence.videoLabel}`}
         className="group relative min-h-[104px] overflow-hidden bg-[#101418] text-white focus:outline-none focus:ring-2 focus:ring-[#2457FF] focus:ring-offset-2 md:min-h-[128px]"
-        onClick={() => onOpenVideo(evidence.videoLabel)}
+        onClick={() => onOpenVideo(evidence)}
         type="button"
       >
         <video
@@ -223,7 +226,7 @@ function ReportAcceptanceEvidence({
           playsInline
           preload="metadata"
         >
-          <source src={ACCEPTANCE_VIDEO_SRC} type="video/mp4" />
+          <source src={videoSrc} type="video/mp4" />
           {evidence.videoLabel}
         </video>
         <span className="absolute inset-0 grid place-items-center">
@@ -251,12 +254,14 @@ function ReportAcceptanceEvidence({
 }
 
 function VideoEvidenceOverlay({
-  label,
+  evidence,
   onClose,
 }: {
-  label: string;
+  evidence: UpdateReportAcceptanceEvidence;
   onClose: () => void;
 }) {
+  const videoSrc = evidence.videoSrc ?? ACCEPTANCE_VIDEO_SRC;
+
   return (
     <div className="fixed inset-0 z-[60] grid place-items-center bg-[#101418]/78 p-3 text-white sm:p-6">
       <button
@@ -266,7 +271,7 @@ function VideoEvidenceOverlay({
         type="button"
       />
       <section
-        aria-label={label}
+        aria-label={evidence.videoLabel}
         aria-modal="true"
         className="relative w-full max-w-[980px] overflow-hidden rounded-md border border-white/15 bg-[#101418] shadow-[0_28px_120px_rgba(0,0,0,0.55)]"
         role="dialog"
@@ -277,7 +282,7 @@ function VideoEvidenceOverlay({
               Acceptance video
             </div>
             <h3 className="truncate text-sm font-black leading-tight">
-              {label}
+              {evidence.videoLabel}
             </h3>
           </div>
           <button
@@ -290,14 +295,14 @@ function VideoEvidenceOverlay({
           </button>
         </header>
         <video
-          aria-label={label}
+          aria-label={evidence.videoLabel}
           autoPlay
           className="max-h-[calc(100dvh-9rem)] w-full bg-black object-contain"
           controls
           preload="metadata"
         >
-          <source src={ACCEPTANCE_VIDEO_SRC} type="video/mp4" />
-          {label}
+          <source src={videoSrc} type="video/mp4" />
+          {evidence.videoLabel}
         </video>
       </section>
     </div>

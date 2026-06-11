@@ -53,6 +53,20 @@ export function loginWithPassword(credentials: AuthCredentials) {
   }).then((response) => parseResponse<AuthResponse>(response));
 }
 
+export function bootstrapAdminWithPassword(
+  credentials: AuthCredentials,
+  bootstrapToken: string,
+) {
+  return fetch(`${apiBaseUrl}/auth/bootstrap-admin`, {
+    body: JSON.stringify(credentials),
+    headers: {
+      "Content-Type": "application/json",
+      "X-Bootstrap-Token": bootstrapToken,
+    },
+    method: "POST",
+  }).then((response) => parseResponse<AuthResponse>(response));
+}
+
 export function getCurrentUser(token: string) {
   return fetch(`${apiBaseUrl}/auth/me`, {
     headers: {

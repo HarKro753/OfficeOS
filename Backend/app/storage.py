@@ -75,5 +75,28 @@ class StorageService:
             size_bytes=len(payload),
         )
 
+    def upload_bytes(
+        self,
+        *,
+        prefix: str,
+        filename: str,
+        mime_type: str,
+        payload: bytes,
+    ) -> StoredUpload:
+        object_key = self.object_key(prefix, filename)
+        self.client.put_object(
+            Bucket=settings.s3_bucket,
+            Key=object_key,
+            Body=payload,
+            ContentType=mime_type,
+        )
+        return StoredUpload(
+            bucket=settings.s3_bucket,
+            object_key=object_key,
+            filename=filename,
+            mime_type=mime_type,
+            size_bytes=len(payload),
+        )
+
 
 storage_service = StorageService()

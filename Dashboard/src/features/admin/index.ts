@@ -1,4 +1,6 @@
 export {
+  attachGeneratedAnswer,
+  attachMockResponse,
   criterionHasVideo,
   listAdminRequests,
   requestHasAnswer,

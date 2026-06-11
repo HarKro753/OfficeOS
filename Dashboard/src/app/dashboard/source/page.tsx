@@ -1,7 +1,7 @@
 "use client";
 
 import { Toaster } from "@/components/ui/sonner";
-import { AuthGate } from "@/features/auth";
+import { AuthGate, useAuthSession } from "@/features/auth";
 import {
   getClientMockChangeRequestData,
   MarkdownEditorWorkspace,
@@ -10,6 +10,7 @@ import {
   DashboardSidebar,
   useProjectWorkflow,
 } from "@/features/project-workflow";
+import { createYukaHistoryRequest } from "@/features/requests";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -18,15 +19,22 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { toast } from "sonner";
 
 type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 
-function DashboardPageLayout({ children }: { children: ReactNode }) {
+function DashboardPageLayout({
+  children,
+  workflow,
+}: {
+  children: ReactNode;
+  workflow: ProjectWorkflow;
+}) {
   return (
     <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
       <Toaster />
       <section className="mx-auto grid w-full max-w-[1440px] gap-3 lg:grid-cols-[244px_minmax(0,1fr)]">
-        <DashboardSidebar />
+        <DashboardSidebar app={workflow.state.app} />
         {children}
       </section>
     </main>
@@ -117,12 +125,28 @@ function SourcePackageWorkspace({
 export default function DashboardSourcePage() {
   const router = useRouter();
   const workflow = useProjectWorkflow();
+  const { session } = useAuthSession();
+
+  const handleRequestSent = async () => {
+    if (session?.token) {
+      try {
+        await createYukaHistoryRequest(session.token);
+      } catch (error) {
+        toast.error("Backend request was not created.", {
+          description:
+            error instanceof Error ? error.message : "Please try again.",
+        });
+        return;
+      }
+    }
+    router.push("/dashboard?sent=1");
+  };
 
   return (
     <AuthGate>
-      <DashboardPageLayout>
+      <DashboardPageLayout workflow={workflow}>
         <SourcePackageWorkspace
-          onRequestSent={() => router.push("/dashboard?sent=1")}
+          onRequestSent={handleRequestSent}
           workflow={workflow}
         />
       </DashboardPageLayout>

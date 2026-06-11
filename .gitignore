@@ -10,3 +10,4 @@ __pycache__/
 Backend/.venv/
 Backend/.mypy_cache/
 Backend/.ruff_cache/
+Website/.next/

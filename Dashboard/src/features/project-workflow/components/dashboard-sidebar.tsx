@@ -1,8 +1,8 @@
 "use client";
 
-import { SignOutButton } from "@/features/auth";
 import {
   Activity,
+  ChevronsUpDown,
   ClipboardCheck,
   Hammer,
   LayoutDashboard,
@@ -11,12 +11,19 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ProjectWorkflowState } from "../types";
+
+type DashboardWorkspaceId = "dashboard";
+
+const dashboardWorkspaceHrefs: Record<DashboardWorkspaceId, string> = {
+  dashboard: "/dashboard",
+};
 
 const workflowItems = [
   {
-    href: "/dashboard",
     icon: LayoutDashboard,
     label: "Dashboard",
+    workspace: "dashboard",
   },
   {
     icon: ClipboardCheck,
@@ -40,13 +47,21 @@ const workflowItems = [
   },
 ] as const;
 
-export function DashboardSidebar() {
+export function DashboardSidebar({
+  app,
+}: {
+  app: ProjectWorkflowState["app"];
+}) {
   const pathname = usePathname();
 
   return (
     <aside className="flex min-h-0 flex-col rounded-md border border-[#C8D0D8] bg-[#F8FAFC] shadow-[0_18px_70px_rgba(16,20,24,0.08)] lg:sticky lg:top-3 lg:h-[calc(100dvh-1.5rem)]">
       <header className="border-b border-[#D8DEE4] p-3">
-        <div className="flex items-center gap-2">
+        <Link
+          aria-label={`Switch workspace: ${app.name}`}
+          className="flex items-center gap-2 rounded-md p-1.5 transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
+          href="/dashboard"
+        >
           <Image
             alt="OfficeOS"
             className="h-9 w-9 shrink-0"
@@ -54,14 +69,16 @@ export function DashboardSidebar() {
             src="/officeos-logo.svg"
             width={36}
           />
-          <div className="min-w-0">
-            <div className="text-lg font-black leading-none">OfficeOS</div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-lg font-black leading-none">
+              {app.name}
+            </div>
             <div className="mono mt-1 text-[9px] font-black uppercase text-[#46515D]">
-              Delivery OS
+              Workspace
             </div>
           </div>
-        </div>
-
+          <ChevronsUpDown className="h-4 w-4 shrink-0 text-[#687482]" />
+        </Link>
       </header>
 
       <nav className="min-h-0 flex-1 overflow-auto p-3" aria-label="Workflow">
@@ -71,8 +88,14 @@ export function DashboardSidebar() {
         <div className="space-y-1">
           {workflowItems.map((item) => {
             const Icon = item.icon;
-            const href = "href" in item ? item.href : undefined;
-            const disabled = !href;
+            const workspace =
+              "workspace" in item
+                ? (item.workspace as DashboardWorkspaceId)
+                : undefined;
+            const disabled = !workspace;
+            const href = workspace
+              ? dashboardWorkspaceHrefs[workspace]
+              : undefined;
             const active = Boolean(href && pathname === href);
             const itemClassName = `group flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left transition focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1 ${
               active
@@ -90,7 +113,7 @@ export function DashboardSidebar() {
               </>
             );
 
-            if (!href || disabled) {
+            if (!workspace || disabled || !href) {
               return (
                 <button
                   aria-current={active ? "page" : undefined}
@@ -117,9 +140,6 @@ export function DashboardSidebar() {
           })}
         </div>
       </nav>
-      <footer className="border-t border-[#D8DEE4] p-3">
-        <SignOutButton />
-      </footer>
     </aside>
   );
 }

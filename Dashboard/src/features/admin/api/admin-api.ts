@@ -101,6 +101,26 @@ export function uploadAnswerMarkdown(
   );
 }
 
+export function attachGeneratedAnswer(token: string, requestId: string) {
+  return apiFetch<AdminRequest>(
+    `/admin/requests/${requestId}/generated-answer`,
+    token,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export function attachMockResponse(token: string, requestId: string) {
+  return apiFetch<AdminRequest>(
+    `/admin/requests/${requestId}/mock-response`,
+    token,
+    {
+      method: "POST",
+    },
+  );
+}
+
 export function uploadCriterionVideo(
   token: string,
   requestId: string,

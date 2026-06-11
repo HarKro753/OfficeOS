@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getCurrentUser,
+  bootstrapAdminWithPassword,
   loginWithPassword,
   registerWithPassword,
   type AuthCredentials,
@@ -88,6 +89,28 @@ export function useAuthSession() {
     [],
   );
 
+  const bootstrapAdmin = useCallback(
+    async (
+      credentials: AuthCredentials,
+      bootstrapToken: string,
+    ): Promise<AuthSession> => {
+      setError(null);
+      const response = await bootstrapAdminWithPassword(
+        credentials,
+        bootstrapToken,
+      );
+      const nextSession = {
+        token: response.access_token,
+        user: response.user,
+      };
+      writeAuthSession(nextSession);
+      setSession(nextSession);
+      setStatus("authenticated");
+      return nextSession;
+    },
+    [],
+  );
+
   const logout = useCallback(() => {
     clearAuthSession();
     setSession(null);
@@ -97,11 +120,12 @@ export function useAuthSession() {
   return useMemo(
     () => ({
       authenticate,
+      bootstrapAdmin,
       error,
       logout,
       session,
       status,
     }),
-    [authenticate, error, logout, session, status],
+    [authenticate, bootstrapAdmin, error, logout, session, status],
   );
 }

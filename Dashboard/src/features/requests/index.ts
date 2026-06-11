@@ -1,5 +1,6 @@
 export {
   createCustomerRequest,
+  createYukaHistoryRequest,
   criterionHasVideo,
   getCustomerRequest,
   listCustomerRequests,

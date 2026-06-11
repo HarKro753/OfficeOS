@@ -34,13 +34,6 @@ const mockSourceDocuments: Array<Omit<SourceDoc, "content">> = [
     description:
       "Defines the governed app update that modifies the source of truth.",
   },
-  {
-    key: "UpdateReport.md",
-    label: "Update report",
-    role: "Delivery report",
-    description:
-      "Summarizes the submitted update, changed screens, screenshots, and QA checks.",
-  },
 ];
 
 function readTemplate(key: SourceDocKey, templateState: TemplateState) {

@@ -38,6 +38,16 @@ export type UpdateReport = {
     posthogUrl: string;
   };
   requestId: string;
+  response?: {
+    answerMarkdownUrl?: string;
+    evidenceVideos: Array<{
+      criterionId: string | null;
+      criteria: string;
+      description: string;
+      videoLabel: string;
+      videoSrc?: string;
+    }>;
+  };
   screenshots: PreviewScreenshot[];
   sections: Array<{
     body: string;

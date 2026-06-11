@@ -11,6 +11,7 @@ export type UpdateReportNarrative = {
 export type UpdateReportAcceptanceEvidence = {
   criteria: string;
   description: string;
+  videoSrc?: string;
   videoLabel: string;
 };
 
@@ -62,6 +63,10 @@ export function getUpdateReportNarrative(report: UpdateReport) {
 export function getUpdateReportAcceptanceEvidence(
   report: UpdateReport,
 ): UpdateReportAcceptanceEvidence[] {
+  if (report.response?.evidenceVideos.length) {
+    return report.response.evidenceVideos;
+  }
+
   if (report.versionTarget !== "1.1") {
     return report.acceptance.map((criteria, index) => ({
       criteria,

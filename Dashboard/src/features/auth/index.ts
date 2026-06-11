@@ -1,4 +1,5 @@
 export {
+  bootstrapAdminWithPassword,
   getCurrentUser,
   loginWithPassword,
   registerWithPassword,

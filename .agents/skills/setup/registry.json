@@ -1,0 +1,133 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-02-08",
+  "groups": [
+    {
+      "name": "Recommended",
+      "description": "High-impact plugins most teams benefit from",
+      "multiSelect": true,
+      "items": [
+        {
+          "key": "context7@claude-plugins-official",
+          "label": "Context7",
+          "description": "Live documentation lookup via MCP — eliminates hallucinated APIs",
+          "installs": 104103,
+          "rank": 2
+        },
+        {
+          "key": "superpowers@claude-plugins-official",
+          "label": "Superpowers",
+          "description": "Workflow orchestration — structured planning, TDD, debugging, git worktrees",
+          "installs": 52555,
+          "rank": 9
+        },
+        {
+          "key": "code-review@claude-plugins-official",
+          "label": "Code Review",
+          "description": "Automated PR review posted as GitHub comments (5 parallel agents)",
+          "installs": 79880,
+          "rank": 3
+        },
+        {
+          "key": "feature-dev@claude-plugins-official",
+          "label": "Feature Dev",
+          "description": "Guided 7-phase feature development with exploration, architecture, and review",
+          "installs": 71580,
+          "rank": 5
+        },
+        {
+          "key": "commit-commands@claude-plugins-official",
+          "label": "Commit Commands",
+          "description": "/commit, /commit-push-pr, /clean_gone — streamlined git workflows",
+          "installs": 47422,
+          "rank": 11
+        },
+        {
+          "key": "typescript-lsp@claude-plugins-official",
+          "label": "TypeScript LSP",
+          "description": "IDE-grade code intelligence — go-to-definition, find references, error checking",
+          "installs": 54798,
+          "rank": 8
+        }
+      ]
+    },
+    {
+      "name": "Optional",
+      "description": "Useful but situational — enable based on your stack",
+      "multiSelect": true,
+      "items": [
+        {
+          "key": "pr-review-toolkit@claude-plugins-official",
+          "label": "PR Review Toolkit",
+          "description": "6 specialized review agents — includes code-simplifier, type analyzer, silent failure hunter",
+          "installs": 31893,
+          "rank": 14,
+          "conflicts": {
+            "key": "code-simplifier@claude-plugins-official",
+            "reason": "PR Review Toolkit includes an identical code-simplifier agent"
+          }
+        },
+        {
+          "key": "figma@claude-plugins-official",
+          "label": "Figma",
+          "description": "Design-to-code bridge — extracts layout, tokens, and component mappings from Figma files",
+          "installs": 28155,
+          "rank": 17
+        },
+        {
+          "key": "claude-md-management@claude-plugins-official",
+          "label": "CLAUDE.md Management",
+          "description": "Audit and revise CLAUDE.md files — captures session learnings as diffs",
+          "installs": 19006,
+          "rank": 23
+        }
+      ]
+    },
+    {
+      "name": "Output Style",
+      "description": "Pick at most one — they change how Claude communicates",
+      "multiSelect": false,
+      "items": [
+        {
+          "key": "learning-output-style@claude-plugins-official",
+          "label": "Learning",
+          "description": "Pauses at decision points for you to write code + educational insights (superset of Explanatory)",
+          "installs": 12801,
+          "rank": 30,
+          "conflicts": {
+            "key": "explanatory-output-style@claude-plugins-official",
+            "reason": "Learning style already includes all Explanatory features"
+          }
+        },
+        {
+          "key": "explanatory-output-style@claude-plugins-official",
+          "label": "Explanatory",
+          "description": "Adds educational insights about implementation choices and codebase patterns",
+          "installs": 19195,
+          "rank": 22,
+          "conflicts": {
+            "key": "learning-output-style@claude-plugins-official",
+            "reason": "Explanatory is a subset of Learning — don't enable both"
+          }
+        },
+        {
+          "key": null,
+          "label": "None",
+          "description": "Use default Claude Code output style"
+        }
+      ]
+    },
+    {
+      "name": "Infrastructure",
+      "description": "dotclaude plugin features",
+      "multiSelect": true,
+      "items": [
+        {
+          "type": "statusline",
+          "label": "Statusline",
+          "description": "Custom status bar with worktree detection, model name, context battery, and cost"
+        }
+      ]
+    }
+  ]
+}

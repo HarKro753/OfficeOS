@@ -1,5 +1,6 @@
 import uuid
 from datetime import UTC, datetime
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy import select
@@ -28,6 +29,12 @@ from app.schemas import (
 from app.storage import storage_service
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+DEMO_EVIDENCE_VIDEO = (
+    Path(__file__).resolve().parents[2]
+    / "Dashboard"
+    / "public"
+    / "Recording 2026-06-06 at 15-13-20.mp4"
+)
 
 
 @router.get("/users", response_model=list[UserOut])
@@ -122,6 +129,110 @@ async def upload_answer_markdown(
             kind=DeliverableKind.answer_markdown,
         )
     )
+    await db.commit()
+    return request_out(await request_with_children(db, request_id))
+
+
+@router.post("/requests/{request_id}/generated-answer", response_model=RequestOut)
+async def attach_generated_answer(
+    request_id: uuid.UUID,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    request = await request_with_children(db, request_id)
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    upload = storage_service.upload_bytes(
+        prefix=f"workspaces/{request.workspace_id}/requests/{request.id}/answers",
+        filename="UpdateReport.md",
+        mime_type="text/markdown",
+        payload=request.generated_markdown.encode("utf-8"),
+    )
+    db.add(
+        Deliverable(
+            request_id=request.id,
+            created_by_user_id=admin.id,
+            bucket=upload.bucket,
+            object_key=upload.object_key,
+            filename=upload.filename,
+            mime_type=upload.mime_type,
+            size_bytes=upload.size_bytes,
+            kind=DeliverableKind.answer_markdown,
+        )
+    )
+    await db.commit()
+    return request_out(await request_with_children(db, request_id))
+
+
+@router.post("/requests/{request_id}/mock-response", response_model=RequestOut)
+async def attach_mock_response(
+    request_id: uuid.UUID,
+    admin: User = Depends(require_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    request = await request_with_children(db, request_id)
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    has_answer = any(
+        deliverable.kind == DeliverableKind.answer_markdown
+        for deliverable in request.deliverables
+    )
+    if not has_answer:
+        upload = storage_service.upload_bytes(
+            prefix=f"workspaces/{request.workspace_id}/requests/{request.id}/answers",
+            filename="UpdateReport.md",
+            mime_type="text/markdown",
+            payload=request.generated_markdown.encode("utf-8"),
+        )
+        db.add(
+            Deliverable(
+                request_id=request.id,
+                created_by_user_id=admin.id,
+                bucket=upload.bucket,
+                object_key=upload.object_key,
+                filename=upload.filename,
+                mime_type=upload.mime_type,
+                size_bytes=upload.size_bytes,
+                kind=DeliverableKind.answer_markdown,
+            )
+        )
+
+    criteria_with_video = {
+        deliverable.acceptance_criterion_id
+        for deliverable in request.deliverables
+        if deliverable.kind == DeliverableKind.evidence_video
+    }
+    if not DEMO_EVIDENCE_VIDEO.exists():
+        raise HTTPException(status_code=500, detail="Demo evidence video not found")
+    demo_video = DEMO_EVIDENCE_VIDEO.read_bytes()
+    for index, criterion in enumerate(request.criteria, start=1):
+        if criterion.id in criteria_with_video:
+            continue
+
+        upload = storage_service.upload_bytes(
+            prefix=f"workspaces/{request.workspace_id}/requests/{request.id}/evidence",
+            filename=f"History verification {index}.mp4",
+            mime_type="video/mp4",
+            payload=demo_video,
+        )
+        db.add(
+            Deliverable(
+                request_id=request.id,
+                created_by_user_id=admin.id,
+                acceptance_criterion_id=criterion.id,
+                bucket=upload.bucket,
+                object_key=upload.object_key,
+                filename=upload.filename,
+                mime_type=upload.mime_type,
+                size_bytes=upload.size_bytes,
+                kind=DeliverableKind.evidence_video,
+            )
+        )
+
+    if request.status == RequestStatus.submitted:
+        request.status = RequestStatus.in_progress
     await db.commit()
     return request_out(await request_with_children(db, request_id))
 

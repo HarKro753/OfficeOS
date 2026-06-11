@@ -2,6 +2,11 @@ export { useProjectWorkflow } from "./hooks/use-project-workflow";
 export { DashboardSidebar } from "./components/dashboard-sidebar";
 export { UpdateReportOverlay } from "./components/update-report-overlay";
 export {
+  baselineState,
+  updateReport,
+  updateScreenshots,
+} from "./data/mock-workflow";
+export {
   getUpdateReportAcceptanceEvidence,
   getUpdateReportNarrative,
 } from "./data/update-report-narratives";

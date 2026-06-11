@@ -102,14 +102,14 @@ function ReportPageContent() {
                 {request.title}
               </h1>
               <p className="mt-3 max-w-[780px] text-sm font-bold leading-6 text-[#46515D]">
-                {request.raw_spec_text}
+                OfficeOS generated source of truth and returned evidence package.
               </p>
             </section>
 
             <section className="border border-[#C8D0D8] bg-white p-5 shadow-[0_18px_70px_rgba(16,20,24,0.04)] sm:p-6">
               <div className="flex items-center gap-2 text-sm font-black">
                 <FileText className="h-4 w-4 text-[#183FBF]" />
-                Generated Markdown
+                Generated Source Of Truth
               </div>
               <pre className="mt-3 max-h-[420px] overflow-auto whitespace-pre-wrap text-xs font-bold leading-5 text-[#46515D]">
                 {request.generated_markdown}

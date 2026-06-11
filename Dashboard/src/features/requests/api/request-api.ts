@@ -46,6 +46,71 @@ export type CreateCustomerRequestPayload = {
   workspace_id: string;
 };
 
+const yukaHistorySpec = `---
+version: alpha
+type: mobile-app-spec
+targetVersion: "1.1"
+app:
+  name: YUKA
+  category: Health & Fitness
+  platforms:
+    - iOS
+request:
+  title: Add product history tab
+  changeType: feature
+---
+
+# YUKA App Spec
+
+## Overview
+
+YUKA is an iOS health app for packaged food discovery. Version 1.1 adds one new user-facing page: History.
+
+## Requested Change
+
+Add a History tab next to Scanner and Explore. History should let users reopen products they already viewed without scanning, searching, or finding the same product again in Explore.
+
+## Navigation Rules
+
+- Scanner remains a top-level section.
+- Explore remains a top-level section.
+- History becomes a new top-level section.
+- Product Details remains a shared detail destination.
+- Opening Product Details from Scanner, Search, Explore, Alternatives, or History writes or updates one History entry for that product.
+- Back from Product Details returns to the section that opened it.
+
+## Screen: Product History
+
+![Product History](assets/screens/v1.1/history.png)
+
+History lists recently viewed products in chronological order, most recent first. Each row includes product image, product name, brand, score indicator, numeric score, score label, last viewed time, and a chevron. The bottom app navigation shows History as the active section.
+
+## Acceptance Criteria
+
+- Given the user opens Product Details from a successful barcode scan, when they open History, then that product appears at the top.
+- Given the user opens Product Details from a search result, when they open History, then that product appears at the top.
+- Given the user opens Product Details from an Explore product card, when they open History, then that product appears at the top.
+- Given the user opens Product Details from an alternative product card, when they open History, then that product appears at the top.
+- Given the user views the same product multiple times, History shows one row for that product and moves it to the top.
+- Given History contains products, selecting any History item opens Product Details.
+- Given Product Details was opened from History, tapping back returns to History.
+- Given History has no viewed products, the History screen shows a simple empty state.
+- Existing Scanner, Explore, Product Details, and Alternatives behavior continues to work.
+
+## Non-Goals
+
+- Favorites or saved products.
+- User accounts.
+- Cloud-synced history.
+- Manual product notes.
+- Purchase history or grocery list behavior.
+
+## Assets
+
+- assets/screens/v1.1/history.png
+- assets/data/openfoodfacts-yuka-sample.csv
+`;
+
 const apiBaseUrl =
   process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ??
   "http://localhost:8000";
@@ -100,6 +165,21 @@ export function createCustomerRequest(
   return apiFetch<CustomerRequest>("/requests", token, {
     body: JSON.stringify(payload),
     method: "POST",
+  });
+}
+
+export async function createYukaHistoryRequest(token: string) {
+  const workspaces = await listCustomerWorkspaces(token);
+  const workspace = workspaces[0];
+
+  if (!workspace) {
+    throw new Error("No workspace is available for this account.");
+  }
+
+  return createCustomerRequest(token, {
+    raw_spec_text: yukaHistorySpec,
+    title: "Add product history tab",
+    workspace_id: workspace.id,
   });
 }
 
