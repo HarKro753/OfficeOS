@@ -12,8 +12,7 @@ from app.db import get_db
 from app.models import SessionToken, User, UserRole, Workspace, WorkspaceMember
 
 GLOBAL_WORKSPACE_NAME = "OfficeOS"
-GLOBAL_APP_NAME = "YUKA"
-GLOBAL_BUNDLE_ID = "com.officeos.yuka"
+GLOBAL_APP_NAME = "Dashboard"
 PASSWORD_HASH_ALGORITHM = "pbkdf2_sha256"
 PASSWORD_HASH_ITERATIONS = 390_000
 
@@ -74,7 +73,6 @@ async def ensure_global_workspace_membership(db: AsyncSession, user: User) -> No
         workspace = Workspace(
             name=GLOBAL_WORKSPACE_NAME,
             app_name=GLOBAL_APP_NAME,
-            bundle_id=GLOBAL_BUNDLE_ID,
         )
         db.add(workspace)
         await db.flush()

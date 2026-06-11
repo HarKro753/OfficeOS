@@ -67,7 +67,7 @@ async def admin_list_requests(
         )
         .order_by(UpdateRequest.created_at.desc())
     )
-    return list(rows)
+    return [request_out(request) for request in rows]
 
 
 @router.get("/requests/{request_id}", response_model=RequestOut)
@@ -79,7 +79,7 @@ async def admin_get_request(
     request = await request_with_children(db, request_id)
     if not request:
         raise HTTPException(status_code=404, detail="Request not found")
-    return request
+    return request_out(request)
 
 
 @router.post("/requests/{request_id}/start", response_model=RequestOut)
@@ -93,7 +93,7 @@ async def start_request(
         raise HTTPException(status_code=404, detail="Request not found")
     request.status = RequestStatus.in_progress
     await db.commit()
-    return await request_with_children(db, request_id)
+    return request_out(await request_with_children(db, request_id))
 
 
 @router.post("/requests/{request_id}/answer-markdown", response_model=RequestOut)
@@ -123,7 +123,7 @@ async def upload_answer_markdown(
         )
     )
     await db.commit()
-    return await request_with_children(db, request_id)
+    return request_out(await request_with_children(db, request_id))
 
 
 @router.post(
@@ -164,7 +164,7 @@ async def upload_criterion_video(
         )
     )
     await db.commit()
-    return await request_with_children(db, request_id)
+    return request_out(await request_with_children(db, request_id))
 
 
 @router.post("/requests/{request_id}/resolve", response_model=RequestOut)
@@ -203,7 +203,7 @@ async def resolve_request(
     request.resolved_by_user_id = admin.id
     request.answer_sent_at = datetime.now(UTC)
     await db.commit()
-    return await request_with_children(db, request_id)
+    return request_out(await request_with_children(db, request_id))
 
 
 async def request_with_children(
@@ -217,3 +217,18 @@ async def request_with_children(
         )
         .where(UpdateRequest.id == request_id)
     )
+
+
+def request_out(request: UpdateRequest | None) -> RequestOut:
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    output = RequestOut.model_validate(request)
+    for deliverable in output.deliverables:
+        source = next(
+            current
+            for current in request.deliverables
+            if current.id == deliverable.id
+        )
+        deliverable.download_url = storage_service.presign_download(source.object_key)
+    return output

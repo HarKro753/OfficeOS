@@ -8,7 +8,6 @@ import {
 } from "@/features/markdown-editor";
 import {
   DashboardSidebar,
-  type ProjectWorkflowState,
   useProjectWorkflow,
 } from "@/features/project-workflow";
 import {
@@ -22,18 +21,12 @@ import type { ReactNode } from "react";
 
 type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
 
-function DashboardPageLayout({
-  app,
-  children,
-}: {
-  app: ProjectWorkflowState["app"];
-  children: ReactNode;
-}) {
+function DashboardPageLayout({ children }: { children: ReactNode }) {
   return (
     <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
       <Toaster />
       <section className="mx-auto grid w-full max-w-[1440px] gap-3 lg:grid-cols-[244px_minmax(0,1fr)]">
-        <DashboardSidebar app={app} />
+        <DashboardSidebar />
         {children}
       </section>
     </main>
@@ -124,11 +117,10 @@ function SourcePackageWorkspace({
 export default function DashboardSourcePage() {
   const router = useRouter();
   const workflow = useProjectWorkflow();
-  const { app } = workflow.state;
 
   return (
     <AuthGate>
-      <DashboardPageLayout app={app}>
+      <DashboardPageLayout>
         <SourcePackageWorkspace
           onRequestSent={() => router.push("/dashboard?sent=1")}
           workflow={workflow}

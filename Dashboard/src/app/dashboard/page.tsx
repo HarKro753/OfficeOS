@@ -1,244 +1,140 @@
 "use client";
 
 import { Toaster } from "@/components/ui/sonner";
-import { AuthGate } from "@/features/auth";
-import { ChatIntakePanel } from "@/features/chat";
-import { SourcePackageOverlay } from "@/features/markdown-editor";
+import { AuthGate, useAuthSession } from "@/features/auth";
+import { DashboardSidebar } from "@/features/project-workflow";
 import {
-  projectStageIndex,
-  DashboardSidebar,
-  type ProjectStage,
-  type ProjectWorkflowState,
-  type UpdateRequest,
-  UpdateReportOverlay,
-  useProjectWorkflow,
-} from "@/features/project-workflow";
+  createCustomerRequest,
+  criterionHasVideo,
+  listCustomerRequests,
+  listCustomerWorkspaces,
+  requestHasAnswer,
+  type CustomerRequest,
+  type CustomerRequestStatus,
+  type CustomerWorkspace,
+} from "@/features/requests";
 import {
   CheckCircle2,
   Circle,
   ClipboardCheck,
   ExternalLink,
+  FileText,
   Hammer,
   LoaderCircle,
   Plus,
+  RefreshCcw,
   Send,
-  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 import {
   Suspense,
   useEffect,
-  useRef,
+  useMemo,
   useState,
+  type FormEvent,
   type ReactNode,
 } from "react";
 import { toast } from "sonner";
 
-const STAGE_DELAY_MS = 4000;
-
-type ProjectWorkflow = ReturnType<typeof useProjectWorkflow>;
-type ProjectVersion = ProjectWorkflow["state"]["versions"][number];
+const fallbackApp = {
+  category: "Operations",
+  currentVersion: "1.0",
+  name: "Dashboard",
+  platform: "Web",
+};
 
 const stages: Array<{
-  activeDetail: string;
   detail: string;
   icon: LucideIcon;
-  id: ProjectStage;
+  id: CustomerRequestStatus;
   label: string;
 }> = [
   {
-    activeDetail: "OfficeOS is validating the submitted request package.",
-    detail: "The submitted request is contradiction-free and ready to build.",
+    detail: "The request is submitted and ready for OfficeOS review.",
     icon: Send,
-    id: "request-sent",
-    label: "Request sent",
+    id: "submitted",
+    label: "Submitted",
   },
   {
-    activeDetail: "OfficeOS is implementing the submitted update.",
-    detail: "OfficeOS finished applying the submitted update.",
+    detail: "OfficeOS is implementing and validating the requested update.",
     icon: Hammer,
-    id: "in-implementation",
-    label: "In implementation",
+    id: "in_progress",
+    label: "In progress",
   },
   {
-    activeDetail: "OfficeOS is preparing the answer and evidence package.",
-    detail: "The answer was sent back with the required evidence attached.",
+    detail: "The answer report and required evidence were sent back.",
     icon: ClipboardCheck,
     id: "resolved",
     label: "Resolved",
   },
 ];
 
-function completedThrough(request: UpdateRequest | null) {
-  if (!request) return projectStageIndex("resolved");
-  if (request.status === "draft") return -1;
-  if (request.status === "sent") return projectStageIndex("request-sent");
-  if (request.status === "implementing") return projectStageIndex("request-sent");
-  return projectStageIndex("resolved");
-}
-
-function activeIndex(request: UpdateRequest | null) {
-  if (!request) return projectStageIndex("resolved");
-  if (request.status === "draft") return -1;
-  if (request.status === "sent") return projectStageIndex("in-implementation");
-  if (request.status === "implementing") return projectStageIndex("in-implementation");
-  return projectStageIndex("resolved");
-}
-
-function showRequestSentToast(versionTarget: string) {
-  toast.success(`Request sent for v${versionTarget}.`, {
-    description: "The submitted change request is contradiction-free.",
-    duration: 6000,
-    id: "officeos-request-sent",
-  });
-}
-
-function showImplementationToast(versionTarget: string) {
-  toast.success(`Implementation complete for v${versionTarget}.`, {
-    description: "OfficeOS is preparing the answer and evidence package.",
-    duration: 6000,
-    id: "officeos-implementation-complete",
-  });
-}
-
-function showResolvedToast(versionTarget: string) {
-  toast.success(`Answer sent for v${versionTarget}.`, {
-    description: "The request was resolved with Markdown and evidence attached.",
-    duration: 6000,
-    id: "officeos-request-resolved",
-  });
-}
-
-function DashboardPageLayout({
-  app,
-  children,
-}: {
-  app: ProjectWorkflowState["app"];
-  children: ReactNode;
-}) {
+function DashboardPageLayout({ children }: { children: ReactNode }) {
   return (
     <main className="min-h-dvh bg-[#E9EDF2] p-2 text-[#101418] sm:p-3">
       <Toaster />
       <section className="mx-auto grid w-full max-w-[1440px] gap-3 lg:grid-cols-[244px_minmax(0,1fr)]">
-        <DashboardSidebar app={app} />
+        <DashboardSidebar />
         {children}
       </section>
     </main>
   );
 }
 
-function ExternalReference({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md border border-[#C8D0D8] bg-white px-2 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-      href={href}
-      rel="noreferrer"
-      target="_blank"
-    >
-      {label}
-      <ExternalLink className="h-3.5 w-3.5" />
-    </a>
-  );
+function statusLabel(status: CustomerRequestStatus) {
+  if (status === "in_progress") return "in progress";
+  return status;
 }
 
-function StatusIndicator({
-  active,
-  complete,
-  loading,
-}: {
-  active: boolean;
-  complete: boolean;
-  loading: boolean;
-}) {
-  const label = complete ? "done" : active ? "in progress" : "queued";
-
-  return (
-    <span
-      className={`mono inline-flex h-6 items-center gap-1.5 rounded border bg-white px-1.5 text-[8px] font-black uppercase ${
-        complete
-          ? "border-[#B6DCC8] text-[#107A48]"
-          : active
-            ? "border-[#C8D6FF] text-[#183FBF]"
-            : "border-[#D8DEE4] text-[#687482]"
-      }`}
-    >
-      {complete ? (
-        <CheckCircle2 className="h-3 w-3 text-[#20B26B]" />
-      ) : loading ? (
-        <LoaderCircle className="h-3 w-3 animate-spin text-[#2457FF]" />
-      ) : active ? (
-        <Circle className="h-3 w-3 fill-[#2457FF] text-[#2457FF]" />
-      ) : (
-        <Circle className="h-3 w-3 text-[#8A94A0]" />
-      )}
-      {label}
-    </span>
-  );
-}
-
-function VersionStatusIndicator({
-  status,
-}: {
-  status: ProjectVersion["status"];
-}) {
-  const live = status === "live";
+function StatusBadge({ status }: { status: CustomerRequestStatus }) {
+  const resolved = status === "resolved";
 
   return (
     <span
       className={`mono inline-flex h-6 w-fit items-center gap-1.5 rounded border bg-white px-2 text-[8px] font-black uppercase ${
-        live
+        resolved
           ? "border-[#B6DCC8] text-[#107A48]"
-          : "border-[#D8DEE4] text-[#687482]"
+          : "border-[#D8DEE4] text-[#46515D]"
       }`}
     >
-      {live ? (
+      {resolved ? (
         <CheckCircle2 className="h-3 w-3 text-[#20B26B]" />
       ) : (
-        <Circle className="h-3 w-3 text-[#8A94A0]" />
+        <Circle className="h-3 w-3 text-[#2457FF]" />
       )}
-      {status}
+      {statusLabel(status)}
     </span>
   );
 }
 
-function LifecycleStage({
-  currentVersion,
-  request,
-}: {
-  currentVersion: ProjectWorkflowState["app"]["currentVersion"];
-  request: UpdateRequest | null;
-}) {
-  const doneIndex = completedThrough(request);
-  const currentIndex = activeIndex(request);
-  const displayedVersion = request?.versionTarget ?? currentVersion;
-  const hasLoadingRequest = Boolean(request);
+function LifecycleStage({ request }: { request: CustomerRequest | null }) {
+  const activeIndex = request
+    ? stages.findIndex((stage) => stage.id === request.status)
+    : -1;
 
   return (
     <section className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.05)]">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="mono text-[10px] font-black uppercase text-[#46515D]">
-            Project state
+            Backend request state
           </div>
           <h2 className="mt-1 text-2xl font-black leading-tight">
-            Request sent to resolved
+            Submitted to resolved
           </h2>
         </div>
-        <span className="mono rounded-md border border-[#D8DEE4] bg-[#F8FAFC] px-2.5 py-1.5 text-[10px] font-black uppercase text-[#46515D]">
-          v{displayedVersion}
-        </span>
+        {request ? <StatusBadge status={request.status} /> : null}
       </div>
 
       <ol className="mt-4 grid gap-2 lg:grid-cols-3">
         {stages.map((stage, index) => {
-          const complete = index <= doneIndex;
-          const active = !complete && index === currentIndex;
+          const complete = activeIndex >= index && activeIndex !== -1;
+          const active = activeIndex === index && request?.status !== "resolved";
           const StageIcon = stage.icon;
 
           return (
             <li
-              className="min-h-[148px] rounded-md border border-[#D8DEE4] bg-white p-3"
+              className="min-h-[132px] rounded-md border border-[#D8DEE4] bg-white p-3"
               key={stage.id}
             >
               <div className="flex items-start justify-between gap-3">
@@ -253,22 +149,16 @@ function LifecycleStage({
                 >
                   <StageIcon className="h-4 w-4" />
                 </span>
-                <StatusIndicator
-                  active={active}
-                  complete={complete}
-                  loading={active && hasLoadingRequest}
-                />
+                <span className="mono inline-flex h-6 items-center gap-1.5 rounded border border-[#D8DEE4] bg-white px-1.5 text-[8px] font-black uppercase text-[#46515D]">
+                  {complete ? "done" : active ? "active" : "queued"}
+                </span>
               </div>
               <div className="mono mt-4 text-[9px] font-black uppercase text-[#687482]">
                 {String(index + 1).padStart(2, "0")}
               </div>
               <h3 className="mt-1 text-sm font-black">{stage.label}</h3>
               <p className="mt-2 text-xs font-bold leading-5 text-[#46515D]">
-                {complete
-                  ? stage.detail
-                  : active
-                    ? stage.activeDetail
-                    : "This stage is not active yet."}
+                {request ? stage.detail : "Create a backend request to start."}
               </p>
             </li>
           );
@@ -278,152 +168,167 @@ function LifecycleStage({
   );
 }
 
-function VersionHistoryWorkspace({
-  onOpenReport,
-  versions,
+function RequestHistory({
+  onSelect,
+  requests,
+  selectedId,
 }: {
-  onOpenReport: (reportId: string) => void;
-  versions: ProjectWorkflow["state"]["versions"];
-}) {
-  return (
-    <section className="flex min-w-0 flex-col gap-3">
-      <VersionHistory onOpenReport={onOpenReport} versions={versions} />
-    </section>
-  );
-}
-
-function VersionHistory({
-  onOpenReport,
-  versions,
-}: {
-  onOpenReport: (reportId: string) => void;
-  versions: ProjectWorkflow["state"]["versions"];
+  onSelect: (requestId: string) => void;
+  requests: CustomerRequest[];
+  selectedId: string;
 }) {
   return (
     <section className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.05)]">
       <div className="flex items-center justify-between gap-3">
         <div>
           <div className="mono text-[10px] font-black uppercase text-[#46515D]">
-            Version history
+            Backend requests
           </div>
-          <h2 className="mt-1 text-lg font-black">Versioned app baselines</h2>
+          <h2 className="mt-1 text-lg font-black">Submitted update queue</h2>
         </div>
-        <ShieldCheck className="h-5 w-5 text-[#20B26B]" />
+        <FileText className="h-5 w-5 text-[#2457FF]" />
       </div>
+
       <ol className="mt-3 divide-y divide-[#E5EAF0] border-t border-[#E5EAF0]">
-        {versions.map((version) => (
-          <VersionRow
-            key={version.id}
-            onOpenReport={onOpenReport}
-            version={version}
-          />
-        ))}
+        {requests.length ? (
+          requests.map((request) => (
+            <li className="border-b border-[#E5EAF0] last:border-b-0" key={request.id}>
+              <button
+                className={`grid w-full gap-3 px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-inset sm:grid-cols-[1fr_auto] sm:items-center ${
+                  request.id === selectedId ? "bg-[#F8FAFC]" : "hover:bg-[#F8FAFC]"
+                }`}
+                onClick={() => onSelect(request.id)}
+                type="button"
+              >
+                <div className="min-w-0">
+                  <div className="text-sm font-black">{request.title}</div>
+                  <p className="mt-1 line-clamp-2 text-xs font-bold leading-5 text-[#46515D]">
+                    {request.raw_spec_text}
+                  </p>
+                </div>
+                <StatusBadge status={request.status} />
+              </button>
+            </li>
+          ))
+        ) : (
+          <li className="p-3 text-xs font-bold text-[#46515D]">
+            No backend requests submitted yet.
+          </li>
+        )}
       </ol>
     </section>
   );
 }
 
-function VersionRow({
-  onOpenReport,
-  version,
-}: {
-  onOpenReport: (reportId: string) => void;
-  version: ProjectVersion;
-}) {
-  const content = (
-    <>
-      <div className="mono text-sm font-black text-[#183FBF]">
-        v{version.version}
-      </div>
-      <div className="min-w-0">
-        <div className="text-sm font-black">{version.title}</div>
-        <p className="mt-1 text-xs font-bold leading-5 text-[#46515D]">
-          {version.summary}
-        </p>
-      </div>
-      <div className="flex items-center justify-between gap-2 sm:justify-end">
-        <VersionStatusIndicator status={version.status} />
-        {version.reportId ? (
-          <span className="inline-flex h-8 translate-y-1 items-center justify-center gap-1.5 rounded-md bg-[#101418] px-2.5 text-[10px] font-black text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
-            Review report
-            <ClipboardCheck className="h-3 w-3" />
-          </span>
-        ) : null}
-      </div>
-    </>
-  );
-
-  if (version.reportId) {
+function RequestDetail({ request }: { request: CustomerRequest | null }) {
+  if (!request) {
     return (
-      <li className="border-b border-[#E5EAF0] last:border-b-0">
-        <button
-          className="group relative grid w-full gap-3 px-3 py-3 text-left transition hover:bg-[#F8FAFC] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-inset sm:grid-cols-[72px_1fr_auto] sm:items-center"
-          onClick={() => onOpenReport(version.reportId ?? "")}
-          type="button"
-        >
-          {content}
-        </button>
-      </li>
+      <section className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.05)]">
+        <div className="text-sm font-black">No request selected</div>
+        <p className="mt-2 text-xs font-bold leading-5 text-[#46515D]">
+          Create or select a backend request to review its report state.
+        </p>
+      </section>
     );
   }
 
+  const answer = request.deliverables.find(
+    (deliverable) => deliverable.kind === "answer_markdown",
+  );
+
   return (
-    <li className="grid gap-3 px-3 py-3 sm:grid-cols-[72px_1fr_auto] sm:items-center">
-      {content}
-    </li>
+    <section className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.05)]">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="mono text-[10px] font-black uppercase text-[#46515D]">
+            Request report
+          </div>
+          <h2 className="mt-1 text-lg font-black">{request.title}</h2>
+          <div className="mono mt-1 truncate text-[9px] font-black uppercase text-[#687482]">
+            {request.id}
+          </div>
+        </div>
+        <StatusBadge status={request.status} />
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <section className="rounded-md border border-[#D8DEE4] bg-[#F8FAFC] p-3">
+          <div className="text-sm font-black">Submitted spec</div>
+          <p className="mt-2 text-xs font-bold leading-5 text-[#46515D]">
+            {request.raw_spec_text}
+          </p>
+        </section>
+        <section className="rounded-md border border-[#D8DEE4] bg-[#F8FAFC] p-3">
+          <div className="text-sm font-black">Generated Markdown</div>
+          <pre className="mt-2 max-h-[180px] overflow-auto whitespace-pre-wrap text-xs font-bold leading-5 text-[#46515D]">
+            {request.generated_markdown}
+          </pre>
+        </section>
+      </div>
+
+      <section className="mt-4 rounded-md border border-[#D8DEE4] bg-white p-3">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="text-sm font-black">Returned report package</div>
+          <span className="mono text-[9px] font-black uppercase text-[#687482]">
+            {request.answer_sent_at ? "sent" : "pending"}
+          </span>
+        </div>
+        <div className="mt-3 grid gap-2">
+          <ReportPackageRow
+            href={answer?.download_url ?? null}
+            label="Answer Markdown"
+            ready={requestHasAnswer(request)}
+          />
+          {request.criteria.map((criterion) => {
+            const video = request.deliverables.find(
+              (deliverable) =>
+                deliverable.kind === "evidence_video" &&
+                deliverable.acceptance_criterion_id === criterion.id,
+            );
+            return (
+              <ReportPackageRow
+                href={video?.download_url ?? null}
+                key={criterion.id}
+                label={criterion.title}
+                ready={criterionHasVideo(request, criterion.id)}
+              />
+            );
+          })}
+        </div>
+      </section>
+    </section>
   );
 }
 
-function DashboardOverviewWorkspace({
-  app,
-  onCreateUpdate,
-  onOpenReport,
-  request,
-  versions,
+function ReportPackageRow({
+  href,
+  label,
+  ready,
 }: {
-  app: ProjectWorkflow["state"]["app"];
-  onCreateUpdate: () => void;
-  onOpenReport: (reportId: string) => void;
-  request: ProjectWorkflow["state"]["activeRequest"];
-  versions: ProjectWorkflow["state"]["versions"];
+  href: string | null;
+  label: string;
+  ready: boolean;
 }) {
   return (
-    <section className="flex min-w-0 flex-col gap-3">
-      <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <div className="mono text-[10px] font-black uppercase text-[#46515D]">
-              Dashboard / {app.platform}
-            </div>
-            <div className="mt-1 flex flex-wrap items-end gap-x-3 gap-y-1">
-              <h1 className="text-3xl font-black leading-none">{app.name}</h1>
-            </div>
-            <div className="mono mt-2 truncate text-[10px] font-black uppercase text-[#8A94A0]">
-              {app.bundleId}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <ExternalReference href={app.appStoreUrl} label="App Store" />
-            <ExternalReference href={app.posthogUrl} label="PostHog" />
-            <button
-              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] focus:outline-none focus:ring-2 focus:ring-[#101418] focus:ring-offset-1"
-              onClick={onCreateUpdate}
-              type="button"
-            >
-              <Plus className="h-4 w-4" />
-              Create update
-            </button>
-          </div>
+    <div className="flex items-center justify-between gap-3 rounded border border-[#E5EAF0] bg-[#F8FAFC] p-2">
+      <div className="min-w-0">
+        <div className="truncate text-xs font-black">{label}</div>
+        <div className="mono mt-1 text-[8px] font-black uppercase text-[#687482]">
+          {ready ? "attached" : "pending"}
         </div>
-      </header>
-
-      <LifecycleStage currentVersion={app.currentVersion} request={request} />
-      <VersionHistoryWorkspace
-        onOpenReport={onOpenReport}
-        versions={versions}
-      />
-    </section>
+      </div>
+      {href ? (
+        <a
+          className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-md border border-[#C8D0D8] bg-white px-2 text-[10px] font-black text-[#101418] transition hover:bg-[#EEF2F5]"
+          href={href}
+          rel="noreferrer"
+          target="_blank"
+        >
+          Open
+          <ExternalLink className="h-3.5 w-3.5" />
+        </a>
+      ) : null}
+    </div>
   );
 }
 
@@ -458,139 +363,251 @@ function DashboardDrawer({
   );
 }
 
-function DashboardPageContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const workflow = useProjectWorkflow();
-  const { activeRequest, app, versions } = workflow.state;
-  const [chatOpen, setChatOpen] = useState(false);
-  const requestSentHandledRef = useRef(false);
-  const requestTimersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
-  const requestSent =
-    searchParams.get("sent") === "1" || searchParams.get("approved") === "1";
-  const reportId = searchParams.get("reportId");
-  const sourceOpen = searchParams.get("source") === "1";
-  const selectedReport = reportId ? workflow.reportById(reportId) : null;
+function CreateRequestForm({
+  onClose,
+  onSubmit,
+  saving,
+}: {
+  onClose: () => void;
+  onSubmit: (values: { rawSpecText: string; title: string }) => void;
+  saving: boolean;
+}) {
+  const [title, setTitle] = useState("");
+  const [rawSpecText, setRawSpecText] = useState("");
 
-  useEffect(() => {
-    return () => {
-      requestTimersRef.current.forEach((timer) => clearTimeout(timer));
-      requestTimersRef.current = [];
-    };
-  }, []);
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const cleanTitle = title.trim();
+    const cleanSpec = rawSpecText.trim();
+    if (!cleanTitle || !cleanSpec || saving) return;
 
-  useEffect(() => {
-    if (!requestSent) {
-      requestSentHandledRef.current = false;
-      return;
-    }
-
-    if (requestSentHandledRef.current) return;
-
-    if (!activeRequest) {
-      router.replace("/dashboard");
-      return;
-    }
-
-    requestSentHandledRef.current = true;
-    requestTimersRef.current.forEach((timer) => clearTimeout(timer));
-    requestTimersRef.current = [];
-
-    const versionTarget = activeRequest.versionTarget;
-    const schedule = (callback: () => void, delay = STAGE_DELAY_MS) => {
-      const timer = setTimeout(callback, delay);
-      requestTimersRef.current.push(timer);
-    };
-    const resolveUpdate = () => {
-      const completedState = workflow.resolveRequest();
-      showResolvedToast(completedState.app.currentVersion);
-      router.replace("/dashboard");
-    };
-    const finishImplementation = () => {
-      showImplementationToast(versionTarget);
-      schedule(resolveUpdate);
-    };
-
-    if (activeRequest.status === "resolved") {
-      showResolvedToast(versionTarget);
-      schedule(() => router.replace("/dashboard"));
-      return;
-    }
-
-    if (activeRequest.status === "implementing") {
-      schedule(resolveUpdate);
-      return;
-    }
-
-    const sentState = workflow.markRequestSent();
-    const sentVersionTarget =
-      sentState.activeRequest?.versionTarget ?? versionTarget;
-    showRequestSentToast(sentVersionTarget);
-
-    schedule(() => {
-      workflow.beginRequestImplementation();
-      schedule(finishImplementation);
+    onSubmit({
+      rawSpecText: cleanSpec,
+      title: cleanTitle,
     });
-  }, [activeRequest, requestSent, router, workflow]);
-
-  const openSourceReview = (requestId = activeRequest?.id) => {
-    if (!requestId) return;
-
-    router.push("/dashboard?source=1");
-  };
-
-  const handleRequestSent = () => {
-    setChatOpen(false);
-    router.push("/dashboard?sent=1");
-  };
-
-  const openReport = (nextReportId: string) => {
-    if (!nextReportId) return;
-
-    setChatOpen(false);
-    router.push(`/dashboard?reportId=${encodeURIComponent(nextReportId)}`);
-  };
-
-  const closeReport = () => {
-    router.replace("/dashboard");
-  };
-
-  const closeSourceReview = () => {
-    router.replace("/dashboard");
   };
 
   return (
-    <DashboardPageLayout app={app}>
-      <DashboardOverviewWorkspace
-        app={app}
-        onCreateUpdate={() => setChatOpen(true)}
-        onOpenReport={openReport}
-        request={activeRequest}
-        versions={versions}
-      />
+    <form className="flex min-h-0 flex-1 flex-col bg-white" onSubmit={submit}>
+      <header className="flex min-h-[58px] items-center justify-between gap-3 border-b border-[#D8DEE4] bg-[#F8FAFC] px-3 py-2 sm:px-4">
+        <div className="min-w-0">
+          <div className="text-base font-black leading-tight">Create update</div>
+          <div className="mono mt-1 text-[10px] font-black uppercase text-[#46515D]">
+            Backend request
+          </div>
+        </div>
+        <button
+          className="inline-flex h-9 shrink-0 items-center justify-center rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5]"
+          onClick={onClose}
+          type="button"
+        >
+          Close
+        </button>
+      </header>
 
-      {selectedReport ? (
-        <UpdateReportOverlay onClose={closeReport} report={selectedReport} />
-      ) : null}
+      <section className="min-h-0 flex-1 overflow-auto px-4 py-5">
+        <div className="grid gap-4">
+          <label className="grid gap-1.5">
+            <span className="text-xs font-black text-[#26313B]">Title</span>
+            <input
+              className="min-h-11 rounded-md border border-[#C8D0D8] bg-white px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#101418]"
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Add product history tab"
+              type="text"
+              value={title}
+            />
+          </label>
+          <label className="grid gap-1.5">
+            <span className="text-xs font-black text-[#26313B]">
+              Request spec
+            </span>
+            <textarea
+              className="min-h-[260px] resize-none rounded-md border border-[#C8D0D8] bg-white px-3 py-2.5 text-sm font-bold leading-6 outline-none focus:ring-2 focus:ring-[#101418]"
+              onChange={(event) => setRawSpecText(event.target.value)}
+              placeholder="Describe the changed behavior, affected screens, acceptance criteria, and what must stay unchanged."
+              value={rawSpecText}
+            />
+          </label>
+        </div>
+      </section>
 
-      {sourceOpen ? (
-        <SourcePackageOverlay
-          onClose={closeSourceReview}
-          onRequestSent={handleRequestSent}
-          request={activeRequest}
+      <footer className="border-t border-[#D8DEE4] bg-white px-4 py-3">
+        <button
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-sm font-black text-white transition hover:bg-[#26313B] disabled:cursor-not-allowed disabled:bg-[#A9B5C2]"
+          disabled={!title.trim() || !rawSpecText.trim() || saving}
+          type="submit"
+        >
+          {saving ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
+          Send request
+        </button>
+      </footer>
+    </form>
+  );
+}
+
+function appFromWorkspace(workspace: CustomerWorkspace | null) {
+  return {
+    ...fallbackApp,
+    category: workspace?.name ?? fallbackApp.category,
+  };
+}
+
+function DashboardPageContent() {
+  const auth = useAuthSession();
+  const [chatOpen, setChatOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [requests, setRequests] = useState<CustomerRequest[]>([]);
+  const [workspaces, setWorkspaces] = useState<CustomerWorkspace[]>([]);
+  const [selectedId, setSelectedId] = useState("");
+
+  const token = auth.session?.token;
+  const workspace = workspaces[0] ?? null;
+  const app = appFromWorkspace(workspace);
+  const selectedRequest = useMemo(
+    () => requests.find((request) => request.id === selectedId) ?? requests[0] ?? null,
+    [requests, selectedId],
+  );
+
+  const refreshBackendState = async (nextToken = token) => {
+    if (!nextToken) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const [nextWorkspaces, nextRequests] = await Promise.all([
+        listCustomerWorkspaces(nextToken),
+        listCustomerRequests(nextToken),
+      ]);
+      setWorkspaces(nextWorkspaces);
+      setRequests(nextRequests);
+      setSelectedId((current) => {
+        if (nextRequests.some((request) => request.id === current)) return current;
+        return nextRequests[0]?.id ?? "";
+      });
+    } catch (caught) {
+      const message =
+        caught instanceof Error ? caught.message : "Could not load backend requests.";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!token) return;
+
+    const hydrationTimer = window.setTimeout(() => {
+      void refreshBackendState(token);
+    }, 0);
+
+    return () => window.clearTimeout(hydrationTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  const handleRequestSent = async ({
+    rawSpecText,
+    title,
+  }: {
+    rawSpecText: string;
+    title: string;
+  }) => {
+    if (!token || !workspace) {
+      toast.error("Backend workspace is not ready yet.");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const request = await createCustomerRequest(token, {
+        raw_spec_text: rawSpecText,
+        title,
+        workspace_id: workspace.id,
+      });
+      setRequests((current) => [request, ...current]);
+      setSelectedId(request.id);
+      setChatOpen(false);
+      toast.success("Request sent to the backend.");
+    } catch (caught) {
+      toast.error(
+        caught instanceof Error ? caught.message : "Could not send request.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <DashboardPageLayout>
+      <section className="flex min-w-0 flex-col gap-3">
+        <header className="border border-[#C8D0D8] bg-white p-4 shadow-[0_18px_70px_rgba(16,20,24,0.06)]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="min-w-0">
+              <div className="mono text-[10px] font-black uppercase text-[#46515D]">
+                Dashboard / {app.platform}
+              </div>
+              <h1 className="mt-1 text-3xl font-black leading-none">
+                {app.name}
+              </h1>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black text-[#101418] transition hover:bg-[#EEF2F5] disabled:opacity-60"
+                disabled={!token || loading}
+                onClick={() => void refreshBackendState()}
+                type="button"
+              >
+                {loading ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCcw className="h-4 w-4" />
+                )}
+                Refresh
+              </button>
+              <button
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-[#101418] px-3 text-xs font-black text-white transition hover:bg-[#26313B] disabled:opacity-60"
+                disabled={saving || !workspace}
+                onClick={() => setChatOpen(true)}
+                type="button"
+              >
+                <Plus className="h-4 w-4" />
+                Create update
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {error ? (
+          <div className="rounded-md border border-[#F3C2C2] bg-[#FFF7F7] p-3 text-xs font-bold text-[#8B1E1E]">
+            {error}
+          </div>
+        ) : null}
+
+        <LifecycleStage request={selectedRequest} />
+        <RequestHistory
+          onSelect={setSelectedId}
+          requests={requests}
+          selectedId={selectedRequest?.id ?? ""}
         />
-      ) : null}
+        <RequestDetail request={selectedRequest} />
+      </section>
 
       <DashboardDrawer
         onClose={() => setChatOpen(false)}
         open={chatOpen}
         title="Create update"
       >
-        <ChatIntakePanel
+        <CreateRequestForm
           onClose={() => setChatOpen(false)}
-          onRequestSent={handleRequestSent}
-          onReviewSource={(requestId) => openSourceReview(requestId)}
-          workflow={workflow}
+          onSubmit={(values) => void handleRequestSent(values)}
+          saving={saving}
         />
       </DashboardDrawer>
     </DashboardPageLayout>

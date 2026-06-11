@@ -11,6 +11,7 @@ from app.mock_ai import generate_request_artifacts
 from app.models import AcceptanceCriterion, RequestStatus, UpdateRequest, User
 from app.routes_workspaces import require_workspace_member
 from app.schemas import RequestCreate, RequestOut
+from app.storage import storage_service
 
 router = APIRouter(prefix="/requests", tags=["requests"])
 
@@ -45,7 +46,7 @@ async def create_request(
             )
         )
     await db.commit()
-    return await get_request(request.id, user, db)
+    return request_out(await get_request(request.id, user, db))
 
 
 @router.get("", response_model=list[RequestOut])
@@ -63,7 +64,7 @@ async def list_requests(
         .where(UpdateRequest.created_by_user_id == user.id)
         .order_by(UpdateRequest.created_at.desc())
     )
-    return list(rows)
+    return [request_out(request) for request in rows]
 
 
 @router.get("/{request_id}", response_model=RequestOut)
@@ -84,3 +85,15 @@ async def get_request(
         raise HTTPException(status_code=404, detail="Request not found")
     await require_workspace_member(db, workspace_id=request.workspace_id, user=user)
     return request
+
+
+def request_out(request: UpdateRequest) -> RequestOut:
+    output = RequestOut.model_validate(request)
+    for deliverable in output.deliverables:
+        source = next(
+            current
+            for current in request.deliverables
+            if current.id == deliverable.id
+        )
+        deliverable.download_url = storage_service.presign_download(source.object_key)
+    return output

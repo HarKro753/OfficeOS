@@ -1,7 +1,7 @@
 "use client";
 
 import { Toaster } from "@/components/ui/sonner";
-import { AuthGate, SignOutButton } from "@/features/auth";
+import { AuthGate, SignOutButton, useAuthSession } from "@/features/auth";
 import {
   criterionHasVideo,
   listAdminRequests,
@@ -109,6 +109,7 @@ export default function AdminPage() {
 }
 
 function AdminPageContent() {
+  const auth = useAuthSession();
   const [adminToken, setAdminToken] = useState("");
   const [requests, setRequests] = useState<AdminRequest[]>([]);
   const [selectedId, setSelectedId] = useState("");
@@ -126,7 +127,9 @@ function AdminPageContent() {
     window.localStorage.setItem(adminTokenStorageKey, token);
   };
 
-  const refreshRequests = async (token = adminToken) => {
+  const activeAdminToken = adminToken || auth.session?.token || "";
+
+  const refreshRequests = async (token = activeAdminToken) => {
     if (!token) return;
 
     setLoading(true);
@@ -161,6 +164,17 @@ function AdminPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (adminToken || !auth.session?.token) return;
+
+    const hydrationTimer = window.setTimeout(() => {
+      void refreshRequests(auth.session?.token);
+    }, 0);
+
+    return () => window.clearTimeout(hydrationTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [adminToken, auth.session?.token]);
+
   const replaceSelectedRequest = (nextRequest: AdminRequest) => {
     setRequests((current) =>
       current.map((request) =>
@@ -170,11 +184,13 @@ function AdminPageContent() {
   };
 
   const startSelected = async () => {
-    if (!adminToken || !selectedRequest) return;
+    if (!activeAdminToken || !selectedRequest) return;
 
     setSaving(true);
     try {
-      replaceSelectedRequest(await startAdminRequest(adminToken, selectedRequest.id));
+      replaceSelectedRequest(
+        await startAdminRequest(activeAdminToken, selectedRequest.id),
+      );
       toast.success("Request marked in progress.");
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Could not start request.");
@@ -184,12 +200,12 @@ function AdminPageContent() {
   };
 
   const uploadAnswer = async (file: File | undefined) => {
-    if (!adminToken || !selectedRequest || !file) return;
+    if (!activeAdminToken || !selectedRequest || !file) return;
 
     setSaving(true);
     try {
       replaceSelectedRequest(
-        await uploadAnswerMarkdown(adminToken, selectedRequest.id, file),
+        await uploadAnswerMarkdown(activeAdminToken, selectedRequest.id, file),
       );
       toast.success("Answer Markdown uploaded.");
     } catch (caught) {
@@ -200,13 +216,13 @@ function AdminPageContent() {
   };
 
   const uploadVideo = async (criterion: AdminCriterion, file: File | undefined) => {
-    if (!adminToken || !selectedRequest || !file) return;
+    if (!activeAdminToken || !selectedRequest || !file) return;
 
     setSaving(true);
     try {
       replaceSelectedRequest(
         await uploadCriterionVideo(
-          adminToken,
+          activeAdminToken,
           selectedRequest.id,
           criterion.id,
           file,
@@ -223,11 +239,13 @@ function AdminPageContent() {
   };
 
   const resolveSelected = async () => {
-    if (!adminToken || !selectedRequest) return;
+    if (!activeAdminToken || !selectedRequest) return;
 
     setSaving(true);
     try {
-      replaceSelectedRequest(await resolveAdminRequest(adminToken, selectedRequest.id));
+      replaceSelectedRequest(
+        await resolveAdminRequest(activeAdminToken, selectedRequest.id),
+      );
       toast.success("Request resolved and answer sent.");
     } catch (caught) {
       toast.error(caught instanceof Error ? caught.message : "Could not resolve request.");
@@ -252,7 +270,7 @@ function AdminPageContent() {
               </div>
               <button
                 className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#C8D0D8] bg-white px-3 text-xs font-black transition hover:bg-[#EEF2F5]"
-                disabled={!adminToken || loading}
+                disabled={!activeAdminToken || loading}
                 onClick={() => void refreshRequests()}
                 type="button"
               >
@@ -267,6 +285,10 @@ function AdminPageContent() {
 
             <div className="mt-4 rounded-md border border-[#D8DEE4] bg-[#F8FAFC] p-3">
               <div className="text-sm font-black">Backend token</div>
+              <p className="mt-1 text-xs font-bold leading-5 text-[#46515D]">
+                Admin login token is used automatically. Paste a token only to
+                override it.
+              </p>
               <div className="mt-2 flex gap-2">
                 <input
                   className="min-h-10 min-w-0 flex-1 rounded-md border border-[#C8D0D8] bg-white px-3 text-sm font-bold outline-none focus:ring-2 focus:ring-[#101418]"
@@ -322,7 +344,7 @@ function AdminPageContent() {
                 <div className="rounded-md border border-[#D8DEE4] bg-[#F8FAFC] p-3 text-xs font-bold text-[#46515D]">
                   {adminToken
                     ? "No backend requests returned yet."
-                    : "Paste an admin token to load backend requests."}
+                    : "Log in as an admin or paste an admin token to load backend requests."}
                 </div>
               )}
             </div>

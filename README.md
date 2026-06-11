@@ -112,3 +112,20 @@ OfficeOS is that layer: app direction in, source of truth accepted, release ship
 - [Hackathon logistics](HackathonLogistics.md)
 - [Brand identity](OfficeOsBrandIdentity.md)
 - [Pitch notes](OfficeOsPitch.md)
+
+## Development
+
+Start the local services:
+
+```sh
+docker compose -f docker-compose.infrastructure.yaml up -d
+```
+
+```sh
+cd Backend
+uv run uvicorn app.main:app --reload --reload-dir app --host 0.0.0.0 --port 8000
+
+cd Dashboard
+bun dev
+```
+

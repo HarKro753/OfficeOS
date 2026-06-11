@@ -11,7 +11,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ProjectWorkflowState } from "../types";
 
 const workflowItems = [
   {
@@ -41,11 +40,7 @@ const workflowItems = [
   },
 ] as const;
 
-export function DashboardSidebar({
-  app,
-}: {
-  app: ProjectWorkflowState["app"];
-}) {
+export function DashboardSidebar() {
   const pathname = usePathname();
 
   return (
@@ -67,19 +62,6 @@ export function DashboardSidebar({
           </div>
         </div>
 
-        <div className="mt-4 rounded-md border border-[#D8DEE4] bg-white p-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="text-base font-black leading-tight">{app.name}</div>
-              <div className="mono mt-1 truncate text-[9px] font-black uppercase text-[#687482]">
-                {app.bundleId}
-              </div>
-            </div>
-            <span className="mono rounded bg-[#EAF8F1] px-1.5 py-1 text-[8px] font-black uppercase text-[#107A48]">
-              live
-            </span>
-          </div>
-        </div>
       </header>
 
       <nav className="min-h-0 flex-1 overflow-auto p-3" aria-label="Workflow">

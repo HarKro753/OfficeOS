@@ -47,6 +47,9 @@ services:
       context: ./Backend
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DOCKER_DATABASE_URL}
+      S3_ENDPOINT_URL: ${DOCKER_S3_ENDPOINT_URL}
     ports:
       - "${BACKEND_PORT}:8000"
     depends_on:
